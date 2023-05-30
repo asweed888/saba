@@ -41,7 +41,7 @@ spec:
 
 - location: datasources
   upstream:
-    - name: config
+    - name: settings
       codefile:
         - name: bash
         - name: golang
