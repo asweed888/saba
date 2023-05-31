@@ -53,3 +53,8 @@ spec:
         - name: typescript
         - name: v
         - name: utils
+
+
+- location: utils
+  codefile:
+    - name: error

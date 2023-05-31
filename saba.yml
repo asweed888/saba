@@ -1,0 +1,13 @@
+lang: go
+arch: ddd
+- location: _test
+  upstream:
+    - name: domain
+      upstream:
+        - name: model
+          codefile:
+            - name: character
+
+        - name: repository
+          codefile:
+            - name: character

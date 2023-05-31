@@ -3,6 +3,8 @@ package model
 import (
 	"io/ioutil"
 	"os"
+
+	"github.com/asweed888/saba/utils"
 )
 
 type DeclareCodeFile struct {
@@ -17,7 +19,7 @@ func (d *DeclareCodeFile) CreateCodeFile(workdir string) error {
 
     if _, err := os.Stat(path); err != nil {
         err = ioutil.WriteFile(path, []byte(ifc), d.TacitSetting.FileMode())
-        if err != nil { return err }
+        if err != nil { return utils.Error(err) }
 
     }
     return nil
