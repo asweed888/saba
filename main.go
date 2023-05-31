@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/asweed888/saba/di"
 	"github.com/spf13/cobra"
 )
 
@@ -9,8 +10,8 @@ var Version string
 
 func main(){
 
-    a := app.NewApp("./saba.yml")
-    subcmd := a.NewSubCommand()
+    c := di.NewDiContainer("./saba.yml")
+    subcmd := c.NewSubCmd()
 
 
     cli := &cobra.Command{
@@ -19,6 +20,6 @@ func main(){
         Version: Version,
     }
 
-    cli.AddCommand(subcmd.BuildCmd())
+    cli.AddCommand(subcmd.MakeCmd())
     cli.Execute()
 }

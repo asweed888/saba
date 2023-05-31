@@ -7,7 +7,7 @@ import (
 	"github.com/asweed888/saba/datasources/settings"
 	"github.com/asweed888/saba/domain/model"
 	"github.com/asweed888/saba/domain/repository"
-	"golang.org/x/xerrors"
+	"github.com/asweed888/saba/utils"
 	"gopkg.in/yaml.v2"
 )
 
@@ -21,21 +21,32 @@ func NewDeclareRepository(declareFile string) repository.DeclareRepository {
 }
 
 func (r *declareRepository) Load() (*model.Declare, error) {
+
+
 	// 宣言ファイルを開く
     f, err := ioutil.ReadFile(r.DeclareFile)
 	if err != nil {
-		return nil, xerrors.Errorf("%v", err)
+		return nil, utils.Error(err)
 	}
 
 	// 読み込んだ宣言ファイルをDeclare構造体に注入
 	var declare *model.Declare
 	err = yaml.Unmarshal(f, &declare)
 	if err != nil {
-		return nil, xerrors.Errorf("%v", err)
+		return nil, utils.Error(err)
 	}
 
 	// 暗黙の設定を読み込む
+	setting, err := loadTacitSetting(declare.Lang)
+	if err != nil {
+		return nil, utils.Error(err)
+	}
 
+	setting.Lang = declare.Lang
+	setting.Arch = declare.Arch
+	declare.TacitSetting = setting
+
+	return declare, nil
 }
 
 
@@ -44,7 +55,7 @@ func loadTacitSetting(lang string) (*model.TacitSetting, error) {
 	case "go":
 		return settings.Golang, nil
 	default:
-		return nil, errors.New("Invalid programming language specified")
-
+		err := errors.New("Invalid programming language specified")
+		return nil, utils.Error(err)
 	}
 }
