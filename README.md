@@ -34,3 +34,11 @@ https://github.com/asweed888/saba/releases
 ## Usage
 The use of **saba** is very simple.
 All you need to do is create a file called **saba.yml** and describe a simple structure.
+
+## Enable completion
+
+**for Mac OS**
+
+```
+saba completion bash > $(brew --prefix)/etc/bash_completion.d/saba
+```
