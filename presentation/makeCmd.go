@@ -31,7 +31,7 @@ func (p *makeCmdPresentation) MakeCmd() *cobra.Command {
 				return utils.Error(err)
 			}
 
-            log.Println("generate of clerk has been completed.")
+            log.Println("generate of saba has been completed.")
 			return nil
 		},
 	}
