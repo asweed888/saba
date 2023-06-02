@@ -45,12 +45,7 @@ spec:
       codefile:
         - name: bash
         - name: golang
-        - name: javascript
-        - name: lua
-        - name: nim
         - name: python
-        - name: rust
-        - name: typescript
         - name: v
         - name: utils
 
