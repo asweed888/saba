@@ -10,10 +10,12 @@ spec:
         - name: declareUpstream
         - name: declareCodeFile
         - name: tacitSetting
+        - name: initialDeclare
 
     - name: repository
       codefile:
         - name: declare
+        - name: initialDeclare
 
 
 - location: infrastructure
@@ -21,16 +23,19 @@ spec:
     - name: datastore
       codefile:
         - name: declare
+        - name: initialDeclare
 
 
 - location: usecase
   codefile:
     - name: declare
+    - name: initialDeclare
 
 
 - location: presentation
   codefile:
     - name: makeCmd
+    - name: newCmd
     - name: subCmd
 
 
