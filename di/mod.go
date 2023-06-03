@@ -17,7 +17,7 @@ type DiContainer interface {
 	NewInitialDeclareUseCase() usecase.InitialDeclareUseCase
 
 	// コマンド
-	NewMakeCmd() presentation.MakeCmdPresentation
+	NewUpCmd() presentation.UpCmdPresentation
 	NewNewCmd() presentation.NewCmdPresentation
 	NewSubCmd() presentation.SubCmdPresentation
 }
@@ -52,12 +52,12 @@ func (c *diContainer) NewInitialDeclareUseCase() usecase.InitialDeclareUseCase {
 
 // コマンド
 type subCommand struct {
-	presentation.MakeCmdPresentation
+	presentation.UpCmdPresentation
 	presentation.NewCmdPresentation
 }
 
-func (c *diContainer) NewMakeCmd() presentation.MakeCmdPresentation {
-	return presentation.NewMakeCmdPresentation(c.NewDeclareUseCase())
+func (c *diContainer) NewUpCmd() presentation.UpCmdPresentation {
+	return presentation.NewUpCmdPresentation(c.NewDeclareUseCase())
 }
 
 func (c *diContainer) NewNewCmd() presentation.NewCmdPresentation {
@@ -66,7 +66,7 @@ func (c *diContainer) NewNewCmd() presentation.NewCmdPresentation {
 
 func (c *diContainer)NewSubCmd() presentation.SubCmdPresentation {
 	subCmd := &subCommand{}
-	subCmd.MakeCmdPresentation = c.NewMakeCmd()
+	subCmd.UpCmdPresentation = c.NewUpCmd()
 	subCmd.NewCmdPresentation = c.NewNewCmd()
 	return subCmd
 }

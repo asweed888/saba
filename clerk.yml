@@ -34,7 +34,7 @@ spec:
 
 - location: presentation
   codefile:
-    - name: makeCmd
+    - name: upCmd
     - name: newCmd
     - name: subCmd
 
