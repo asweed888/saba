@@ -55,19 +55,19 @@ spec:
 - location: domain
   upstream:
     - name: model
-	  codefile:
-	    - name: example
+      codefile:
+        - name: example
 
-	- name: repository
-	  codefile:
-	    - name: example
+    - name: repository
+      codefile:
+        - name: example
 
 
 - location: infrastructure
   upstream:
     - name: datastore
-	  codefile:
-	    - name: example
+      codefile:
+        - name: example
 
 
 - location: usecase
@@ -78,10 +78,10 @@ spec:
 - location: presentation
   upstream:
     - name: http
-	  upstream:
-	    - name: handler
-		  codefile:
-		    - name: example
+      upstream:
+        - name: handler
+          codefile:
+            - name: example
 
 - location: di
   codefile:
