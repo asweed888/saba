@@ -1,6 +1,6 @@
 package presentation
 
 type SubCmdPresentation interface {
-	MakeCmdPresentation
+	UpCmdPresentation
 	NewCmdPresentation
 }

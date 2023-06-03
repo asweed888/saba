@@ -1,5 +1,6 @@
 lang: go
 arch: ddd
+spec:
 - location: _test
   upstream:
     - name: domain

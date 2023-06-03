@@ -21,7 +21,7 @@ func main(){
     }
 
     cli.AddCommand(
-		subcmd.MakeCmd(),
+		subcmd.UpCmd(),
 		subcmd.NewCmd(),
 	)
     cli.Execute()
