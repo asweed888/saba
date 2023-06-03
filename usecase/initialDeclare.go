@@ -10,7 +10,7 @@ import (
 )
 
 type InitialDeclareUseCase interface {
-	GenerateInitialDeclareFile() error
+	GenerateInitialDeclareFile(lang string, isDDD string) error
 }
 
 type initialDeclareUseCase struct {
@@ -22,9 +22,9 @@ func NewInitialDeclareUseCase(r repository.InitialDeclareRepository) InitialDecl
 }
 
 
-func (u *initialDeclareUseCase) GenerateInitialDeclareFile() error {
+func (u *initialDeclareUseCase) GenerateInitialDeclareFile(lang string, isDDD string) error {
 
-	idec, err := u.GetInitialDeclareFileContents()
+	idec, err := u.GetInitialDeclareFileContents(lang, isDDD)
 	if err != nil {
 		return utils.Error(err)
 	}

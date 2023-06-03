@@ -20,6 +20,9 @@ func main(){
         Version: Version,
     }
 
-    cli.AddCommand(subcmd.MakeCmd())
+    cli.AddCommand(
+		subcmd.MakeCmd(),
+		subcmd.NewCmd(),
+	)
     cli.Execute()
 }

@@ -10,23 +10,20 @@ import (
 )
 
 
-type initialDeclareRepository struct {
-	Lang string
-	Arch string
-}
+type initialDeclareRepository struct {}
 
-func NewInitialDeclareRepository(lang string, arch string) repository.InitialDeclareRepository {
-    return &initialDeclareRepository{lang, arch}
+func NewInitialDeclareRepository() repository.InitialDeclareRepository {
+    return &initialDeclareRepository{}
 }
 
 
-func (r *initialDeclareRepository) GetInitialDeclareFileContents() (*model.InitialDeclare, error) {
+func (r *initialDeclareRepository) GetInitialDeclareFileContents(lang string, isDDD string) (*model.InitialDeclare, error) {
     var (
 		re bytes.Buffer
 		tmplStr string
 	)
 
-	if r.Arch == "ddd" {
+	if isDDD == "Yes" {
 		tmplStr = r.getDDDTemplate()
 	} else {
 		tmplStr = r.getPlainTemplate()
@@ -38,7 +35,7 @@ func (r *initialDeclareRepository) GetInitialDeclareFileContents() (*model.Initi
     }
 
 	err = tmpl.Execute(&re, map[string]interface{}{
-		"Lang": r.Lang,
+		"Lang": lang,
 	}) // 置換して標準出力へ
 	if err != nil {
 		return nil, utils.Error(err)
