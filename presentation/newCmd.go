@@ -32,6 +32,9 @@ func (p *newCmdPresentation) NewCmd() *cobra.Command {
 				Label: "Please select a programming language.",
 				Items: []string{
 					"go",
+					"python",
+					"v",
+					"bash",
 				},
 			}
 
@@ -40,17 +43,23 @@ func (p *newCmdPresentation) NewCmd() *cobra.Command {
 				return utils.Error(err)
 			}
 
-			prompt = promptui.Select{
-				Label: "Do you want to develop applications with ddd (onion architecture)?",
-				Items: []string{
-					"No",
-					"Yes",
-				},
-			}
+			var isDDD string
+			if lang == "bash" {
+				isDDD = "No"
+			} else {
+				prompt = promptui.Select{
+					Label: "Do you want to develop applications with ddd (onion architecture)?",
+					Items: []string{
+						"No",
+						"Yes",
+					},
+				}
 
-			_, isDDD, err := prompt.Run()
-			if err != nil {
-				return utils.Error(err)
+				_, is_ddd, err := prompt.Run()
+				if err != nil {
+					return utils.Error(err)
+				}
+				isDDD = is_ddd
 			}
 
 			fmt.Printf("Programming language to use → %q\n", lang)

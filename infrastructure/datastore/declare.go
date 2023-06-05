@@ -54,6 +54,12 @@ func loadTacitSetting(lang string) (*model.TacitSetting, error) {
 	switch lang {
 	case "go":
 		return settings.Golang, nil
+	case "v":
+		return settings.Vlang, nil
+	case "python":
+		return settings.Python, nil
+	case "bash":
+		return settings.Bash, nil
 	default:
 		err := errors.New("Invalid programming language specified")
 		return nil, utils.Error(err)
