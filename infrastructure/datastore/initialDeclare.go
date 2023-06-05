@@ -85,7 +85,7 @@ spec:
 
 - location: di
   codefile:
-    - name: mod`
+    - name: container`
 }
 
 
