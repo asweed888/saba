@@ -9,9 +9,9 @@ type golangUtils struct {
 var Golang = &model.TacitSetting{
     Ext: "go",
     FileModeStr: "0644",
-    TacitFileContents: func(c *model.TacitSetting, path string, fname string) string {
+    TacitFileContents: func(s *model.TacitSetting, path string, fname string) string {
 
-        ut := &golangUtils{utils{c, path, fname}}
+        ut := &golangUtils{utils{s, path, fname}}
 
         if ut.IsDomainModel() {
             return ut.DomainModelFileContents()
