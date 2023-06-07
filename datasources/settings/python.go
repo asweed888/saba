@@ -45,7 +45,6 @@ func (u *pythonUtils) DomainModelFileContents() string {
 // ドメインリポジトリのファイルの場合に書き出す内容
 func (u *pythonUtils) DomainRepositoryFileContents() string {
     tmpl := `from abc import ABC, abstractmethod
-from domain.model.{{ .Fname }} import {{ .Fname | ToTitle }}
 
 
 class I{{ .Fname | ToTitle }}Repository(ABC):
