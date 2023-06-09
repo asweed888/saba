@@ -84,7 +84,7 @@ import domain.repository
 pub interface I{{ .Fname | ToTitle }}UseCase {}
 
 struct {{ .Fname | ToTitle }}UseCase {
-    repository.I{{ .Fname | ToTitle }}Repository
+    repository repository.I{{ .Fname | ToTitle }}Repository
 }
 
 pub fn new_{{ .Fname }}_usecase(r repository.I{{ .Fname | ToTitle }}Repository) I{{ .Fname | ToTitle }}UseCase {
@@ -106,7 +106,7 @@ import usecase
 pub interface I{{ .Fname | ToTitle }}{{ .Pkgname | ToTitle }} {}
 
 struct {{ .Fname | ToTitle }}{{ .Pkgname | ToTitle }} {
-    usecase.I{{ .Fname | ToTitle }}UseCase
+    usecase usecase.I{{ .Fname | ToTitle }}UseCase
 }
 
 pub fn new_{{ .Fname }}_{{ .Pkgname }}(u usecase.I{{ .Fname | ToTitle }}UseCase) I{{ .Fname | ToTitle }}{{ .Pkgname | ToTitle }} {
