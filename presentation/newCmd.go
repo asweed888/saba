@@ -32,6 +32,7 @@ func (p *newCmdPresentation) NewCmd() *cobra.Command {
 				Label: "Please select a programming language.",
 				Items: []string{
 					"go",
+					"rust",
 					"python",
 					"v",
 					"bash",
