@@ -54,6 +54,8 @@ func loadTacitSetting(lang string) (*model.TacitSetting, error) {
 	switch lang {
 	case "go":
 		return settings.Golang, nil
+	case "rust":
+		return settings.Rust, nil
 	case "v":
 		return settings.Vlang, nil
 	case "python":
