@@ -11,7 +11,7 @@ var Version string
 func main(){
 
     c := di.NewDiContainer("./saba.yml")
-    subcmd := c.NewSubCmd()
+    subcmd := c.NewAppHandler()
 
 
     cli := &cobra.Command{
