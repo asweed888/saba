@@ -3,7 +3,7 @@ package di
 import (
 	"github.com/asweed888/saba/domain/repository"
 	"github.com/asweed888/saba/infrastructure/datastore"
-	"github.com/asweed888/saba/presentation"
+	"github.com/asweed888/saba/presentation/command/handler"
 	"github.com/asweed888/saba/usecase"
 )
 
@@ -16,10 +16,10 @@ type DiContainer interface {
 	NewInitialDeclareRepository() repository.InitialDeclareRepository
 	NewInitialDeclareUseCase() usecase.InitialDeclareUseCase
 
-	// コマンド
-	NewUpCmd() presentation.UpCmdPresentation
-	NewNewCmd() presentation.NewCmdPresentation
-	NewSubCmd() presentation.SubCmdPresentation
+	// コマンドハンドラー
+	NewUpCmdHandler() handler.UpCmdHandler
+	NewNewCmdHandler() handler.NewCmdHandler
+	NewAppHandler() handler.AppHandler
 }
 
 type diContainer struct {
@@ -52,21 +52,21 @@ func (c *diContainer) NewInitialDeclareUseCase() usecase.InitialDeclareUseCase {
 
 // コマンド
 type subCommand struct {
-	presentation.UpCmdPresentation
-	presentation.NewCmdPresentation
+	handler.UpCmdHandler
+	handler.NewCmdHandler
 }
 
-func (c *diContainer) NewUpCmd() presentation.UpCmdPresentation {
-	return presentation.NewUpCmdPresentation(c.NewDeclareUseCase())
+func (c *diContainer) NewUpCmdHandler() handler.UpCmdHandler {
+	return handler.NewUpCmdHandler(c.NewDeclareUseCase())
 }
 
-func (c *diContainer) NewNewCmd() presentation.NewCmdPresentation {
-	return presentation.NewNewCmdPresentation(c.NewInitialDeclareUseCase())
+func (c *diContainer) NewNewCmdHandler() handler.NewCmdHandler {
+	return handler.NewNewCmdHandler(c.NewInitialDeclareUseCase())
 }
 
-func (c *diContainer)NewSubCmd() presentation.SubCmdPresentation {
+func (c *diContainer) NewAppHandler() handler.AppHandler {
 	subCmd := &subCommand{}
-	subCmd.UpCmdPresentation = c.NewUpCmd()
-	subCmd.NewCmdPresentation = c.NewNewCmd()
+	subCmd.UpCmdHandler = c.NewUpCmdHandler()
+	subCmd.NewCmdHandler = c.NewNewCmdHandler()
 	return subCmd
 }

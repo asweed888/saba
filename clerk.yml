@@ -33,10 +33,14 @@ spec:
 
 
 - location: presentation
-  codefile:
-    - name: upCmd
-    - name: newCmd
-    - name: subCmd
+  upstream:
+    - name: command
+      upstream:
+        - name: handler
+          codefile:
+            - name: app
+            - name: upCmd
+            - name: newCmd
 
 
 - location: di

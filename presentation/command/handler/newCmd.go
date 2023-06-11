@@ -1,4 +1,4 @@
-package presentation
+package handler
 
 import (
 	"fmt"
@@ -9,20 +9,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type NewCmdPresentation interface {
+type NewCmdHandler interface {
 	NewCmd() *cobra.Command
 }
 
-type newCmdPresentation struct {
+type newCmdHandler struct {
     usecase.InitialDeclareUseCase
 }
 
-func NewNewCmdPresentation(u usecase.InitialDeclareUseCase) NewCmdPresentation {
-    return &newCmdPresentation{u}
+func NewNewCmdHandler(u usecase.InitialDeclareUseCase) NewCmdHandler {
+    return &newCmdHandler{u}
 }
 
-
-func (p *newCmdPresentation) NewCmd() *cobra.Command {
+func (h *newCmdHandler) NewCmd() *cobra.Command {
 	return &cobra.Command{
 		Use: "new",
 		Short: "Generate saba.yml.",
@@ -66,7 +65,7 @@ func (p *newCmdPresentation) NewCmd() *cobra.Command {
 			fmt.Printf("Programming language to use → %q\n", lang)
 			fmt.Printf("Using ddd(onion architecture) → %q\n", isDDD)
 
-			err = p.GenerateInitialDeclareFile(lang, isDDD)
+			err = h.GenerateInitialDeclareFile(lang, isDDD)
 			if err != nil {
 				return utils.Error(err)
 			}
