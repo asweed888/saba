@@ -13,16 +13,16 @@ type UpCmdHandler interface {
 }
 
 type upCmdHandler struct {
-    usecase.DeclareUseCase
+	usecase.DeclareUseCase
 }
 
 func NewUpCmdHandler(u usecase.DeclareUseCase) UpCmdHandler {
-    return &upCmdHandler{u}
+	return &upCmdHandler{u}
 }
 
 func (h *upCmdHandler) UpCmd() *cobra.Command {
 	return &cobra.Command{
-		Use: "up",
+		Use:   "up",
 		Short: "Automatically generate directories and code files based on the structure described in saba.yml.",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			err := h.DeclareUseCase.GenerateArch()
@@ -30,7 +30,12 @@ func (h *upCmdHandler) UpCmd() *cobra.Command {
 				return utils.Error(err)
 			}
 
-            log.Println("generate of saba has been completed.")
+			err = h.DeclareUseCase.SubAction()
+			if err != nil {
+				utils.Error(err)
+			}
+
+			log.Println("generate of saba has been completed.")
 			return nil
 		},
 	}
