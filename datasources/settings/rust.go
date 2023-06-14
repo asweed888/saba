@@ -44,7 +44,7 @@ var Rust = &model.TacitSetting{
 
 		} else {
 			// 指定した文字列が存在しない場合、先頭に文字列を追記
-			newData := append([]byte(insertString), fileData...)
+			newData := append([]byte(fmt.Sprintf("%s\n", insertString)), fileData...)
 			// ファイルに書き込み
 			err = ioutil.WriteFile(filePath, newData, os.ModePerm)
 			if err != nil {
