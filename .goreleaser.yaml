@@ -30,17 +30,16 @@ builds:
         goarch: arm64
       - goos: windows
         goarch: arm64
-      - goos: linux
-        goarch: arm64
 universal_binaries:
-  - replace: true
+  - replace: false
 archives:
   - name_template: >-
       {{ .ProjectName }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
+      {{- else }}{{ .Arch }}{{ end }}_v
+      {{ .Arm }}
 release:
   prerelease: auto
 brews:
