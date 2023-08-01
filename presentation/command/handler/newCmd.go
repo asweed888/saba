@@ -31,7 +31,7 @@ func (h *newCmdHandler) NewCmd() *cobra.Command {
                 Label: "Please select a programming language.",
                 Items: []string{
                     "rust",
-                    "javascript",
+                    "typescript",
                     "go",
                     "python",
                     "bash",
