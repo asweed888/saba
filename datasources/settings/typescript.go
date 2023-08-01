@@ -3,7 +3,7 @@ package settings
 import "github.com/asweed888/saba/domain/model"
 
 
-var Javascript = &model.TacitSetting{
-    Ext: "js",
+var Typescript = &model.TacitSetting{
+    Ext: "ts",
     FileModeStr: "0644",
 }
