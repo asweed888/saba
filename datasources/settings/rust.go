@@ -184,8 +184,8 @@ use crate::domain::repository::{{ .Fname }}::{{ .Fname | ToTitle }}Repository;
 
 
 impl {{ .Fname | ToTitle }}Repository {
-    pub fn new() -> {{ .Fname | ToTitle }}Repository {
-        {{ .Fname | ToTitle }}Repository{}
+    pub fn new() -> Self {
+        Self{}
     }
 }
 `
@@ -205,8 +205,8 @@ pub struct {{ .Fname | ToTitle }}UseCase {
 }
 
 impl {{ .Fname | ToTitle }}UseCase {
-    pub fn new(r: {{ .Fname | ToTitle }}Repository) -> {{ .Fname | ToTitle }}UseCase {
-        {{ .Fname | ToTitle }}UseCase{repository: r}
+    pub fn new(r: {{ .Fname | ToTitle }}Repository) -> Self {
+        Self{repository: r}
     }
 }
 `
@@ -226,8 +226,8 @@ pub struct {{ .Fname | ToTitle }}{{ .Pkgname | ToTitle }} {
 }
 
 impl {{ .Fname | ToTitle }}{{ .Pkgname | ToTitle }} {
-    pub fn new(u: {{ .Fname | ToTitle }}UseCase) -> {{ .Fname | ToTitle }}{{ .Pkgname | ToTitle }} {
-        {{ .Fname | ToTitle }}{{ .Pkgname | ToTitle }}{usecase: u}
+    pub fn new(u: {{ .Fname | ToTitle }}UseCase) -> Self {
+        Self{usecase: u}
     }
 }
 `
@@ -246,12 +246,16 @@ func (u *rustUtils) DiFileContents() string {
 use crate::usecase;
 use crate::presentation;
 
+pub struct App {}
 
 pub struct DIContainer {}
 
 impl DIContainer {
-    pub fn new() -> DIContainer {
-        DIContainer{}
+    pub fn new() -> Self {
+        Self{}
+    }
+    pub fn new_app() -> App {
+        App{}
     }
 }
 `
