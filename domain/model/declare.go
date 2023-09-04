@@ -1,14 +1,15 @@
 package model
 
 import (
-	"os"
+    "os"
 
-	"github.com/asweed888/saba/utils"
+    "github.com/asweed888/saba/utils"
 )
 
 type Declare struct {
     Lang string `yaml:"lang"`
     Arch string `yaml:"arch"`
+    Root string `yaml:"root"`
     Spec []*DeclareSpec
     TacitSetting *TacitSetting
 }

@@ -20,6 +20,7 @@ type rustUtils struct {
 var Rust = &model.TacitSetting{
     Ext:         "rs",
     FileModeStr: "0644",
+    DefaultRootPath: "src",
     TacitFileContents: func(s *model.TacitSetting, path string, fname string) string {
         ut := &rustUtils{utils{s, path, fname}}
 
