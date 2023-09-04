@@ -205,8 +205,8 @@ pub struct {{ .Fname | ToTitle }}UseCase {
 }
 
 impl {{ .Fname | ToTitle }}UseCase {
-    pub fn new(r: {{ .Fname | ToTitle }}Repository) -> Self {
-        Self{repository: r}
+    pub fn new(repository: {{ .Fname | ToTitle }}Repository) -> Self {
+        Self{ repository }
     }
 }
 `
@@ -226,8 +226,8 @@ pub struct {{ .Fname | ToTitle }}{{ .Pkgname | ToTitle }} {
 }
 
 impl {{ .Fname | ToTitle }}{{ .Pkgname | ToTitle }} {
-    pub fn new(u: {{ .Fname | ToTitle }}UseCase) -> Self {
-        Self{usecase: u}
+    pub fn new(usecase: {{ .Fname | ToTitle }}UseCase) -> Self {
+        Self{ usecase }
     }
 }
 `
@@ -254,7 +254,7 @@ impl DIContainer {
     pub fn new() -> Self {
         Self{}
     }
-    pub fn new_app() -> App {
+    pub fn new_app(&self) -> App {
         App{}
     }
 }
@@ -265,6 +265,13 @@ impl DIContainer {
 
 // その他のファイルの場合に書き出す内容 (デフォルト)
 func (u *rustUtils) DefaultFileContents() string {
-    tmpl := ``
+    tmpl := `
+pub struct {{ .Fname | ToTitle }} {}
+
+impl {{ .Fname | ToTitle }} {
+    pub fn new() -> Self {
+        Self{}
+    }
+}`
     return u.utils.CodeFileContents(tmpl)
 }
