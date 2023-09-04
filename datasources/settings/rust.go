@@ -44,7 +44,7 @@ var Rust = &model.TacitSetting{
 
         subaction := &rustSubAction{}
 
-        filePath := subaction.targetFile()
+        filePath := subaction.targetFile(decl)
         searchString := subaction.modBlockRegExp()
         insertString := subaction.modBlock(decl)
 
@@ -80,21 +80,24 @@ var Rust = &model.TacitSetting{
     },
 }
 
-func (u *rustSubAction) targetFile() string {
+func (u *rustSubAction) targetFile(decl *model.Declare) string {
+    rootpath := decl.TacitSetting.RootPath(decl)
+    fpath1 := fmt.Sprintf("%s/main.rs", rootpath)
+    fpath2 := fmt.Sprintf("%s/mod.rs", rootpath)
     // main.rs ファイルの存在を確認
-    if u.checkFileExists("main.rs") {
-        return "main.rs"
+    if u.checkFileExists(fpath1) {
+        return fpath1
     }
 
     // mod.rs ファイルの存在を確認
-    if u.checkFileExists("mod.rs") {
-        return "mod.rs"
+    if u.checkFileExists(fpath2) {
+        return fpath2
     }
 
     // main.rs ファイルを作成
-    _ = ioutil.WriteFile("main.rs", []byte{}, 0644)
+    _ = ioutil.WriteFile(fpath1, []byte{}, 0644)
 
-    return "main.rs"
+    return fpath1
 }
 
 func (u *rustSubAction) checkFileExists(filePath string) bool {
