@@ -11,10 +11,21 @@ import (
 type TacitSetting struct {
     Lang              string
     Arch              string
+    DefaultRootPath   string
     Ext               string
     FileModeStr       string
     TacitFileContents func(conf *TacitSetting, path string, fname string) string
     TacitSubAction    func(decl *Declare) error
+}
+
+func (s *TacitSetting) RootPath(decl *Declare) string {
+    if decl.Root != "" {
+        return fmt.Sprintf("./%s", decl.Root)
+    } else if decl.Root == "" && s.DefaultRootPath != "" {
+        return fmt.Sprintf("./%s", s.DefaultRootPath)
+    } else {
+        return "."
+    }
 }
 
 func (s *TacitSetting) FileMode() fs.FileMode {
