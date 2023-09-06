@@ -269,8 +269,7 @@ impl DIContainer {
 
 // その他のファイルの場合に書き出す内容 (デフォルト)
 func (u *rustUtils) DefaultFileContents() string {
-    tmpl := `
-pub struct {{ .Fname | ToTitle }} {}
+    tmpl := `pub struct {{ .Fname | ToTitle }} {}
 
 impl {{ .Fname | ToTitle }} {
     pub fn new() -> Self {
