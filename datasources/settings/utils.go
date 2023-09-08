@@ -1,11 +1,11 @@
 package settings
 
 import (
-	"bytes"
-	"html/template"
-	"strings"
+    "bytes"
+    "html/template"
+    "strings"
 
-	"github.com/asweed888/saba/domain/model"
+    "github.com/asweed888/saba/domain/model"
 )
 
 type Utils interface {
@@ -66,11 +66,28 @@ func (u *utils) IsDi() bool {
 }
 
 
+func toTitleCase(input string) string {
+    if strings.Contains(input, "_") {
+        parts := strings.Split(input, "_") // アンダースコアで文字列を分割
+        var result []string
+
+        for _, part := range parts {
+            // 各パート（単語）をTitle Caseに変換
+            titlePart := strings.Title(part)
+            result = append(result, titlePart)
+        }
+
+        return strings.Join(result, "")
+    }
+
+    // アンダースコアが含まれていない場合はそのままTitle Caseに変換
+    return strings.Title(input)
+}
 
 func (u *utils) CodeFileContents(tmplStr string) string {
     var re bytes.Buffer
     funcMap := template.FuncMap{
-        "ToTitle": strings.Title,
+        "ToTitle": toTitleCase,
     }
 
     tmpl, err := template.New("saba").Funcs(funcMap).Parse(tmplStr)
@@ -79,12 +96,12 @@ func (u *utils) CodeFileContents(tmplStr string) string {
     }
 
     err = tmpl.Execute(&re, u.codeFileContentsValues()) // 置換して標準出力へ
-	if err != nil {
-		return ""
-	}
+    if err != nil {
+        return ""
+    }
 
 
-	return re.String()
+    return re.String()
 
 }
 
