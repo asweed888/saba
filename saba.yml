@@ -4,33 +4,37 @@ spec:
 - location: domain
   upstream:
     - name: model
-      codefile:
-        - name: spec
+      upstream:
+        - name: lang
+          codefile:
+            - name: prelude
+            - name: rust
+            - name: go
 
-    - name: repository
-      codefile:
-        - name: manifest
-
-
-- location: infrastructure
-  upstream:
-    - name: repository
-      codefile:
-        - name: manifest
-
-
-- location: usecase
-  codefile:
-    - name: manifest
-
-
-- location: presentation
-  upstream:
-    - name: command
-      codefile:
-        - name: new
-        - name: up
-
-- location: di
-  codefile:
-    - name: container
+#     - name: repository
+#       codefile:
+#         - name: manifest
+#
+#
+# - location: infrastructure
+#   upstream:
+#     - name: repository
+#       codefile:
+#         - name: manifest
+#
+#
+# - location: usecase
+#   codefile:
+#     - name: manifest
+#
+#
+# - location: presentation
+#   upstream:
+#     - name: command
+#       codefile:
+#         - name: new
+#         - name: up
+#
+# - location: di
+#   codefile:
+#     - name: container

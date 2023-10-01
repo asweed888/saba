@@ -1,27 +1,11 @@
 mod domain {
     pub mod model {
-        pub mod spec;
+        pub mod lang {
+            pub mod prelude;
+            pub mod rust;
+            pub mod go;
+        }
     }
-    pub mod repository {
-        pub mod manifest;
-    }
-}
-mod infrastructure {
-    pub mod repository {
-        pub mod manifest;
-    }
-}
-mod usecase {
-    pub mod manifest;
-}
-mod presentation {
-    pub mod command {
-        pub mod new;
-        pub mod up;
-    }
-}
-mod di {
-    pub mod container;
 } // Automatically exported by saba.
 
 
