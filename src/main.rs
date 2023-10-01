@@ -1,6 +1,6 @@
 mod domain {
     pub mod model {
-        pub mod manifest;
+        pub mod spec;
     }
     pub mod repository {
         pub mod manifest;

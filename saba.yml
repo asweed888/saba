@@ -5,7 +5,7 @@ spec:
   upstream:
     - name: model
       codefile:
-        - name: manifest
+        - name: spec
 
     - name: repository
       codefile:
