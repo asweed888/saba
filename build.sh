@@ -2,7 +2,5 @@
 
 
 if [ ! -e ./_test ]; then
-	mkdir ./_test
+    mkdir ./_test
 fi
-
-go build -o ./_test/saba main.go

@@ -1,4 +1,4 @@
-lang: go
+lang: rust
 arch: ddd
 spec:
 - location: domain
@@ -10,3 +10,11 @@ spec:
     - name: repository
       codefile:
         - name: character
+
+- location: infrastructure
+  upstream:
+    - name: embedded
+      upstream:
+        - name: repository
+          codefile:
+            - name: character
