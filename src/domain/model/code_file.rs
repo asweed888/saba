@@ -1,6 +1,28 @@
 
-pub trait CodeFile {
-    fn name() -> String;
-    fn ext() -> String;
-    fn file_mode() -> String;
+pub struct CodeFile<M>
+where
+    M: ProgrammingLang,
+{
+    meta: M,
+}
+
+
+impl<M> CodeFile<M>
+where
+    M: ProgrammingLang,
+{
+    pub fn new(meta: M) -> Self {
+        Self{
+            meta,
+        }
+    }
+}
+
+
+trait ProgrammingLang  {}
+
+struct Rust {}
+
+impl ProgrammingLang for Rust {
+
 }
