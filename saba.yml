@@ -5,7 +5,8 @@ spec:
   upstream:
     - name: model
       codefile:
-        - name: code_file
+        - name: code_file_recipe
+        - name: manifest
 
       upstream:
         - name: lang
@@ -13,16 +14,18 @@ spec:
             - name: rust
             - name: go
 
-#     - name: repository
-#       codefile:
-#         - name: manifest
+    - name: repository
+      codefile:
+        - name: code_file_recipe
+        - name: manifest
 #
 #
-# - location: infrastructure
-#   upstream:
-#     - name: repository
-#       codefile:
-#         - name: manifest
+- location: infrastructure
+  upstream:
+    - name: repository
+      codefile:
+        - name: code_file_recipe
+        - name: manifest
 #
 #
 # - location: usecase

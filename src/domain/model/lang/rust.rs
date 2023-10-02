@@ -1,7 +1,3 @@
- use crate::domain::model::code_file::CodeFile;
+use crate::domain::model::code_file_recipe::CodeFileRecipe;
 
- pub struct RustFile {}
-
-impl CodeFile for RustFile {
-
-}
+pub trait RustFileRecipe {}

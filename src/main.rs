@@ -4,7 +4,18 @@ mod domain {
             pub mod rust;
             pub mod go;
         }
-        pub mod code_file;
+        pub mod code_file_recipe;
+        pub mod manifest;
+    }
+    pub mod repository {
+        pub mod code_file_recipe;
+        pub mod manifest;
+    }
+}
+mod infrastructure {
+    pub mod repository {
+        pub mod code_file_recipe;
+        pub mod manifest;
     }
 } // Automatically exported by saba.
 
