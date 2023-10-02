@@ -1,5 +1,7 @@
-use crate::domain::model::lang::prelude::*;
+ use crate::domain::model::code_file::CodeFile;
 
-impl RustLang for Lang {
+ pub struct RustFile {}
+
+impl CodeFile for RustFile {
 
 }

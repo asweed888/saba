@@ -4,10 +4,12 @@ spec:
 - location: domain
   upstream:
     - name: model
+      codefile:
+        - name: code_file
+
       upstream:
         - name: lang
           codefile:
-            - name: prelude
             - name: rust
             - name: go
 
