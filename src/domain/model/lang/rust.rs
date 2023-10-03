@@ -1,3 +1,3 @@
-use crate::domain::model::code_file_recipe::CodeFileRecipe;
+use crate::domain::model::code_file_recipe::PGLang;
 
-pub trait RustFileRecipe {}
+pub struct Rust {}
