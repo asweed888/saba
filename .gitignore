@@ -4,4 +4,4 @@ _test*
 
 # Added by cargo
 
-/target
+target

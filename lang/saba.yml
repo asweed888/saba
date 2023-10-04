@@ -1,9 +1,0 @@
-lang: rust
-spec:
-- location: domain
-  upstream:
-    - name: model
-      codefile:
-        - name: lang
-        - name: rust
-        - name: go
