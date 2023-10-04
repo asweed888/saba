@@ -1,0 +1,25 @@
+lang: rust
+arch: ddd
+spec:
+- location: domain
+  upstream:
+    - name: model
+      codefile:
+        - name: manifest
+        - name: file_profile
+
+    - name: repository
+      codefile:
+        - name: manifest
+
+
+- location: infrastructure
+  upstream:
+    - name: repository
+      codefile:
+        - name: manifest
+
+
+- location: usecase
+  codefile:
+    - name: manifest
