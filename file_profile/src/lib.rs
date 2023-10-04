@@ -1,13 +1,16 @@
 mod domain {
     pub mod model {
+        pub mod manifest;
         pub mod file_profile;
     }
     pub mod repository {
+        pub mod manifest;
         pub mod file_profile;
     }
 }
 mod infrastructure {
     pub mod repository {
+        pub mod manifest;
         pub mod file_profile;
     }
 } // Automatically exported by saba.

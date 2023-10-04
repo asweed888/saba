@@ -1,9 +1,8 @@
 mod domain {
     pub mod model {
-        pub mod code_file;
-        pub mod rust_file;
-        pub mod go_file;
-        pub mod manifest;
+        pub mod file_recipe;
+        pub mod rust;
+        pub mod go;
     }
 } // Automatically exported by saba.
 

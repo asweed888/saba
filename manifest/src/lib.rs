@@ -1,34 +1,23 @@
-mod domain {
-    pub mod model {
-        pub mod manifest;
-        pub mod rust;
-        pub mod go;
-    }
-    pub mod repository {
-        pub mod manifest;
+use yaml_rust::{
+    Yaml,
+    YamlLoader,
+};
+use std::fs;
+
+pub fn to_str(value: Option<&str>) -> &str {
+    match value {
+        Some(v) => {
+            v
+        }
+        None => {
+            ""
+        }
     }
 }
-mod infrastructure {
-    pub mod repository {
-        pub mod manifest;
-    }
-}
-mod usecase {
-    pub mod manifest;
-} // Automatically exported by saba.
 
-
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+pub fn load<'a>(file_path: &'a str) -> Vec<Yaml> {
+    let f = fs::read_to_string(file_path);
+    let s = f.unwrap().to_string();
+    let docs = YamlLoader::load_from_str(&s).unwrap();
+    docs
 }

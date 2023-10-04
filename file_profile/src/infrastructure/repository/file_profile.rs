@@ -6,24 +6,18 @@ use yaml_rust::{
     YamlEmitter,
 };
 use std::fs;
+use manifest;
 
 impl<'a> FileProfileRepository<'a> {
-    pub fn new(manifest: &'a str) -> Self {
-        Self{ manifest }
+    pub fn new(file_path: &'a str) -> Self {
+        Self{ file_path }
     }
     pub fn get_file_profile_all(&self) -> Vec<FileProfile> {
-        let fp: Vec<FileProfile> = vec![];
-        let raw = self.load_manifest();
-        if let Some(manifest) = raw.get(0);
-
-    }
-    fn lang(&self, lang: String) -> String {
-
-    }
-    fn load_manifest(&self) -> Vec<Yaml> {
-        let f = fs::read_to_string(self.manifest);
-        let s = f.unwrap().to_string();
-        let docs = YamlLoader::load_from_str(&s).unwrap();
-        docs
+        let mut fp: Vec<FileProfile> = vec![];
+        let raw = manifest::load(self.file_path);
+        if let Some(mf) = raw.get(0) {
+            let lang = mf["lang"].as_str().unwrap();
+            let arch = mf["arch"].as_str().unwrap();
+        }
     }
 }

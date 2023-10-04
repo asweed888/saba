@@ -1,3 +1,3 @@
 pub struct FileProfileRepository<'a> {
-    pub manifest: &'a str,
+    pub file_path: &'a str,
 }
