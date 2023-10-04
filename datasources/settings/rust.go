@@ -83,13 +83,13 @@ var Rust = &model.TacitSetting{
 func (u *rustSubAction) targetFile(decl *model.Declare) string {
     rootpath := decl.TacitSetting.RootPath(decl)
     fpath1 := fmt.Sprintf("%s/main.rs", rootpath)
-    fpath2 := fmt.Sprintf("%s/mod.rs", rootpath)
+    fpath2 := fmt.Sprintf("%s/lib.rs", rootpath)
     // main.rs ファイルの存在を確認
     if u.checkFileExists(fpath1) {
         return fpath1
     }
 
-    // mod.rs ファイルの存在を確認
+    // lib.rs ファイルの存在を確認
     if u.checkFileExists(fpath2) {
         return fpath2
     }
