@@ -5,34 +5,38 @@ spec:
   upstream:
     - name: model
       codefile:
-        - name: file_recipe
-        - name: rust
-        - name: go
+        - name: rust_file
+        - name: go_file
 
-#     - name: repository
-#       codefile:
-#         - name: code_file_recipe
-#         - name: manifest
-# #
-# #
-# - location: infrastructure
-#   upstream:
-#     - name: repository
-#       codefile:
-#         - name: code_file_recipe
-#
-#
-# - location: usecase
-#   codefile:
-#     - name: manifest
-#
-#
-# - location: presentation
-#   upstream:
-#     - name: command
-#       codefile:
-#         - name: new
-#         - name: up
+    - name: repository
+      codefile:
+        - name: manifest
+        - name: rust_file
+        - name: go_file
+
+
+- location: infrastructure
+  upstream:
+    - name: repository
+      codefile:
+        - name: manifest
+        - name: rust_file
+        - name: go_file
+
+
+- location: usecase
+  codefile:
+    - name: manifest
+    - name: rust_file
+    - name: go_file
+
+
+- location: presentation
+  upstream:
+    - name: command
+      codefile:
+        - name: new
+        - name: up
 #
 # - location: di
 #   codefile:
