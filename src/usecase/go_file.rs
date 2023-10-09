@@ -1,13 +1,16 @@
-use crate::domain::model::go_file::GoFile;
-use crate::domain::repository::go_file::GoFileRepository;
+use crate::domain::repository::code_file::CodeFileRepository;
 
 
-pub struct GoFileUseCase {
-    pub repository: GoFileRepository
+pub struct GoFileUseCase<'a> {
+    pub repository: CodeFileRepository<'a>,
 }
 
-impl GoFileUseCase {
-    pub fn new(repository: GoFileRepository) -> Self {
+impl<'a> GoFileUseCase<'a> {
+    pub fn new(repository: CodeFileRepository) -> Self {
         Self{ repository }
+    }
+    pub fn gen_file(&self) {
+        let manifest = self.repository.manifest;
+
     }
 }
