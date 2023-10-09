@@ -3,10 +3,13 @@ arch: ddd
 spec:
 - location: domain
   upstream:
+    - name: model
+      codefile:
+        - name: manifest
+
     - name: repository
       codefile:
         - name: manifest
-        - name: code_file
 
 
 - location: infrastructure
@@ -14,11 +17,10 @@ spec:
     - name: repository
       codefile:
         - name: manifest
-        - name: code_file
-
 
 - location: usecase
   codefile:
+    - name: interface
     - name: manifest
     - name: rust_file
     - name: go_file

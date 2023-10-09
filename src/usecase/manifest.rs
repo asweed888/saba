@@ -1,5 +1,5 @@
+use crate::domain::model::manifest::Manifest;
 use crate::domain::repository::manifest::ManifestRepository;
-use yaml_rust::Yaml;
 
 
 pub struct ManifestUseCase {
@@ -10,8 +10,7 @@ impl ManifestUseCase {
     pub fn new(repository: ManifestRepository) -> Self {
         Self{ repository }
     }
-    pub fn get_manifest(&self) -> Option<&Yaml> {
-        let raw = self.repository.load_manifest();
-        raw.get(0)
+    pub fn get_manifest(&self) -> Result<Manifest, &str> {
+        self.repository.load_manifest()
     }
 }

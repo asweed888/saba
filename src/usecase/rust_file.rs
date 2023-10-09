@@ -1,13 +1,21 @@
-use crate::domain::model::rust_file::RustFile;
-use crate::domain::repository::rust_file::RustFileRepository;
+use crate::domain::model::manifest::Manifest;
+use crate::usecase::interface::CodeFileGenerator;
 
-
-pub struct RustFileUseCase {
-    pub repository: RustFileRepository
+pub struct RustFileUseCase<'a> {
+    pub repository: Manifest<'a>,
 }
 
-impl RustFileUseCase {
-    pub fn new(repository: RustFileRepository) -> Self {
+impl<'a> RustFileUseCase<'a> {
+    pub fn new(repository: Manifest) -> Self {
         Self{ repository }
+    }
+    pub fn generate_file(&self) {
+        self.gen_file()
+    }
+}
+
+impl<'a> CodeFileGenerator for RustFileUseCase<'a> {
+    fn gen_file(&self) {
+
     }
 }
