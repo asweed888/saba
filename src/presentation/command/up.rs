@@ -26,7 +26,7 @@ impl UpCommand {
         match manifest.lang {
             "rust" => {
                 let uc = RustFileUseCase::new(manifest);
-                uc.generate_file();
+                uc.gen_file();
             }
         }
 
