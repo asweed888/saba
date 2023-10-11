@@ -23,9 +23,6 @@ impl<'a> RustFileUseCase<'a> {
         );
         self.location_action(self.repository, config);
     }
-    pub get_file_contents(&self) -> &str {
-
-    }
 }
 
 impl<'a> CodeFileGenerator<'a> for RustFileUseCase<'a> {
