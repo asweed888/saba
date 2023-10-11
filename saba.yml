@@ -11,7 +11,6 @@ spec:
       codefile:
         - name: manifest
 
-
 - location: infrastructure
   upstream:
     - name: repository
@@ -19,8 +18,11 @@ spec:
         - name: manifest
 
 - location: usecase
-  codefile:
+  upstream:
     - name: interface
+      codefile:
+        - name: code_file_generator
+  codefile:
     - name: manifest
     - name: rust_file
     - name: go_file

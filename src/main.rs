@@ -12,6 +12,9 @@ mod infrastructure {
     }
 }
 mod usecase {
+    pub mod interface {
+        pub mod code_file_generator;
+    }
     pub mod interface;
     pub mod manifest;
     pub mod rust_file;
