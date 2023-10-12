@@ -1,21 +1,23 @@
 mod domain {
     pub mod model {
         pub mod manifest;
+        pub mod rust;
     }
     pub mod repository {
         pub mod manifest;
+        pub mod rust_template;
     }
 }
 mod infrastructure {
     pub mod repository {
         pub mod manifest;
+        pub mod rust_template;
     }
 }
 mod usecase {
     pub mod interface {
         pub mod code_file_generator;
     }
-    pub mod interface;
     pub mod manifest;
     pub mod rust_file;
     pub mod go_file;

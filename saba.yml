@@ -6,16 +6,19 @@ spec:
     - name: model
       codefile:
         - name: manifest
+        - name: rust
 
     - name: repository
       codefile:
         - name: manifest
+        - name: rust_template
 
 - location: infrastructure
   upstream:
     - name: repository
       codefile:
         - name: manifest
+        - name: rust_template
 
 - location: usecase
   upstream:
