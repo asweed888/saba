@@ -1,13 +1,12 @@
 lang: rust
 spec:
-- location: entity
+- location: domain
   upstream:
     - name: manifest
       codefile:
-        - name: prelude
+        - name: entity
+        - name: arch
         - name: root
-  codefile:
-    - name: manifest
 
 - location: usecase
   codefile:

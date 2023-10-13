@@ -1,9 +1,9 @@
-mod entity {
+mod domain {
     pub mod manifest {
-        pub mod prelude;
+        pub mod entity;
+        pub mod arch;
         pub mod root;
     }
-    pub mod manifest;
 }
 mod usecase {
     pub mod rust;

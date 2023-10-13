@@ -3,29 +3,14 @@ use yaml_rust::{
     YamlLoader,
 };
 use std::fs;
-use crate::entity::manifest::root::Root;
+use crate::domain::manifest::root::Root;
+use crate::domain::manifest::arch::Arch;
 
 pub struct Manifest<'a> {
     pub lang: &'a str,
-    pub arch: &'a str,
+    pub arch: Arch<'a>,
     pub root: Root<'a>,
     pub spec: &'a Vec<Yaml>,
-}
-
-impl<'a> Manifest<'a> {
-    pub fn new(
-        lang: &'a str,
-        arch: &'a str,
-        root: Root<'a>,
-        spec: &'a Vec<Yaml>,
-    ) -> Self {
-        Self{
-            lang,
-            arch,
-            root,
-            spec,
-        }
-    }
 }
 
 pub trait ManifestRepository<'a> {
@@ -39,8 +24,7 @@ pub trait ManifestRepository<'a> {
             .ok_or("[ERROR] lang is a required field. lang is not set.")?;
         let spec = manifest["spec"].as_vec()
             .ok_or("[ERROR] spec is not set. spec is a required field.")?;
-        let arch = manifest["arch"].as_str()
-            .unwrap_or("plain");
+        let arch = Arch::new(manifest["arch"].as_str().unwrap_or("plain"));
         let root = Root::new(manifest["root"].as_str().unwrap_or(""));
 
         Ok(
