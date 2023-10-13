@@ -1,7 +1,14 @@
+use lazy_static::lazy_static;
+use std::sync::Mutex;
 use crate::domain::model::manifest::Manifest;
 use yaml_rust::Yaml;
 use std::fs;
 use std::path::Path;
+
+lazy_static! {
+    static ref FILE_PATH_LIST: Mutex<Vec<String>> = Mutex::new(Vec::new());
+}
+
 
 pub trait CodeFileGenerator<'a> {
     fn location_action(
@@ -21,7 +28,6 @@ pub trait CodeFileGenerator<'a> {
         codefile: &Vec<Yaml>,
         cnf: CodeFileGeneratorConfig<'a>,
     ) {}
-    fn get_file_contents(&self) {}
     fn is_ddd(&self, repository: Manifest<'a>) -> bool {
         match repository.arch {
             "ddd" => { true }
@@ -37,6 +43,14 @@ pub trait CodeFileGenerator<'a> {
             "" => { String::from(default_root) }
             _ => { String::from(repository.root) }
         }
+    }
+    fn save_file_path(&self, path: &str) {
+        let mut data = FILE_PATH_LIST.lock().unwrap();
+        data.push(String::from(path));
+    }
+    fn get_file_path_list(&self) -> Vec<String> {
+        let mut data = FILE_PATH_LIST.lock().unwrap();
+        *data
     }
 }
 

@@ -1,24 +1,28 @@
 lang: rust
 arch: ddd
 spec:
+- location: utils
+  upstream:
+    - name: template
+      codefile:
+        - name: prelude
+        - name: rust
+
 - location: domain
   upstream:
     - name: model
       codefile:
         - name: manifest
-        - name: rust
 
     - name: repository
       codefile:
         - name: manifest
-        - name: rust_template
 
 - location: infrastructure
   upstream:
     - name: repository
       codefile:
         - name: manifest
-        - name: rust_template
 
 - location: usecase
   upstream:

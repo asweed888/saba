@@ -8,5 +8,5 @@ edition = "2021"
 [dependencies]
 clap = "4.4.6"
 yaml-rust = "0.4.5"
-manifest = { path = "./manifest" }
 askama = "0.12.1"
+lazy_static = "1.4.0"

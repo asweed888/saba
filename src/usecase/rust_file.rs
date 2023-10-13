@@ -4,10 +4,15 @@ use crate::usecase::interface::code_file_generator::{
     CodeFileGeneratorConfig,
 };
 use std::fs;
+use std::fs::File;
+use crate::utils::template::rust::{
+
+};
+
+
 
 pub struct RustFileUseCase<'a> {
     pub repository: Manifest<'a>,
-
 }
 
 impl<'a> RustFileUseCase<'a> {
@@ -80,7 +85,18 @@ impl<'a> CodeFileGenerator<'a> for RustFileUseCase<'a> {
     ) {
         for f in codefile {
             let filename = f["name"].as_str().unwrap();
+            workdir.push_str("/");
+            workdir.push_str(filename);
+            workdir.push_str(".");
+            workdir.push_str(cnf.ext);
+            let file = File::create(workdir);
 
+            if workdir.contains("domain/model") {
+
+            }
+            else if workdir.contains("domain/repository") {
+
+            }
         }
     }
 }

@@ -1,17 +1,20 @@
+mod utils {
+    pub mod template {
+        pub mod prelude;
+        pub mod rust;
+    }
+}
 mod domain {
     pub mod model {
         pub mod manifest;
-        pub mod rust;
     }
     pub mod repository {
         pub mod manifest;
-        pub mod rust_template;
     }
 }
 mod infrastructure {
     pub mod repository {
         pub mod manifest;
-        pub mod rust_template;
     }
 }
 mod usecase {
