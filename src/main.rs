@@ -1,38 +1,12 @@
-mod utils {
-    pub mod template {
+mod entity {
+    pub mod manifest {
         pub mod prelude;
-        pub mod rust;
-    }
-}
-mod domain {
-    pub mod model {
-        pub mod manifest;
-    }
-    pub mod repository {
-        pub mod manifest;
-    }
-}
-mod infrastructure {
-    pub mod repository {
-        pub mod manifest;
-    }
-}
-mod usecase {
-    pub mod interface {
-        pub mod code_file_generator;
+        pub mod root;
     }
     pub mod manifest;
-    pub mod rust_file;
-    pub mod go_file;
 }
-mod presentation {
-    pub mod command {
-        pub mod new;
-        pub mod up;
-    }
-}
-mod di {
-    pub mod container;
+mod usecase {
+    pub mod rust;
 } // Automatically exported by saba.
 
 use clap::{arg, Command};

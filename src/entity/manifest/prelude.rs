@@ -1,17 +1,35 @@
-use crate::domain::model::manifest::Manifest;
-use crate::domain::repository::manifest::ManifestRepository;
 use yaml_rust::{
     Yaml,
     YamlLoader,
 };
 use std::fs;
+use crate::entity::manifest::root::Root;
 
+pub struct Manifest<'a> {
+    pub lang: &'a str,
+    pub arch: &'a str,
+    pub root: Root<'a>,
+    pub spec: &'a Vec<Yaml>,
+}
 
-impl ManifestRepository {
-    pub fn new() -> Self {
-        Self{}
+impl<'a> Manifest<'a> {
+    pub fn new(
+        lang: &'a str,
+        arch: &'a str,
+        root: Root<'a>,
+        spec: &'a Vec<Yaml>,
+    ) -> Self {
+        Self{
+            lang,
+            arch,
+            root,
+            spec,
+        }
     }
-    pub fn load_manifest(&self) -> Result<Manifest, &str> {
+}
+
+pub trait ManifestRepository<'a> {
+    fn load(&self) -> Result<Manifest, &str> {
         let f = fs::read_to_string("./saba.yml");
         let s = f.unwrap().to_string();
         let docs = YamlLoader::load_from_str(&s).unwrap();
@@ -23,8 +41,7 @@ impl ManifestRepository {
             .ok_or("[ERROR] spec is not set. spec is a required field.")?;
         let arch = manifest["arch"].as_str()
             .unwrap_or("plain");
-        let root = manifest["root"].as_str()
-            .unwrap_or("");
+        let root = Root::new(manifest["root"].as_str().unwrap_or(""));
 
         Ok(
             Manifest{
@@ -36,3 +53,12 @@ impl ManifestRepository {
         )
     }
 }
+
+pub trait ManifestUseCase<'a> {
+    fn location_action(&self) {
+
+    }
+}
+
+impl<'a> ManifestRepository<'a> for Manifest<'a> {}
+impl<'a> ManifestUseCase<'a> for Manifest<'a> {}

@@ -1,47 +1,14 @@
 lang: rust
-arch: ddd
 spec:
-- location: utils
+- location: entity
   upstream:
-    - name: template
+    - name: manifest
       codefile:
         - name: prelude
-        - name: rust
-
-- location: domain
-  upstream:
-    - name: model
-      codefile:
-        - name: manifest
-
-    - name: repository
-      codefile:
-        - name: manifest
-
-- location: infrastructure
-  upstream:
-    - name: repository
-      codefile:
-        - name: manifest
-
-- location: usecase
-  upstream:
-    - name: interface
-      codefile:
-        - name: code_file_generator
+        - name: root
   codefile:
     - name: manifest
-    - name: rust_file
-    - name: go_file
 
-
-- location: presentation
-  upstream:
-    - name: command
-      codefile:
-        - name: new
-        - name: up
-#
-- location: di
+- location: usecase
   codefile:
-    - name: container
+    - name: rust
