@@ -5,9 +5,10 @@ use yaml_rust::{
 use std::fs;
 use crate::domain::manifest::root::Root;
 use crate::domain::manifest::arch::Arch;
+use crate::domain::manifest::lang::Lang;
 
 pub struct Manifest<'a> {
-    pub lang: &'a str,
+    pub lang: Lang<'a>,
     pub arch: Arch<'a>,
     pub root: Root<'a>,
     pub spec: &'a Vec<Yaml>,
@@ -20,8 +21,9 @@ pub trait ManifestRepository<'a> {
         let docs = YamlLoader::load_from_str(&s).unwrap();
         let manifest = docs.get(0)
             .ok_or("[ERROR] saba.yml is not found.")?;
-        let lang = manifest["lang"].as_str()
+        let lang_raw = manifest["lang"].as_str()
             .ok_or("[ERROR] lang is a required field. lang is not set.")?;
+        let lang = Lang::new(lang_raw);
         let spec = manifest["spec"].as_vec()
             .ok_or("[ERROR] spec is not set. spec is a required field.")?;
         let arch = Arch::new(manifest["arch"].as_str().unwrap_or("plain"));
@@ -39,8 +41,7 @@ pub trait ManifestRepository<'a> {
 }
 
 pub trait ManifestUseCase<'a> {
-    fn location_action(&self) {
-
+    fn location_action(&self, manifest: Manifest<'a>) {
     }
 }
 

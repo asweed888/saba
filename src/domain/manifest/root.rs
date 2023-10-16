@@ -1,14 +1,18 @@
 pub struct Root<'a> {
-    path: &'a str,
+    pub path: &'a str,
+    pub default: &'a str,
 }
 
 impl<'a> Root<'a> {
     pub fn new(path: &'a str) -> Self {
-        Self{ path }
+        Self{
+            path,
+            default: ".",
+        }
     }
-    pub fn get_path(&self, default: &'a str) -> String {
+    pub fn get_path(&self) -> String {
         match self.path {
-            "" => { String::from(default) }
+            "" => { String::from(self.default) }
             _ => { String::from(self.path) }
         }
     }
