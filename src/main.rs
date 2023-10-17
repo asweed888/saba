@@ -7,7 +7,18 @@ mod domain {
     }
 }
 mod usecase {
+    pub mod manifest;
+    pub mod generate_file;
     pub mod rust;
+}
+mod presentation {
+    pub mod command {
+        pub mod up;
+        pub mod new;
+    }
+}
+mod di {
+    pub mod container;
 } // Automatically exported by saba.
 
 use clap::{arg, Command};

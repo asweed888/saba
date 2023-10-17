@@ -11,4 +11,19 @@ spec:
 
 - location: usecase
   codefile:
+    - name: manifest
+    - name: generate_file
     - name: rust
+
+
+- location: presentation
+  upstream:
+    - name: command
+      codefile:
+        - name: up
+        - name: new
+
+
+- location: di
+  codefile:
+    - name: container

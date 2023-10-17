@@ -39,11 +39,3 @@ pub trait ManifestRepository<'a> {
         )
     }
 }
-
-pub trait ManifestUseCase<'a> {
-    fn location_action(&self, manifest: Manifest<'a>) {
-    }
-}
-
-impl<'a> ManifestRepository<'a> for Manifest<'a> {}
-impl<'a> ManifestUseCase<'a> for Manifest<'a> {}
