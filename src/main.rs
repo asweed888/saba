@@ -6,10 +6,17 @@ mod domain {
         pub mod root;
     }
 }
+mod infrastructure {
+    pub mod fs {
+        pub mod manifest;
+    }
+}
 mod usecase {
-    pub mod manifest;
-    pub mod generate_file;
-    pub mod rust;
+    pub mod manifest {
+        pub mod mod;
+        pub mod interface;
+        pub mod rust;
+    }
 }
 mod presentation {
     pub mod command {

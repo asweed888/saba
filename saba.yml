@@ -1,4 +1,5 @@
 lang: rust
+arch: ddd
 spec:
 - location: domain
   upstream:
@@ -9,11 +10,21 @@ spec:
         - name: arch
         - name: root
 
+
+- location: infrastructure
+  upstream:
+    - name: fs
+      codefile:
+        - name: manifest
+
+
 - location: usecase
-  codefile:
+  upstream:
     - name: manifest
-    - name: generate_file
-    - name: rust
+      codefile:
+        - name: mod
+        - name: interface
+        - name: rust
 
 
 - location: presentation

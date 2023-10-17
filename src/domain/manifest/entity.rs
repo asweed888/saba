@@ -14,7 +14,7 @@ pub struct Manifest<'a> {
     pub spec: &'a Vec<Yaml>,
 }
 
-pub trait IManifestRepository<'a> {
+pub trait TManifestRepository<'a> {
     fn load(&self) -> Result<Manifest, &str> {
         let f = fs::read_to_string("./saba.yml");
         let s = f.unwrap().to_string();
@@ -39,13 +39,3 @@ pub trait IManifestRepository<'a> {
         )
     }
 }
-
-pub struct ManifestRepository {}
-
-impl ManifestRepository {
-    pub fn new() -> Self {
-        Self{};
-    }
-}
-
-impl<'a> IManifestRepository<'a> for ManifestRepository {}

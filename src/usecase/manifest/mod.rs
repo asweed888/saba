@@ -1,8 +1,3 @@
-use crate::domain::manifest::entity::{
-    Manifest,
-    ManifestRepository,
-};
-
 pub struct ManifestUseCase {
     repository: ManifestRepository,
 }
