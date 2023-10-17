@@ -1,7 +1,5 @@
-use crate::domain::manifest::entity::{
-    Manifest,
-    ManifestUseCase,
-};
+use crate::domain::manifest::entity::Manifest;
+use crate::usecase::generate_file::GenerateFileUseCase;
 
 pub struct RustUseCase<'a> {
     manifest: Manifest<'a>,
@@ -18,4 +16,4 @@ impl<'a> RustUseCase<'a> {
     }
 }
 
-impl<'a> ManifestUseCase<'a> for RustUseCase<'a> {}
+impl<'a> GenerateFileUseCase<'a> for RustUseCase<'a> {}

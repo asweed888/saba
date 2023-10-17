@@ -1,11 +1,11 @@
 use crate::usecase::manifest::ManifestUseCase;
 use crate::presentation::command::up::UpCommand;
 
-pub struct App<'a> {
-    pub up_cmd: UpCommand<'a>,
+pub struct App {
+    pub up_cmd: UpCommand,
 }
 
-pub struct DIContainer<'a> {};
+pub struct DIContainer {}
 
 impl DIContainer {
     pub fn new() -> Self {
@@ -17,6 +17,11 @@ impl DIContainer {
         }
     }
     fn new_up_cmd(&self) -> UpCommand {
-
+        UpCommand::new(
+            self.new_manifest_usecase(),
+        )
+    }
+    fn new_manifest_usecase(&self) -> ManifestUseCase {
+        ManifestUseCase::new()
     }
 }
