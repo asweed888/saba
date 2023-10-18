@@ -13,7 +13,7 @@ mod infrastructure {
 }
 mod usecase {
     pub mod manifest {
-        pub mod mod;
+        pub mod basic;
         pub mod interface;
         pub mod rust;
     }

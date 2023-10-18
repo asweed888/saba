@@ -1,27 +1,21 @@
-use crate::usecase::manifest::ManifestUseCase;
+use crate::domain::manifest::entity::TManifestRepository;
+use crate::infrastructure::fs::manifest::ManifestFileSystemRepository;
+use crate::usecase::manifest::basic::ManifestUseCase;
 use crate::presentation::command::up::UpCommand;
 
-pub struct App {
-    pub up_cmd: UpCommand,
-}
 
-pub struct DIContainer {}
+pub struct DIContainer<'a>;
 
-impl DIContainer {
+impl<'a> DIContainer<'a> {
     pub fn new() -> Self {
         Self{}
     }
-    pub fn new_app(&self) -> App {
+    pub fn new_app(&self) -> (UpCommand<'a, ) {
+        let manifest_repository = ManifestFileSystemRepository::new();
+        let manifest_usecase = ManifestUseCase::new(manifest_repository);
+        let up_cmd = UpCommand::new(&manifest_usecase);
         App{
-            up_cmd: self.new_up_cmd(),
+            up_cmd,
         }
-    }
-    fn new_up_cmd(&self) -> UpCommand {
-        UpCommand::new(
-            self.new_manifest_usecase(),
-        )
-    }
-    fn new_manifest_usecase(&self) -> ManifestUseCase {
-        ManifestUseCase::new()
     }
 }

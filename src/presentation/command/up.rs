@@ -1,13 +1,16 @@
 use clap::Command;
-use crate::usecase::manifest::ManifestUseCase;
-use crate::usecase::rust::RustUseCase;
+use crate::domain::manifest::entity::TManifestRepository;
+use crate::usecase::manifest::basic::ManifestUseCase;
 
-pub struct UpCommand {
-    pub manifest: ManifestUseCase,
+pub struct UpCommand<'a, R>
+where
+    R: TManifestRepository<'a>,
+{
+    pub manifest: ManifestUseCase<'a, R>,
 }
 
-impl UpCommand {
-    pub fn new(manifest: ManifestUseCase) -> Self {
+impl<'a, T> UpCommand<'a, T> {
+    pub fn new(manifest: ManifestUseCase<'a, T>) -> Self {
         Self{ manifest }
     }
     pub fn spec(&self) -> Command {
@@ -19,8 +22,6 @@ impl UpCommand {
 
         match manifest.lang {
             "rust" => {
-                let u = RustUseCase::new(manifest);
-                u.gen_file();
             }
         }
         Ok(())

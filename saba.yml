@@ -22,7 +22,7 @@ spec:
   upstream:
     - name: manifest
       codefile:
-        - name: mod
+        - name: basic
         - name: interface
         - name: rust
 
