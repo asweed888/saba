@@ -1,23 +1,18 @@
-use crate::domain::manifest::entity::{
-    Manifest,
-    TManifestRepository,
-};
+use crate::domain::manifest::entity::Manifest;
+use crate::infrastructure::repository::manifest::ManifestRepository;
 
 
-pub struct ManifestUseCase<'a, R>
-where
-    R: TManifestRepository<'a>,
-{
-    pub repository: R,
+pub struct ManifestUseCase {
+    pub repository: ManifestRepository,
 }
 
-impl<'a, R> ManifestUseCase<'a, R> {
-    pub fn new(repository: R) -> Self {
+impl ManifestUseCase {
+    pub fn new(repository: ManifestRepository) -> Self {
         Self{
             repository,
         }
     }
     pub fn load(&self) -> Result<Manifest, &str> {
-        self.repository;
+        self.repository.load()
     }
 }

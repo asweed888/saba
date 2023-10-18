@@ -13,7 +13,7 @@ spec:
 
 - location: infrastructure
   upstream:
-    - name: fs
+    - name: repository
       codefile:
         - name: manifest
 

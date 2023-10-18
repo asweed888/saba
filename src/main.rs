@@ -7,7 +7,7 @@ mod domain {
     }
 }
 mod infrastructure {
-    pub mod fs {
+    pub mod repository {
         pub mod manifest;
     }
 }

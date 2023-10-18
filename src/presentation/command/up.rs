@@ -1,16 +1,12 @@
 use clap::Command;
-use crate::domain::manifest::entity::TManifestRepository;
 use crate::usecase::manifest::basic::ManifestUseCase;
 
-pub struct UpCommand<'a, R>
-where
-    R: TManifestRepository<'a>,
-{
-    pub manifest: ManifestUseCase<'a, R>,
+pub struct UpCommand {
+    pub manifest: ManifestUseCase,
 }
 
-impl<'a, T> UpCommand<'a, T> {
-    pub fn new(manifest: ManifestUseCase<'a, T>) -> Self {
+impl UpCommand {
+    pub fn new(manifest: ManifestUseCase) -> Self {
         Self{ manifest }
     }
     pub fn spec(&self) -> Command {
