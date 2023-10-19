@@ -1,19 +1,19 @@
-pub struct Root<'a> {
-    pub path: &'a str,
-    pub default: &'a str,
+use getset::{CopyGetters, Setters};
+
+
+#[derive(CopyGetters, Setters, Default)]
+pub struct Root<T>
+where
+    T: Copy + Clone + Default,
+{
+    #[getset(get = "pub", set = "pub")]
+    path: T,
 }
 
-impl<'a> Root<'a> {
-    pub fn new(path: &'a str) -> Self {
+impl<T> Root<T> {
+    pub fn new(path: String) -> Self {
         Self{
             path,
-            default: ".",
-        }
-    }
-    pub fn get_path(&self) -> String {
-        match self.path {
-            "" => { String::from(self.default) }
-            _ => { String::from(self.path) }
         }
     }
 }

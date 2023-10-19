@@ -1,9 +1,13 @@
-pub struct Arch<'a> {
-    pub kind: &'a str,
+use getset::{Getters, Setters};
+
+#[derive(Getters, Setters)]
+pub struct Arch {
+    #[getset(get = "pub", set = "pub")]
+    kind: String,
 }
 
-impl<'a> Arch<'a> {
-    pub fn new(kind: &'a str) -> Self {
+impl Arch {
+    pub fn new(kind: String) -> Self {
         Self{ kind }
     }
     pub fn is_ddd(&self) -> bool {

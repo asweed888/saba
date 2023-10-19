@@ -1,13 +1,20 @@
-pub struct Lang<'a> {
-    pub name: &'a str,
-    pub ext: &'a str,
+use getset::{Getters, Setters};
+
+
+#[derive(Getters, Setters)]
+pub struct Lang {
+    #[getset(get = "pub", set = "pub")]
+    name: String,
+
+    #[getset(get = "pub", set = "pub")]
+    ext: String,
 }
 
-impl<'a> Lang<'a> {
-    pub fn new(name: &'a str) -> Self {
+impl Lang {
+    pub fn new(name: String) -> Self {
         Self{
             name,
-            ext: "",
+            ext: String::from(""),
         }
     }
 }

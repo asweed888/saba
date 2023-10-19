@@ -12,7 +12,7 @@ impl<'a> RustUseCase<'a> {
         }
     }
     pub fn gen_file(&self){
-        self.location_action(self.manifest);
+        self.location_action(&self.manifest);
     }
 }
 

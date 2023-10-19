@@ -1,4 +1,4 @@
-use crate::infrastructure::repository::manifest::ManifestRepository;
+use crate::domain::manifest::entity::ManifestRepository;
 use crate::usecase::manifest::basic::ManifestUseCase;
 use crate::presentation::command::up::UpCommand;
 

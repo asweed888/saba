@@ -1,5 +1,7 @@
-use crate::domain::manifest::entity::Manifest;
-use crate::infrastructure::repository::manifest::ManifestRepository;
+use crate::domain::manifest::entity::{
+    Manifest,
+    ManifestRepository,
+};
 
 
 pub struct ManifestUseCase {
