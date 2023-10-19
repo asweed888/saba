@@ -3,7 +3,8 @@ use crate::domain::manifest::entity::Manifest;
 
 pub trait TGenerateFileUseCase<'a> {
     fn location_action(&self, manifest: &'a Manifest) {
-        let mut workdir = manifest.root.path().to_string();
+        let root_path = manifest.root.path().as_str().clone();
+        let mut workdir = root_path.to_string();
 
         for spec in manifest.spec {
             let location = spec["location"].as_str().unwrap();
@@ -14,7 +15,7 @@ pub trait TGenerateFileUseCase<'a> {
             workdir.push_str(location);
 
             if !upstream.is_empty() {
-                self.upstream_action(workdir, upstream, &manifest);
+                self.upstream_action(workdir.clone(), upstream, &manifest);
             }
 
             if !codefile.is_empty() {
@@ -24,7 +25,7 @@ pub trait TGenerateFileUseCase<'a> {
     }
     fn upstream_action(
         &self,
-        mut workdir: String,
+        workdir: String,
         upstream: &Vec<Yaml>,
         manifest: &'a Manifest
     ) {
@@ -32,7 +33,7 @@ pub trait TGenerateFileUseCase<'a> {
     }
     fn codefile_action(
         &self,
-        mut workdir: String,
+        workdir: &'a str,
         codefile: &Vec<Yaml>,
         manifest: &'a Manifest
     ) {

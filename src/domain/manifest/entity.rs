@@ -6,7 +6,7 @@ use crate::domain::manifest::lang::Lang;
 pub struct Manifest<'a> {
     pub lang: Lang,
     pub arch: Arch,
-    pub root: Root<>,
+    pub root: Root,
     pub spec: &'a Vec<Yaml>,
 }
 
