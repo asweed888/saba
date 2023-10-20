@@ -54,6 +54,21 @@ pub trait TGenerateFileUseCase<'a> {
         codefile: &Vec<Yaml>,
         manifest: &'a Manifest
     ) {
+        let ext = manifest.lang.ext().as_str();
+        for f in codefile {
+            let filename = f["name"].as_str().unwrap();
+            workdir.push_str("/");
+            workdir.push_str(filename);
+            workdir.push_str(".");
+            workdir.push_str(ext);
+            let file = File::create(workdir.clone());
 
+            if workdir.contains("domain/model") {
+
+            }
+            else if workdir.contains("domain/repository") {
+
+            }
+        }
     }
 }
