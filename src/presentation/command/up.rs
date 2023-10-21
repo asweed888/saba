@@ -1,6 +1,6 @@
 use clap::Command;
 use crate::usecase::manifest::basic::ManifestUseCase;
-use crate::usecase::manifest::rust::RustUseCase;
+use crate::usecase::manifest::rust::basic::RustUseCase;
 
 pub struct UpCommand {
     pub manifest: ManifestUseCase,

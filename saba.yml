@@ -24,7 +24,11 @@ spec:
       codefile:
         - name: basic
         - name: interface
+      upstream:
         - name: rust
+          codefile:
+            - name: basic
+            - name: template
 
 
 - location: presentation

@@ -13,9 +13,12 @@ mod infrastructure {
 }
 mod usecase {
     pub mod manifest {
+        pub mod rust {
+            pub mod basic;
+            pub mod template;
+        }
         pub mod basic;
         pub mod interface;
-        pub mod rust;
     }
 }
 mod presentation {
