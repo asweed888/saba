@@ -21,7 +21,7 @@ pub trait TGenerateFileUseCase<'a> {
             }
 
             if !codefile.is_empty() {
-
+                self.codefile_action(workdir.clone(), codefile, &manifest);
             }
         }
     }
@@ -61,14 +61,61 @@ pub trait TGenerateFileUseCase<'a> {
             workdir.push_str(filename);
             workdir.push_str(".");
             workdir.push_str(ext);
-            let file = File::create(workdir.clone());
 
-            if workdir.contains("domain/model") {
-
+            if self.is_ddd_enabled(manifest) {
+                if workdir.contains("domain/model") {
+                    self.domain_model_action(workdir.clone(), manifest);
+                }
+                else if workdir.contains("domain/repository") {
+                    self.domain_repository_action(workdir.clone(), manifest);
+                }
+                else if workdir.contains("infrastructure") {
+                    self.infra_action(workdir.clone(), manifest);
+                }
+                else if workdir.contains("usecase") {
+                    self.usecase_action(workdir.clone(), manifest);
+                }
+                else if workdir.contains("presentation") {
+                    self.presentation_action(workdir.clone(), manifest);
+                }
             }
-            else if workdir.contains("domain/repository") {
-
+            else {
+                self.gen_file_default(workdir.clone(), manifest);
             }
         }
+    }
+    fn is_ddd_enabled(&self, manifest: &'a Manifest) -> bool {
+        manifest.arch.is_ddd()
+        && manifest.lang.name().as_str() != "bash"
+    }
+    fn domain_model_action(&self, workdir: String, manifest: &'a Manifest) {
+        println!("lang: {}", manifest.lang.name().as_str());
+        println!("file path: {}", workdir);
+        println!("domain layer model's action");
+    }
+    fn domain_repository_action(&self, workdir: String, manifest: &'a Manifest) {
+        println!("lang: {}", manifest.lang.name().as_str());
+        println!("file path: {}", workdir);
+        println!("domain layer repository's action");
+    }
+    fn infra_action(&self, workdir: String, manifest: &'a Manifest) {
+        println!("lang: {}", manifest.lang.name().as_str());
+        println!("file path: {}", workdir);
+        println!("infrastructure layer action");
+    }
+    fn usecase_action(&self, workdir: String, manifest: &'a Manifest) {
+        println!("lang: {}", manifest.lang.name().as_str());
+        println!("file path: {}", workdir);
+        println!("usecase layer action");
+    }
+    fn presentation_action(&self, workdir: String, manifest: &'a Manifest) {
+        println!("lang: {}", manifest.lang.name().as_str());
+        println!("file path: {}", workdir);
+        println!("presentation layer action");
+    }
+    fn gen_file_default(&self, workdir: String, manifest: &'a Manifest) {
+        println!("lang: {}", manifest.lang.name().as_str());
+        println!("file path: {}", workdir);
+        println!("file genarate default action");
     }
 }
