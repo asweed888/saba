@@ -19,6 +19,7 @@ mod usecase {
         }
         pub mod basic;
         pub mod interface;
+        pub mod utils;
     }
 }
 mod presentation {

@@ -12,7 +12,7 @@ impl ManifestRepository {
     pub fn new() -> Self {
         Self{}
     }
-    pub fn load(&self) -> Result<Manifest, &str> {
+    pub fn load(&self) -> Result<Manifest, Box<dyn std::error::Error>> {
         let f = fs::read_to_string("./saba.yml");
         let s = f.unwrap().to_string();
         let docs = YamlLoader::load_from_str(&s).unwrap();

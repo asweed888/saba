@@ -14,7 +14,7 @@ impl ManifestUseCase {
             repository,
         }
     }
-    pub fn load(&self) -> Result<Manifest, &str> {
+    pub fn load(&self) -> Result<Manifest, Box<dyn std::error::Error>> {
         self.repository.load()
     }
 }

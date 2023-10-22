@@ -14,13 +14,13 @@ impl UpCommand {
         Command::new("up")
             .about("up command")
     }
-    pub fn action(&self) -> Result<(), &str> {
+    pub fn action(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut manifest = self.manifest.load().unwrap();
 
         match manifest.lang.name().as_str() {
             "rust" => {
                 manifest.lang.set_ext(String::from("rs"));
-                manifest.root.set_path(String::from("./src"));
+                manifest.root.set_default(String::from("./src"));
                 let uc = RustUseCase::new(manifest);
                 uc.gen_file();
             }
