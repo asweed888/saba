@@ -33,12 +33,11 @@ mod di {
 } // Automatically exported by saba.
 
 use clap::{arg, Command};
+use anyhow::Result;
 use crate::di::container::DIContainer;
 
 
-fn main() {
-
-    let manifest_file_name = "./saba.yml";
+fn main() -> Result<()> {
     let dic = DIContainer::new();
     let app = dic.new_app();
 
@@ -52,7 +51,8 @@ fn main() {
         .get_matches();
 
     match matches.subcommand() {
-        Some(("up", up_matches)) => {
+        Some(("up", _)) => {
+            app.up_cmd.action()
         }
         _ => unreachable!()
     }
