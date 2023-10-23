@@ -2,6 +2,7 @@ use crate::domain::manifest::entity::{
     Manifest,
     ManifestRepository,
 };
+use anyhow::Result;
 
 
 pub struct ManifestUseCase {
@@ -14,7 +15,7 @@ impl ManifestUseCase {
             repository,
         }
     }
-    pub fn load(&self) -> Result<Manifest, Box<dyn std::error::Error>> {
+    pub fn load(&self) -> Result<Manifest> {
         self.repository.load()
     }
 }

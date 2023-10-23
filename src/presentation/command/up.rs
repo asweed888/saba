@@ -1,6 +1,8 @@
 use clap::Command;
+use anyhow::{bail, Result};
 use crate::usecase::manifest::basic::ManifestUseCase;
 use crate::usecase::manifest::rust::basic::RustUseCase;
+
 
 pub struct UpCommand {
     pub manifest: ManifestUseCase,
@@ -14,7 +16,7 @@ impl UpCommand {
         Command::new("up")
             .about("up command")
     }
-    pub fn action(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn action(&self) -> Result<()> {
         let mut manifest = self.manifest.load().unwrap();
 
         match manifest.lang.name().as_str() {
@@ -25,7 +27,7 @@ impl UpCommand {
                 uc.gen_file();
             }
             _ => {
-
+                bail!("[ERROR] The language is not supported.")
             }
         }
         Ok(())

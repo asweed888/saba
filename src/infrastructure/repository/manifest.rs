@@ -3,6 +3,7 @@ use crate::domain::manifest::entity::{
     ManifestRepository,
 };
 use yaml_rust::YamlLoader;
+use anyhow::{Context, Result};
 use std::fs;
 use crate::domain::manifest::root::Root;
 use crate::domain::manifest::arch::Arch;
@@ -12,17 +13,17 @@ impl ManifestRepository {
     pub fn new() -> Self {
         Self{}
     }
-    pub fn load(&self) -> Result<Manifest, Box<dyn std::error::Error>> {
+    pub fn load(&self) -> Result<Manifest> {
         let f = fs::read_to_string("./saba.yml");
         let s = f.unwrap().to_string();
         let docs = YamlLoader::load_from_str(&s).unwrap();
         let manifest = docs.get(0)
-            .ok_or("[ERROR] saba.yml is not found.")?;
+            .context("[ERROR] saba.yml is not found.")?;
         let lang_raw = manifest["lang"].as_str()
-            .ok_or("[ERROR] lang is a required field. lang is not set.")?;
+            .context("[ERROR] lang is a required field. lang is not set.")?;
         let lang = Lang::new(String::from(lang_raw));
         let spec = manifest["spec"].as_vec()
-            .ok_or("[ERROR] spec is not set. spec is a required field.")?;
+            .context("[ERROR] spec is not set. spec is a required field.")?;
         let arch = Arch::new(String::from(
             manifest["arch"].as_str().unwrap_or("plain"),
         ));

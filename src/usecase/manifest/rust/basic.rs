@@ -7,10 +7,11 @@ use crate::usecase::manifest::rust::template::{
     InfraTmpl,
     UseCaseTmpl,
     PresentationTmpl,
-    DiTmpl,
 };
 use askama::Template;
 use std::fs::File;
+use std::io::prelude::*;
+use anyhow::Result;
 
 
 pub struct RustUseCase<'a> {
@@ -28,12 +29,12 @@ impl<'a> RustUseCase<'a> {
     }
 }
 
+// impl<'a> TGenerateFileUseCase<'a> for RustUseCase<'a> {}
 impl<'a> TGenerateFileUseCase<'a> for RustUseCase<'a> {
     fn domain_model_action(
         &self,
         mut workdir: WorkDir,
-        manifest: &'a Manifest
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<()> {
 
         let fname = workdir.fname().unwrap();
         let data = DomainModelTmpl{
@@ -41,6 +42,88 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase<'a> {
         };
 
         let rendered_tmpl = data.render()?;
+        let mut file = File::create(workdir.path)?;
+
+        file.write_all(rendered_tmpl.as_bytes())?;
+
+        Ok(())
+    }
+    fn domain_repository_action(
+        &self,
+        mut workdir: WorkDir,
+    ) -> Result<()> {
+        let fname = workdir.fname().unwrap();
+        let data = DomainRepositoryTmpl{
+            fname: fname.as_str(),
+        };
+
+        let rendered_tmpl = data.render()?;
+        let mut file = File::create(workdir.path)?;
+
+        file.write_all(rendered_tmpl.as_bytes())?;
+
+        Ok(())
+    }
+    fn infra_action(
+        &self,
+        mut workdir: WorkDir,
+    ) -> Result<()> {
+        let fname = workdir.fname().unwrap();
+        let data = InfraTmpl{
+            fname: fname.as_str(),
+        };
+
+        let rendered_tmpl = data.render()?;
+        let mut file = File::create(workdir.path)?;
+
+        file.write_all(rendered_tmpl.as_bytes())?;
+
+        Ok(())
+    }
+    fn usecase_action(
+        &self,
+        mut workdir: WorkDir,
+    ) -> Result<()> {
+        let fname = workdir.fname().unwrap();
+        let data = UseCaseTmpl{
+            fname: fname.as_str(),
+        };
+
+        let rendered_tmpl = data.render()?;
+        let mut file = File::create(workdir.path)?;
+
+        file.write_all(rendered_tmpl.as_bytes())?;
+
+        Ok(())
+    }
+    fn presentation_action(
+        &self,
+        mut workdir: WorkDir,
+    ) -> Result<()> {
+        let fname = workdir.fname().unwrap();
+        let pkgname = workdir.pkgname().unwrap();
+        let data = PresentationTmpl{
+            fname: fname.as_str(),
+            pkgname: pkgname.as_str(),
+        };
+
+        let rendered_tmpl = data.render()?;
+        let mut file = File::create(workdir.path)?;
+
+        file.write_all(rendered_tmpl.as_bytes())?;
+
+        Ok(())
+    }
+    fn gen_file_default(
+        &self,
+        workdir: WorkDir,
+    ) -> Result<()> {
+
+        let mut file = File::create(workdir.path)?;
+        let file_contents = String::from("");
+
+        file.write_all(file_contents.as_bytes())?;
+
         Ok(())
     }
 }

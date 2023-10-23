@@ -2,6 +2,7 @@ use yaml_rust::Yaml;
 use crate::domain::manifest::entity::Manifest;
 use std::fs;
 use std::path::Path;
+use anyhow::Result;
 
 #[derive(Clone, Copy,Debug)]
 pub struct WorkDir<'a> {
@@ -18,11 +19,15 @@ impl<'a> WorkDir<'a> {
             root,
         }
     }
+    pub fn init(&mut self, root: &'a str) {
+        self.root = root.clone();
+        self.path = root.clone();
+    }
+    pub fn reset(&mut self) {
+        self.path = self.root.clone();
+    }
     pub fn path_push_str(&mut self, path: &str) {
         self.path.to_string().push_str(path);
-    }
-    pub fn set_root(&mut self, root: &'a str) {
-        self.root = root.clone();
     }
     pub fn fname(&mut self) -> Option<String> {
         let path = Path::new(self.path);
@@ -63,7 +68,7 @@ pub trait TGenerateFileUseCase<'a> {
     fn location_action(&self, manifest: &'a Manifest) {
         let root_path = manifest.root.get_path();
         let mut workdir = WorkDir::new();
-        workdir.set_root(root_path.as_str());
+        workdir.init(root_path.as_str());
 
 
         for spec in manifest.spec {
@@ -122,23 +127,23 @@ pub trait TGenerateFileUseCase<'a> {
 
             if self.is_ddd_enabled(manifest) {
                 if workdir.path.contains("domain/model") {
-                    self.domain_model_action(workdir, manifest);
+                    self.domain_model_action(workdir);
                 }
                 else if workdir.path.contains("domain/repository") {
-                    self.domain_repository_action(workdir, manifest);
+                    self.domain_repository_action(workdir);
                 }
                 else if workdir.path.contains("infrastructure") {
-                    self.infra_action(workdir, manifest);
+                    self.infra_action(workdir);
                 }
                 else if workdir.path.contains("usecase") {
-                    self.usecase_action(workdir, manifest);
+                    self.usecase_action(workdir);
                 }
                 else if workdir.path.contains("presentation") {
-                    self.presentation_action(workdir, manifest);
+                    self.presentation_action(workdir);
                 }
             }
             else {
-                self.gen_file_default(workdir, manifest);
+                self.gen_file_default(workdir);
             }
         }
     }
@@ -149,57 +154,39 @@ pub trait TGenerateFileUseCase<'a> {
     fn domain_model_action(
         &self,
         workdir: WorkDir,
-        manifest: &'a Manifest
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        println!("lang: {}", manifest.lang.name().as_str());
-        println!("file path: {}", workdir.path);
-        println!("domain layer model's action");
+    ) -> Result<()> {
+        println!("generating file: {}", workdir.path);
         Ok(())
     }
     fn domain_repository_action(
         &self,
         workdir: WorkDir,
-        manifest: &'a Manifest
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        println!("lang: {}", manifest.lang.name().as_str());
-        println!("file path: {}", workdir.path);
-        println!("domain layer repository's action");
+    ) -> Result<()> {
+        println!("generating file: {}", workdir.path);
         Ok(())
     }
     fn infra_action(&self,
         workdir: WorkDir,
-        manifest: &'a Manifest
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        println!("lang: {}", manifest.lang.name().as_str());
-        println!("file path: {}", workdir.path);
-        println!("infrastructure layer action");
+    ) -> Result<()> {
+        println!("generating file: {}", workdir.path);
         Ok(())
     }
     fn usecase_action(&self,
         workdir: WorkDir,
-        manifest: &'a Manifest
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        println!("lang: {}", manifest.lang.name().as_str());
-        println!("file path: {}", workdir.path);
-        println!("usecase layer action");
+    ) -> Result<()> {
+        println!("generating file: {}", workdir.path);
         Ok(())
     }
     fn presentation_action(&self,
         workdir: WorkDir,
-        manifest: &'a Manifest
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        println!("lang: {}", manifest.lang.name().as_str());
-        println!("file path: {}", workdir.path);
-        println!("presentation layer action");
+    ) -> Result<()> {
+        println!("generating file: {}", workdir.path);
         Ok(())
     }
     fn gen_file_default(&self,
         workdir: WorkDir,
-        manifest: &'a Manifest
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        println!("lang: {}", manifest.lang.name().as_str());
-        println!("file path: {}", workdir.path);
-        println!("file genarate default action");
+    ) -> Result<()> {
+        println!("generating file: {}", workdir.path);
         Ok(())
     }
 }

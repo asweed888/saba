@@ -89,8 +89,3 @@ impl DIContainer {
 }
 ", ext = "txt")]
 pub struct DiTmpl {}
-
-
-#[derive(Template)]
-#[template(source = "", ext = "txt")]
-pub struct DefaultTmpl {}
