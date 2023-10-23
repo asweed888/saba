@@ -3,32 +3,34 @@ use crate::domain::manifest::entity::Manifest;
 use std::fs;
 use std::path::Path;
 
-pub struct WorkDir {
-    pub path: String,
-    root: String,
+#[derive(Clone, Copy,Debug)]
+pub struct WorkDir<'a> {
+    pub path: &'a str,
+    root: &'a str,
 }
 
-impl WorkDir {
-    pub fn new(
-        path_orig: &str,
-    ) -> Self {
-        let path = String::from(path_orig);
-        let root = String::from(path_orig);
+impl<'a> WorkDir<'a> {
+    pub fn new() -> Self {
+        let path = "";
+        let root = "";
         Self{
             path,
             root,
         }
     }
     pub fn path_push_str(&mut self, path: &str) {
-        self.path.push_str(path);
+        self.path.to_string().push_str(path);
     }
-    pub fn fname(&self) -> String {
-        let path = Path::new(self.path.as_str());
+    pub fn set_root(&mut self, root: &'a str) {
+        self.root = root.clone();
+    }
+    pub fn fname(&mut self) -> String {
+        let path = Path::new(self.path);
         path.file_name().unwrap().to_str().unwrap().to_string()
     }
-    pub fn pkgname(&self) -> Option<String> {
-        let path = Path::new(self.path.as_str());
-        let root_path = self.root.as_str();
+    pub fn pkgname(&mut self) -> Option<String> {
+        let path = Path::new(self.path);
+        let root_path = self.root;
         let parent = path.parent()
             .unwrap()
             .to_str()
@@ -60,7 +62,9 @@ impl WorkDir {
 pub trait TGenerateFileUseCase<'a> {
     fn location_action(&self, manifest: &'a Manifest) {
         let root_path = manifest.root.get_path();
-        let mut workdir = WorkDir::new(&root_path.as_str());
+        let mut workdir = WorkDir::new();
+        workdir.set_root(root_path.as_str());
+
 
         for spec in manifest.spec {
             let location = spec["location"].as_str().unwrap();
@@ -89,8 +93,8 @@ pub trait TGenerateFileUseCase<'a> {
             let dirname = u["name"].as_str().unwrap();
             let upstream = u["upstream"].as_vec().unwrap();
             let codefile = u["codefile"].as_vec().unwrap();
-            workdir.path.push_str("/");
-            workdir.path.push_str(dirname);
+            workdir.path_push_str("/");
+            workdir.path_push_str(dirname);
             fs::create_dir_all(workdir.path);
 
             if !upstream.is_empty() {
@@ -111,10 +115,10 @@ pub trait TGenerateFileUseCase<'a> {
         let ext = manifest.lang.ext().as_str();
         for f in codefile {
             let filename = f["name"].as_str().unwrap();
-            workdir.path.push_str("/");
-            workdir.path.push_str(filename);
-            workdir.path.push_str(".");
-            workdir.path.push_str(ext);
+            workdir.path_push_str("/");
+            workdir.path_push_str(filename);
+            workdir.path_push_str(".");
+            workdir.path_push_str(ext);
 
             if self.is_ddd_enabled(manifest) {
                 if workdir.path.contains("domain/model") {
