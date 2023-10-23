@@ -24,7 +24,7 @@ impl UpCommand {
                 manifest.lang.set_ext(String::from("rs"));
                 manifest.root.set_default(String::from("./src"));
                 let uc = RustUseCase::new(manifest);
-                uc.gen_file();
+                uc.gen_file()?;
             }
             _ => {
                 bail!("[ERROR] The language is not supported.")

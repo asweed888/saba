@@ -3,11 +3,12 @@ use crate::domain::manifest::root::Root;
 use crate::domain::manifest::arch::Arch;
 use crate::domain::manifest::lang::Lang;
 
-pub struct Manifest<'a> {
+#[derive(Debug)]
+pub struct Manifest {
     pub lang: Lang,
     pub arch: Arch,
     pub root: Root,
-    pub spec: &'a Vec<Yaml>,
+    pub spec: Vec<Yaml>,
 }
 
 pub struct ManifestRepository{}

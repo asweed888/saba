@@ -1,6 +1,6 @@
 use getset::{Getters, Setters};
 
-#[derive(Getters, Setters)]
+#[derive(Getters, Setters, Debug)]
 pub struct Arch {
     #[getset(get = "pub", set = "pub")]
     kind: String,

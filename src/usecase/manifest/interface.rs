@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 use anyhow::Result;
 
-#[derive(Clone, Copy,Debug)]
+#[derive(Clone, Copy, Debug)]
 pub struct WorkDir<'a> {
     pub path: &'a str,
     root: &'a str,
@@ -27,7 +27,7 @@ impl<'a> WorkDir<'a> {
         self.path = self.root.clone();
     }
     pub fn path_push_str(&mut self, path: &str) {
-        self.path.to_string().push_str(path);
+         self.path.to_string().push_str(path);
     }
     pub fn fname(&mut self) -> Option<String> {
         let path = Path::new(self.path);
@@ -65,58 +65,62 @@ impl<'a> WorkDir<'a> {
 }
 
 pub trait TGenerateFileUseCase<'a> {
-    fn location_action(&self, manifest: &'a Manifest) {
+    fn location_action(&self, manifest: &'a Manifest) -> Result<()> {
         let root_path = manifest.root.get_path();
         let mut workdir = WorkDir::new();
         workdir.init(root_path.as_str());
+        let vec_default: &Vec<Yaml> = &vec![];
 
-
-        for spec in manifest.spec {
+        for spec in manifest.spec.clone() {
             let location = spec["location"].as_str().unwrap();
-            let upstream = spec["upstream"].as_vec().unwrap();
-            let codefile = spec["codefile"].as_vec().unwrap();
+            let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
 
             workdir.path_push_str("/");
             workdir.path_push_str(location);
 
             if !upstream.is_empty() {
-                self.upstream_action(workdir, upstream, &manifest);
+                self.upstream_action(workdir, upstream, &manifest)?;
             }
 
             if !codefile.is_empty() {
-                self.codefile_action(workdir, codefile, &manifest);
+                self.codefile_action(workdir, codefile, &manifest)?;
             }
         }
+        Ok(())
     }
     fn upstream_action(
         &self,
         mut workdir: WorkDir,
         upstream: &Vec<Yaml>,
         manifest: &'a Manifest
-    ) {
+    ) -> Result<()> {
+        let vec_default: &Vec<Yaml> = &vec![];
+
         for u in upstream {
             let dirname = u["name"].as_str().unwrap();
-            let upstream = u["upstream"].as_vec().unwrap();
-            let codefile = u["codefile"].as_vec().unwrap();
+            let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
             workdir.path_push_str("/");
             workdir.path_push_str(dirname);
-            fs::create_dir_all(workdir.path);
+            fs::create_dir_all(workdir.path)?;
 
             if !upstream.is_empty() {
-                self.upstream_action(workdir, upstream, manifest);
+                self.upstream_action(workdir, upstream, manifest)?;
             }
 
             if !codefile.is_empty() {
-                self.codefile_action(workdir, codefile, manifest);
+                self.codefile_action(workdir, codefile, manifest)?;
             }
         }
+        Ok(())
     }
     fn codefile_action(
         &self,
         mut workdir: WorkDir,
         codefile: &Vec<Yaml>,
         manifest: &'a Manifest
-    ) {
+    ) -> Result<()> {
         let ext = manifest.lang.ext().as_str();
         for f in codefile {
             let filename = f["name"].as_str().unwrap();
@@ -125,27 +129,30 @@ pub trait TGenerateFileUseCase<'a> {
             workdir.path_push_str(".");
             workdir.path_push_str(ext);
 
+            println!("workdir: {}", workdir.path);
+
             if self.is_ddd_enabled(manifest) {
                 if workdir.path.contains("domain/model") {
-                    self.domain_model_action(workdir);
+                    self.domain_model_action(workdir)?;
                 }
                 else if workdir.path.contains("domain/repository") {
-                    self.domain_repository_action(workdir);
+                    self.domain_repository_action(workdir)?;
                 }
                 else if workdir.path.contains("infrastructure") {
-                    self.infra_action(workdir);
+                    self.infra_action(workdir)?;
                 }
                 else if workdir.path.contains("usecase") {
-                    self.usecase_action(workdir);
+                    self.usecase_action(workdir)?;
                 }
                 else if workdir.path.contains("presentation") {
-                    self.presentation_action(workdir);
+                    self.presentation_action(workdir)?;
                 }
             }
             else {
-                self.gen_file_default(workdir);
+                self.gen_file_default(workdir)?;
             }
         }
+        Ok(())
     }
     fn is_ddd_enabled(&self, manifest: &'a Manifest) -> bool {
         manifest.arch.is_ddd()

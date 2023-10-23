@@ -13,23 +13,24 @@ use std::fs::File;
 use std::io::prelude::*;
 use anyhow::Result;
 
-
-pub struct RustUseCase<'a> {
-    manifest: Manifest<'a>,
+#[derive(Debug)]
+pub struct RustUseCase {
+    manifest: Manifest,
 }
 
-impl<'a> RustUseCase<'a> {
-    pub fn new(manifest: Manifest<'a>) -> Self {
+impl<'a> RustUseCase {
+    pub fn new(manifest: Manifest) -> Self {
         Self{
             manifest,
         }
     }
-    pub fn gen_file(&self){
-        self.location_action(&self.manifest);
+    pub fn gen_file(&self) -> Result<()> {
+        self.location_action(&self.manifest)?;
+        Ok(())
     }
 }
 
-impl<'a> TGenerateFileUseCase<'a> for RustUseCase<'a> {}
+impl<'a> TGenerateFileUseCase<'a> for RustUseCase {}
 // impl<'a> TGenerateFileUseCase<'a> for RustUseCase<'a> {
 //     fn domain_model_action(
 //         &self,

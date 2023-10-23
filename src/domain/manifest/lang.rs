@@ -1,7 +1,7 @@
 use getset::{Getters, Setters};
 
 
-#[derive(Getters, Setters)]
+#[derive(Getters, Setters, Debug)]
 pub struct Lang {
     #[getset(get = "pub", set = "pub")]
     name: String,
