@@ -26,6 +26,9 @@ impl<'a> WorkDir<'a> {
     pub fn reset(&mut self) {
         self.path = self.root.clone();
     }
+    pub fn set_path(&mut self, path: &'a str) {
+        self.path = path;
+    }
     pub fn path_push_str(&mut self, path: &str) {
          self.path.to_string().push_str(path);
     }
@@ -76,8 +79,10 @@ pub trait TGenerateFileUseCase<'a> {
             let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
             let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
 
-            workdir.path_push_str("/");
-            workdir.path_push_str(location);
+            let path = workdir.path.clone();
+            let s = format!("{path}/{location}");
+            workdir.set_path(s.as_str());
+
 
             if !upstream.is_empty() {
                 self.upstream_action(workdir, upstream, &manifest)?;
