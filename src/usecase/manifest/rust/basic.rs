@@ -1,5 +1,4 @@
 use crate::domain::manifest::entity::Manifest;
-use crate::usecase::manifest::interface::WorkDir;
 use crate::usecase::manifest::interface::TGenerateFileUseCase;
 use crate::usecase::manifest::rust::template::{
     DomainModelTmpl,

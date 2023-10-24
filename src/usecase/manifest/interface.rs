@@ -1,76 +1,59 @@
 use yaml_rust::Yaml;
 use crate::domain::manifest::entity::Manifest;
 use std::fs;
-use std::path::{ Path, PathBuf };
+use std::path::PathBuf;
 use anyhow::Result;
 
-pub struct WorkDir<'a> {
-    pub path: PathBuf,
-    pub root: &'a str,
-}
-
-impl<'a> WorkDir<'a> {
-    pub fn new(root_path: &str) -> Self {
-        Self{
-
-        }
-    }
-}
-
-// #[derive(Clone, Copy, Debug)]
-// pub struct WorkDir<'a> {
-//     pub path: &'a str,
-//     root: &'a str,
-// }
-//
 // impl<'a> WorkDir<'a> {
-//     pub fn new() -> Self {
-//         let path = "";
-//         let root = "";
+//     pub fn new(root_path: &'a str) -> Self {
 //         Self{
-//             path,
-//             root,
+//             path: PathBuf::from(root_path.clone()),
+//             root: root_path,
 //         }
 //     }
-//     pub fn init(&mut self, root: &'a str) {
-//         self.root = root.clone();
-//         self.path = root.clone();
-//     }
-//     pub fn reset(&mut self) {
-//         self.path = self.root.clone();
+//     pub fn path_join(&mut self, s: &'a str) {
+//         self.path.join(s);
 //     }
 //     pub fn fname(&mut self) -> Option<String> {
-//         let path = Path::new(self.path);
-//         Some(path.file_name().unwrap().to_str().unwrap_or("").to_string())
+//         Some(
+//             self.path
+//             .file_name()
+//             .unwrap()
+//             .to_str()
+//             .unwrap_or(
+//                 self.root,
+//             )
+//             .to_string()
+//         )
 //     }
 //     pub fn pkgname(&mut self) -> Option<String> {
-//         let path = Path::new(self.path);
-//         let root_path = self.root;
-//         let parent = path.parent()
+//         let parent = self.path
+//             .parent()
 //             .unwrap()
 //             .to_str()
 //             .unwrap_or("");
-//
-//         match root_path {
+//         match self.root {
 //             "." => {
 //                 if parent != "." {
-//                     return Some(parent.to_string())
+//                     Some(parent.to_string())
 //                 }
 //                 else {
-//                     return None
+//                     None
 //                 }
 //             }
 //             _ => {
-//                 let root = root_path.replace("./", "");
+//                 let root = self.root.replace("./", "");
 //                 if parent != root.as_str() {
-//                     return Some(parent.to_string())
+//                     Some(parent.to_string())
 //                 }
 //                 else {
-//                     return None
+//                     None
 //                 }
 //             }
 //         }
-//
+//     }
+//     pub fn path_contains(&mut self, s: &'a str) -> bool {
+//         self.path.to_str().unwrap().contains(s)
 //     }
 // }
 
@@ -78,18 +61,15 @@ impl<'a> WorkDir<'a> {
 pub trait TGenerateFileUseCase<'a> {
     fn location_action(&self, manifest: &'a Manifest) -> Result<()> {
         let root_path = manifest.root.get_path();
-        let mut workdir = WorkDir::new();
-        workdir.init(root_path.as_str());
+        let mut workdir = PathBuf::from(root_path.clone());
         let vec_default: &Vec<Yaml> = &vec![];
 
         for spec in manifest.spec.clone() {
-            let location = spec["location"].as_str().unwrap();
+            let location = spec["location"].as_str().unwrap().clone();
             let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
             let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
 
-            let mut new_path = vec!["/", location];
-            new_path.insert(0, workdir.path);
-
+            workdir.join(location);
 
             if !upstream.is_empty() {
                 self.upstream_action(workdir, upstream, &manifest)?;
@@ -103,7 +83,7 @@ pub trait TGenerateFileUseCase<'a> {
     }
     fn upstream_action(
         &self,
-        mut workdir: WorkDir,
+        mut workdir: PathBuf,
         upstream: &Vec<Yaml>,
         manifest: &'a Manifest
     ) -> Result<()> {
@@ -113,9 +93,10 @@ pub trait TGenerateFileUseCase<'a> {
             let dirname = u["name"].as_str().unwrap();
             let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
             let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
-            workdir.path_push_str("/");
-            workdir.path_push_str(dirname);
-            fs::create_dir_all(workdir.path)?;
+
+            workdir.join(dirname);
+
+            fs::create_dir_all(workdir)?;
 
             if !upstream.is_empty() {
                 self.upstream_action(workdir, upstream, manifest)?;
@@ -129,34 +110,34 @@ pub trait TGenerateFileUseCase<'a> {
     }
     fn codefile_action(
         &self,
-        mut workdir: WorkDir,
+        mut workdir: PathBuf,
         codefile: &Vec<Yaml>,
         manifest: &'a Manifest
     ) -> Result<()> {
         let ext = manifest.lang.ext().as_str();
         for f in codefile {
             let filename = f["name"].as_str().unwrap();
-            workdir.path_push_str("/");
-            workdir.path_push_str(filename);
-            workdir.path_push_str(".");
-            workdir.path_push_str(ext);
 
-            println!("workdir: {}", workdir.path);
+            workdir.join(filename);
+            workdir.set_extension(ext);
+            let path = workdir.to_str().unwrap();
+
+            println!("workdir: {}", path);
 
             if self.is_ddd_enabled(manifest) {
-                if workdir.path.contains("domain/model") {
+                if path.contains("domain/model") {
                     self.domain_model_action(workdir)?;
                 }
-                else if workdir.path.contains("domain/repository") {
+                else if path.contains("domain/repository") {
                     self.domain_repository_action(workdir)?;
                 }
-                else if workdir.path.contains("infrastructure") {
+                else if path.contains("/infrastructure") {
                     self.infra_action(workdir)?;
                 }
-                else if workdir.path.contains("usecase") {
+                else if path.contains("/usecase") {
                     self.usecase_action(workdir)?;
                 }
-                else if workdir.path.contains("presentation") {
+                else if path.contains("presentation") {
                     self.presentation_action(workdir)?;
                 }
             }
@@ -172,40 +153,40 @@ pub trait TGenerateFileUseCase<'a> {
     }
     fn domain_model_action(
         &self,
-        workdir: WorkDir,
+        workdir: PathBuf,
     ) -> Result<()> {
-        println!("generating file: {}", workdir.path);
+        println!("generating file: {}", workdir.to_str().unwrap());
         Ok(())
     }
     fn domain_repository_action(
         &self,
-        workdir: WorkDir,
+        workdir: PathBuf,
     ) -> Result<()> {
-        println!("generating file: {}", workdir.path);
+        println!("generating file: {}", workdir.to_str().unwrap());
         Ok(())
     }
     fn infra_action(&self,
-        workdir: WorkDir,
+        workdir: PathBuf,
     ) -> Result<()> {
-        println!("generating file: {}", workdir.path);
+        println!("generating file: {}", workdir.to_str().unwrap());
         Ok(())
     }
     fn usecase_action(&self,
-        workdir: WorkDir,
+        workdir: PathBuf,
     ) -> Result<()> {
-        println!("generating file: {}", workdir.path);
+        println!("generating file: {}", workdir.to_str().unwrap());
         Ok(())
     }
     fn presentation_action(&self,
-        workdir: WorkDir,
+        workdir: PathBuf,
     ) -> Result<()> {
-        println!("generating file: {}", workdir.path);
+        println!("generating file: {}", workdir.to_str().unwrap());
         Ok(())
     }
     fn gen_file_default(&self,
-        workdir: WorkDir,
+        workdir: PathBuf,
     ) -> Result<()> {
-        println!("generating file: {}", workdir.path);
+        println!("generating file: {}", workdir.to_str().unwrap());
         Ok(())
     }
 }
