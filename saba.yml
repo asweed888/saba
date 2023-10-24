@@ -10,7 +10,6 @@ spec:
         - name: arch
         - name: root
 
-
 - location: infrastructure
   upstream:
     - name: repository

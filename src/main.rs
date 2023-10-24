@@ -4,6 +4,7 @@ mod domain {
         pub mod lang;
         pub mod arch;
         pub mod root;
+        pub mod workdir;
     }
 }
 mod infrastructure {

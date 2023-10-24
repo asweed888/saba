@@ -1,71 +1,79 @@
 use yaml_rust::Yaml;
 use crate::domain::manifest::entity::Manifest;
 use std::fs;
-use std::path::Path;
+use std::path::{ Path, PathBuf };
 use anyhow::Result;
 
-#[derive(Clone, Copy, Debug)]
 pub struct WorkDir<'a> {
-    pub path: &'a str,
-    root: &'a str,
+    pub path: PathBuf,
+    pub root: &'a str,
 }
 
 impl<'a> WorkDir<'a> {
-    pub fn new() -> Self {
-        let path = "";
-        let root = "";
+    pub fn new(root_path: &str) -> Self {
         Self{
-            path,
-            root,
-        }
-    }
-    pub fn init(&mut self, root: &'a str) {
-        self.root = root.clone();
-        self.path = root.clone();
-    }
-    pub fn reset(&mut self) {
-        self.path = self.root.clone();
-    }
-    pub fn set_path(&mut self, path: &'a str) {
-        self.path = path;
-    }
-    pub fn path_push_str(&mut self, path: &str) {
-         self.path.to_string().push_str(path);
-    }
-    pub fn fname(&mut self) -> Option<String> {
-        let path = Path::new(self.path);
-        Some(path.file_name().unwrap().to_str().unwrap_or("").to_string())
-    }
-    pub fn pkgname(&mut self) -> Option<String> {
-        let path = Path::new(self.path);
-        let root_path = self.root;
-        let parent = path.parent()
-            .unwrap()
-            .to_str()
-            .unwrap_or("");
 
-        match root_path {
-            "." => {
-                if parent != "." {
-                    return Some(parent.to_string())
-                }
-                else {
-                    return None
-                }
-            }
-            _ => {
-                let root = root_path.replace("./", "");
-                if parent != root.as_str() {
-                    return Some(parent.to_string())
-                }
-                else {
-                    return None
-                }
-            }
         }
-
     }
 }
+
+// #[derive(Clone, Copy, Debug)]
+// pub struct WorkDir<'a> {
+//     pub path: &'a str,
+//     root: &'a str,
+// }
+//
+// impl<'a> WorkDir<'a> {
+//     pub fn new() -> Self {
+//         let path = "";
+//         let root = "";
+//         Self{
+//             path,
+//             root,
+//         }
+//     }
+//     pub fn init(&mut self, root: &'a str) {
+//         self.root = root.clone();
+//         self.path = root.clone();
+//     }
+//     pub fn reset(&mut self) {
+//         self.path = self.root.clone();
+//     }
+//     pub fn fname(&mut self) -> Option<String> {
+//         let path = Path::new(self.path);
+//         Some(path.file_name().unwrap().to_str().unwrap_or("").to_string())
+//     }
+//     pub fn pkgname(&mut self) -> Option<String> {
+//         let path = Path::new(self.path);
+//         let root_path = self.root;
+//         let parent = path.parent()
+//             .unwrap()
+//             .to_str()
+//             .unwrap_or("");
+//
+//         match root_path {
+//             "." => {
+//                 if parent != "." {
+//                     return Some(parent.to_string())
+//                 }
+//                 else {
+//                     return None
+//                 }
+//             }
+//             _ => {
+//                 let root = root_path.replace("./", "");
+//                 if parent != root.as_str() {
+//                     return Some(parent.to_string())
+//                 }
+//                 else {
+//                     return None
+//                 }
+//             }
+//         }
+//
+//     }
+// }
+
 
 pub trait TGenerateFileUseCase<'a> {
     fn location_action(&self, manifest: &'a Manifest) -> Result<()> {
@@ -79,9 +87,8 @@ pub trait TGenerateFileUseCase<'a> {
             let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
             let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
 
-            let path = workdir.path.clone();
-            let s = format!("{path}/{location}");
-            workdir.set_path(s.as_str());
+            let mut new_path = vec!["/", location];
+            new_path.insert(0, workdir.path);
 
 
             if !upstream.is_empty() {
