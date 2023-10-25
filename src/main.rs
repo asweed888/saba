@@ -32,7 +32,7 @@ mod di {
     pub mod container;
 } // Automatically exported by saba.
 
-use clap::{arg, Command};
+use clap::Command;
 use anyhow::Result;
 use crate::di::container::DIContainer;
 
