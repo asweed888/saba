@@ -71,8 +71,6 @@ pub trait TGenerateFileUseCase<'a> {
             workdir.set_extension(ext);
             let path = workdir.to_str().unwrap();
 
-            // println!("workdir: {}", path);
-
             if self.is_ddd_enabled(manifest) {
                 if path.contains("domain/model") {
                     self.domain_model_action(workdir.clone(), manifest)?;
@@ -156,7 +154,7 @@ pub trait TGenerateFileUseCase<'a> {
     ) -> Option<String> {
         let root = manifest.root.get_path();
         Some(
-            wd.file_name()
+            wd.file_stem()
             .unwrap()
             .to_str()
             .unwrap_or(root.as_str())
