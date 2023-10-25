@@ -61,22 +61,22 @@ use anyhow::Result;
 pub trait TGenerateFileUseCase<'a> {
     fn location_action(&self, manifest: &'a Manifest) -> Result<()> {
         let root_path = manifest.root.get_path();
-        let mut workdir = PathBuf::from(root_path.clone());
+        let mut workdir = PathBuf::from(root_path);
         let vec_default: &Vec<Yaml> = &vec![];
 
         for spec in manifest.spec.clone() {
-            let location = spec["location"].as_str().unwrap().clone();
+            let location = spec["location"].as_str().unwrap();
             let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
             let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
 
-            workdir.join(location);
+            workdir.push(location);
 
             if !upstream.is_empty() {
-                self.upstream_action(workdir, upstream, &manifest)?;
+                self.upstream_action(workdir.clone(), upstream, &manifest)?;
             }
 
             if !codefile.is_empty() {
-                self.codefile_action(workdir, codefile, &manifest)?;
+                self.codefile_action(workdir.clone(), codefile, &manifest)?;
             }
         }
         Ok(())
@@ -94,16 +94,16 @@ pub trait TGenerateFileUseCase<'a> {
             let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
             let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
 
-            workdir.join(dirname);
+            workdir.push(dirname);
 
-            fs::create_dir_all(workdir)?;
+            // fs::create_dir_all(workdir.clone())?;
 
             if !upstream.is_empty() {
-                self.upstream_action(workdir, upstream, manifest)?;
+                self.upstream_action(workdir.clone(), upstream, manifest)?;
             }
 
             if !codefile.is_empty() {
-                self.codefile_action(workdir, codefile, manifest)?;
+                self.codefile_action(workdir.clone(), codefile, manifest)?;
             }
         }
         Ok(())
@@ -118,7 +118,7 @@ pub trait TGenerateFileUseCase<'a> {
         for f in codefile {
             let filename = f["name"].as_str().unwrap();
 
-            workdir.join(filename);
+            workdir.push(filename);
             workdir.set_extension(ext);
             let path = workdir.to_str().unwrap();
 
@@ -126,23 +126,23 @@ pub trait TGenerateFileUseCase<'a> {
 
             if self.is_ddd_enabled(manifest) {
                 if path.contains("domain/model") {
-                    self.domain_model_action(workdir)?;
+                    self.domain_model_action(workdir.clone())?;
                 }
                 else if path.contains("domain/repository") {
-                    self.domain_repository_action(workdir)?;
+                    self.domain_repository_action(workdir.clone())?;
                 }
                 else if path.contains("/infrastructure") {
-                    self.infra_action(workdir)?;
+                    self.infra_action(workdir.clone())?;
                 }
                 else if path.contains("/usecase") {
-                    self.usecase_action(workdir)?;
+                    self.usecase_action(workdir.clone())?;
                 }
                 else if path.contains("presentation") {
-                    self.presentation_action(workdir)?;
+                    self.presentation_action(workdir.clone())?;
                 }
             }
             else {
-                self.gen_file_default(workdir)?;
+                self.gen_file_default(workdir.clone())?;
             }
         }
         Ok(())
