@@ -88,4 +88,6 @@ impl DIContainer {
     }
 }
 ", ext = "txt")]
-pub struct DiTmpl {}
+pub struct DiTmpl {
+    crates: Vec<String>,
+}

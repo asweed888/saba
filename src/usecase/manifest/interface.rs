@@ -72,19 +72,19 @@ pub trait TGenerateFileUseCase<'a> {
             let path = workdir.to_str().unwrap();
 
             if self.is_ddd_enabled(manifest) {
-                if path.contains("domain/model") {
+                if path.contains("/domain/model/") {
                     self.domain_model_action(workdir.clone(), manifest)?;
                 }
-                else if path.contains("domain/repository") {
+                else if path.contains("/domain/repository/") {
                     self.domain_repository_action(workdir.clone(), manifest)?;
                 }
-                else if path.contains("/infrastructure") {
+                else if path.contains("/infrastructure/") {
                     self.infra_action(workdir.clone(), manifest)?;
                 }
-                else if path.contains("/usecase") {
+                else if path.contains("/usecase/") {
                     self.usecase_action(workdir.clone(), manifest)?;
                 }
-                else if path.contains("/presentation") {
+                else if path.contains("/presentation/") {
                     self.presentation_action(workdir.clone(), manifest)?;
                 }
                 else if !path.contains("/di/") {
@@ -97,6 +97,13 @@ pub trait TGenerateFileUseCase<'a> {
     fn is_ddd_enabled(&self, manifest: &'a Manifest) -> bool {
         manifest.arch.is_ddd()
         && manifest.lang.name().as_str() != "bash"
+    }
+    fn di_container_action(
+        &self,
+        wd: PathBuf,
+        manifest: &'a Manifest,
+    ) -> Result<()> {
+        self.gen_file_default_ddd(wd.clone(), manifest)
     }
     fn domain_model_action(
         &self,
