@@ -1,7 +1,7 @@
 use yaml_rust::Yaml;
 use crate::domain::manifest::entity::Manifest;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Mutex;
 use anyhow::Result;
 
@@ -67,6 +67,8 @@ pub trait TGenerateFileUseCase<'a> {
         manifest: &'a Manifest
     ) -> Result<()> {
         let ext = manifest.lang.ext().as_str();
+        let mut is_ddd = false;
+        let mut is_di_container = false;
 
         for f in codefile {
             let mut workdir = PathBuf::from(wd.to_str().unwrap());
@@ -75,8 +77,9 @@ pub trait TGenerateFileUseCase<'a> {
             workdir.push(filename);
             workdir.set_extension(ext);
             let path = workdir.to_str().unwrap();
+            is_ddd = self.is_ddd_enabled(manifest);
 
-            if self.is_ddd_enabled(manifest) {
+            if is_ddd {
                 if path.contains("/domain/model/") {
                     self.domain_model_action(workdir.clone(), manifest)?;
                 }
@@ -92,12 +95,19 @@ pub trait TGenerateFileUseCase<'a> {
                 else if path.contains("/presentation/") {
                     self.presentation_action(workdir.clone(), manifest)?;
                 }
-                else if !path.contains("/di/") {
+                else if path.contains("/di/") {
+                    is_di_container = true;
+                }
+                else {
                     self.gen_file_default_ddd(workdir.clone(), manifest)?;
                 }
 
-                println!("path is: {}", path);
+                self.save_path(workdir.clone(), manifest)?;
             }
+        }
+
+        if is_ddd && is_di_container {
+            self.di_container_action(manifest)?;
         }
         Ok(())
     }
@@ -107,19 +117,29 @@ pub trait TGenerateFileUseCase<'a> {
     }
     fn save_path(
         &self,
-        wd: PathBuf,
+        mut wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        let root = manifest.root.get_path().as_str();
-
+        wd.set_extension("");
+        let mut path_list = PATH_LIST.lock().unwrap();
+        let root = manifest.root.get_path();
+        let path = wd.to_str()
+            .unwrap()
+            .replace(root.as_str(), "");
+        path_list.push(path);
         Ok(())
     }
     fn di_container_action(
         &self,
-        wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        self.gen_file_default_ddd(wd.clone(), manifest)
+        let path_list = PATH_LIST.lock().unwrap();
+        for path in path_list.iter() {
+            let p = Path::new(path);
+            let fname = p.file_stem().unwrap();
+            println!("path is {}", fname.to_str().unwrap());
+        }
+        Ok(())
     }
     fn domain_model_action(
         &self,
