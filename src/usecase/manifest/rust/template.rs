@@ -73,7 +73,9 @@ pub struct PresentationTmpl<'a> {
 
 
 #[derive(Template)]
-#[template(source = "
+#[template(source = "{% for import in imports %}
+use {{import}}
+{% endfor %}
 
 pub struct App {}
 
@@ -89,5 +91,5 @@ impl DIContainer {
 }
 ", ext = "txt")]
 pub struct DiTmpl {
-    crates: Vec<String>,
+    imports: Vec<String>,
 }

@@ -2,7 +2,12 @@ use yaml_rust::Yaml;
 use crate::domain::manifest::entity::Manifest;
 use std::fs;
 use std::path::PathBuf;
+use std::sync::Mutex;
 use anyhow::Result;
+
+lazy_static::lazy_static! {
+    static ref PATH_LIST: Mutex<Vec<String>> = Mutex::new(Vec::new());
+}
 
 pub trait TGenerateFileUseCase<'a> {
     fn location_action(&self, manifest: &'a Manifest) -> Result<()> {
@@ -90,6 +95,8 @@ pub trait TGenerateFileUseCase<'a> {
                 else if !path.contains("/di/") {
                     self.gen_file_default_ddd(workdir.clone(), manifest)?;
                 }
+
+                println!("path is: {}", path);
             }
         }
         Ok(())
@@ -97,6 +104,15 @@ pub trait TGenerateFileUseCase<'a> {
     fn is_ddd_enabled(&self, manifest: &'a Manifest) -> bool {
         manifest.arch.is_ddd()
         && manifest.lang.name().as_str() != "bash"
+    }
+    fn save_path(
+        &self,
+        wd: PathBuf,
+        manifest: &'a Manifest,
+    ) -> Result<()> {
+        let root = manifest.root.get_path().as_str();
+
+        Ok(())
     }
     fn di_container_action(
         &self,
