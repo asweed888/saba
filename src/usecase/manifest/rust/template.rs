@@ -76,7 +76,9 @@ pub struct PresentationTmpl<'a> {
 
 #[derive(Template)]
 #[template(source = "{% for import in imports -%}
-use {{ rs_utils::crate_path(import) }}
+{% if !rs_utils::contains_di_str(import) -%}
+use {{ rs_utils::crate_path(import) }};
+{% endif -%}
 {% endfor %}
 pub struct App {}
 
