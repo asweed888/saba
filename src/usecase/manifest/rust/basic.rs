@@ -1,11 +1,12 @@
 use crate::domain::manifest::entity::Manifest;
-use crate::usecase::manifest::interface::TGenerateFileUseCase;
+use crate::usecase::manifest::interface::{TGenerateFileUseCase, PATH_LIST};
 use crate::usecase::manifest::rust::template::{
     DomainModelTmpl,
     DomainRepositoryTmpl,
     InfraTmpl,
     UseCaseTmpl,
     PresentationTmpl,
+    DiTmpl,
 };
 use askama::Template;
 use std::fs::File;
@@ -31,6 +32,26 @@ impl<'a> RustUseCase {
 
 // impl<'a> TGenerateFileUseCase<'a> for RustUseCase {}
 impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
+    fn di_container_action(
+        &self,
+        wd: PathBuf,
+        _: &'a Manifest,
+    ) -> Result<()> {
+        let path_list_raw = PATH_LIST.lock().unwrap();
+        let path_list = &*path_list_raw;
+        let data = DiTmpl{
+            imports: path_list,
+        };
+
+        let rendered_tmpl = data.render()?;
+
+        println!("rendered_tmpl is {}", rendered_tmpl);
+        // let mut file = File::create(wd.to_str().unwrap())?;
+        //
+        // file.write_all(rendered_tmpl.as_bytes())?;
+
+        Ok(())
+    }
     fn domain_model_action(
         &self,
         wd: PathBuf,

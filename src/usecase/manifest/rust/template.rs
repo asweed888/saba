@@ -1,5 +1,7 @@
 use askama::Template;
+use std::path::{Path, PathBuf};
 use crate::usecase::manifest::utils;
+use crate::usecase::manifest::rust::utils as rs_utils;
 
 #[derive(Template)]
 #[template(source = "pub struct {{ utils::to_title(fname) }} {}", ext = "txt")]
@@ -73,10 +75,9 @@ pub struct PresentationTmpl<'a> {
 
 
 #[derive(Template)]
-#[template(source = "{% for import in imports %}
-use {{import}}
+#[template(source = "{% for import in imports -%}
+use {{ rs_utils::crate_path(import) }}
 {% endfor %}
-
 pub struct App {}
 
 pub struct DIContainer {}
@@ -90,6 +91,6 @@ impl DIContainer {
     }
 }
 ", ext = "txt")]
-pub struct DiTmpl {
-    imports: Vec<String>,
+pub struct DiTmpl<'a> {
+    pub imports: &'a Vec<String>,
 }

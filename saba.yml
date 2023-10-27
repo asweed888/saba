@@ -29,6 +29,7 @@ spec:
           codefile:
             - name: basic
             - name: template
+            - name: utils
 
 
 - location: presentation

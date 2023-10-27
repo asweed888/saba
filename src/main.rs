@@ -16,6 +16,7 @@ mod usecase {
         pub mod rust {
             pub mod basic;
             pub mod template;
+            pub mod utils;
         }
         pub mod basic;
         pub mod interface;

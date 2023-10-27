@@ -2,11 +2,11 @@ use yaml_rust::Yaml;
 use crate::domain::manifest::entity::Manifest;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 use anyhow::Result;
 
 lazy_static::lazy_static! {
-    static ref PATH_LIST: Mutex<Vec<String>> = Mutex::new(Vec::new());
+    pub static ref PATH_LIST: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
 }
 
 pub trait TGenerateFileUseCase<'a> {
@@ -69,6 +69,7 @@ pub trait TGenerateFileUseCase<'a> {
         let ext = manifest.lang.ext().as_str();
         let mut is_ddd = false;
         let mut is_di_container = false;
+        let mut di_path: PathBuf = PathBuf::from("");
 
         for f in codefile {
             let mut workdir = PathBuf::from(wd.to_str().unwrap());
@@ -97,6 +98,7 @@ pub trait TGenerateFileUseCase<'a> {
                 }
                 else if path.contains("/di/") {
                     is_di_container = true;
+                    di_path = wd.clone();
                 }
                 else {
                     self.gen_file_default_ddd(workdir.clone(), manifest)?;
@@ -107,7 +109,7 @@ pub trait TGenerateFileUseCase<'a> {
         }
 
         if is_ddd && is_di_container {
-            self.di_container_action(manifest)?;
+            self.di_container_action(di_path.clone(), manifest)?;
         }
         Ok(())
     }
@@ -131,13 +133,12 @@ pub trait TGenerateFileUseCase<'a> {
     }
     fn di_container_action(
         &self,
-        manifest: &'a Manifest,
+        wd: PathBuf,
+        _: &'a Manifest,
     ) -> Result<()> {
         let path_list = PATH_LIST.lock().unwrap();
         for path in path_list.iter() {
-            let p = Path::new(path);
-            let fname = p.file_stem().unwrap();
-            println!("path is {}", fname.to_str().unwrap());
+            println!("path is {}", path);
         }
         Ok(())
     }
