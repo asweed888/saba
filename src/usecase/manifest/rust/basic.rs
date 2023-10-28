@@ -9,9 +9,11 @@ use crate::usecase::manifest::rust::template::{
     DiTmpl,
 };
 use askama::Template;
+use std::fs;
 use std::fs::File;
 use std::path::PathBuf;
 use std::io::prelude::*;
+use yaml_rust::Yaml;
 use anyhow::Result;
 
 pub struct RustUseCase {
@@ -26,6 +28,126 @@ impl<'a> RustUseCase {
     }
     pub fn gen_file(&self) -> Result<()> {
         self.location_action(&self.manifest)?;
+        let mod_block = self.mod_block()?;
+        println!("{}", mod_block);
+        Ok(())
+    }
+    fn get_main_file_path(&self) -> Result<PathBuf> {
+        let root = self.manifest.root.get_path();
+        let fpath1 = PathBuf::from(root.to_string() + "/main.rs");
+        let fpath2 = PathBuf::from(root.to_string() + "/lib.rs");
+        if fpath1.as_path().exists() {
+            return Ok(fpath1)
+        }
+
+        if fpath2.as_path().exists() {
+            return Ok(fpath2)
+        }
+
+        let mut file = File::create(fpath1.to_str().unwrap())?;
+        file.write_all("".as_bytes())?;
+
+        Ok(fpath1)
+    }
+    fn mod_block(&self) -> Result<String> {
+        let mut file_contents = String::new();
+        let vec_default: &Vec<Yaml> = &vec![];
+
+        for (idx, spec) in self.manifest.spec.iter().enumerate() {
+            let location = spec["location"].as_str().unwrap();
+            let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
+            let mut tabs = String::new();
+
+            file_contents += "mod ";
+            file_contents += location;
+            file_contents += " {\n";
+
+            if !upstream.is_empty() {
+                self.upstream_mod_block(
+                    upstream,
+                    &mut file_contents,
+                    &tabs,
+                )?;
+                tabs = String::new();
+            }
+
+            if !codefile.is_empty() {
+                self.codefile_mod_block(
+                    codefile,
+                    &mut file_contents,
+                    &tabs,
+                )?;
+            }
+
+            if idx == self.manifest.spec.len() - 1 {
+                file_contents.push_str("} // Automatically exported by saba.");
+            }
+            else {
+                file_contents.push_str("}\n");
+            }
+        }
+
+        Ok(file_contents)
+    }
+    fn upstream_mod_block(
+        &self,
+        upstream: &Vec<Yaml>,
+        file_contents: &mut String,
+        t: &'a str,
+    ) -> Result<()> {
+        let vec_default: &Vec<Yaml> = &vec![];
+        let mut tabs = String::from(t);
+        tabs.push_str("    ");
+
+        for u in upstream {
+            let dirname = u["name"].as_str().unwrap();
+            let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
+
+            file_contents.push_str(tabs.as_str());
+            file_contents.push_str("mod ");
+            file_contents.push_str(dirname);
+            file_contents.push_str(" {\n");
+
+            if !upstream.is_empty() {
+                self.upstream_mod_block(
+                    upstream,
+                    file_contents,
+                    &tabs,
+                )?;
+            }
+
+            if !codefile.is_empty() {
+                self.codefile_mod_block(
+                    codefile,
+                    file_contents,
+                    &tabs,
+                )?;
+            }
+
+            file_contents.push_str(tabs.as_str());
+            file_contents.push_str("}\n");
+        }
+        Ok(())
+    }
+    fn codefile_mod_block(
+        &self,
+        codefile: &Vec<Yaml>,
+        file_contents: &mut String,
+        t: &'a str,
+    ) -> Result<()> {
+        let mut tabs = String::from(t);
+        tabs.push_str("    ");
+        for f in codefile {
+            let filename = f["name"].as_str().unwrap();
+
+            file_contents.push_str(tabs.as_str());
+            file_contents.push_str("mod ");
+            file_contents.push_str(filename);
+            file_contents.push_str(";\n");
+        }
+
         Ok(())
     }
 }
