@@ -98,7 +98,7 @@ pub trait TGenerateFileUseCase<'a> {
                 }
                 else if path.contains("/di/") {
                     is_di_container = true;
-                    di_path = wd.clone();
+                    di_path = workdir.clone();
                 }
                 else {
                     self.gen_file_default_ddd(workdir.clone(), manifest)?;

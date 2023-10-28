@@ -45,10 +45,9 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
 
         let rendered_tmpl = data.render()?;
 
-        println!("rendered_tmpl is {}", rendered_tmpl);
-        // let mut file = File::create(wd.to_str().unwrap())?;
-        //
-        // file.write_all(rendered_tmpl.as_bytes())?;
+        let mut file = File::create(wd.to_str().unwrap())?;
+
+        file.write_all(rendered_tmpl.as_bytes())?;
 
         Ok(())
     }
