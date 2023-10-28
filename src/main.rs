@@ -49,11 +49,17 @@ fn main() -> Result<()> {
         .subcommand(
             app.up_cmd.spec()
         )
+        .subcommand(
+            app.new_cmd.spec()
+        )
         .get_matches();
 
     match matches.subcommand() {
         Some(("up", _)) => {
             app.up_cmd.action()
+        }
+        Some(("new", _)) => {
+            app.new_cmd.action()
         }
         _ => unreachable!()
     }
