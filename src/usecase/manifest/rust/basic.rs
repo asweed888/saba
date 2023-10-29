@@ -35,17 +35,30 @@ impl<'a> RustUseCase {
     fn write_mod_block4main_rs(&self) -> Result<()> {
         let main_rs_path = self.get_main_rs_path()?;
         let mod_block = self.mod_block()?;
-        let mut file = File::open(main_rs_path.clone())?;
+        let mut file = File::open(main_rs_path.to_str().unwrap())?;
 
         let mut file_contents = String::new();
         file.read_to_string(&mut file_contents)?;
 
         let re = Regex::new(r"mod[\s\S]*//.*Automatically exported by saba\.")?;
 
-        let replaced_contents = re.replace_all(&file_contents, mod_block.as_str());
+        if re.is_match(&file_contents) {
+            // ファイル内にパターンが見つかった場合は置換
+            let replaced_contents = re.replace_all(&file_contents, mod_block.as_str());
 
-        let mut new_file = File::create(main_rs_path.clone())?;
-        new_file.write_all(replaced_contents.as_bytes())?;
+            let mut new_file = File::create(main_rs_path.to_str().unwrap())?;
+            new_file.write_all(replaced_contents.as_bytes())?;
+        } else {
+            // ファイル内にパターンが見つからなかった場合はmod_blockをファイルの先頭に挿入
+            let temp_file = main_rs_path.with_extension("temp");
+            let mut new_file = File::create(&temp_file)?;
+
+            // 先頭にmod_blockを挿入
+            new_file.write_all(mod_block.as_bytes())?;
+            // 元のファイルの内容をコピー
+            new_file.write_all(file_contents.as_bytes())?;
+            fs::rename(&temp_file, main_rs_path)?;
+        }
 
         Ok(())
     }

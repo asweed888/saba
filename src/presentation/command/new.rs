@@ -4,6 +4,7 @@ use inquire::{Select, Confirm};
 use askama::Template;
 use std::fs::File;
 use std::io::prelude::*;
+use std::path::Path;
 use crate::usecase::manifest::basic::ManifestTmpl;
 
 pub struct NewCommand {}
@@ -52,9 +53,11 @@ impl NewCommand {
 
         let rendered_tmpl = data.render()?;
 
-        let mut file = File::create("./saba.test.yml")?;
-
-        file.write_all(rendered_tmpl.as_bytes())?;
+        let file_path = Path::new("./saba.yml");
+        if !file_path.exists() {
+            let mut file = File::create(file_path.to_str().unwrap())?;
+            file.write_all(rendered_tmpl.as_bytes())?;
+        }
 
         Ok(())
     }
