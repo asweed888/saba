@@ -18,6 +18,10 @@ mod usecase {
             pub mod template;
             pub mod utils;
         }
+        pub mod golang {
+            pub mod basic;
+            pub mod template;
+        }
         pub mod basic;
         pub mod interface;
         pub mod utils;

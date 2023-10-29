@@ -1,13 +1,5 @@
 use crate::domain::manifest::entity::Manifest;
 use crate::usecase::manifest::interface::{TGenerateFileUseCase, PATH_LIST};
-use crate::usecase::manifest::rust::template::{
-    DomainModelTmpl,
-    DomainRepositoryTmpl,
-    InfraTmpl,
-    UseCaseTmpl,
-    PresentationTmpl,
-    DiTmpl,
-};
 use askama::Template;
 use std::fs;
 use std::fs::File;
@@ -16,6 +8,14 @@ use std::io::prelude::*;
 use regex::Regex;
 use yaml_rust::Yaml;
 use anyhow::Result;
+use crate::usecase::manifest::rust::template::{
+    DomainModelTmpl,
+    DomainRepositoryTmpl,
+    InfraTmpl,
+    UseCaseTmpl,
+    PresentationTmpl,
+    DiTmpl,
+};
 
 pub struct RustUseCase {
     manifest: Manifest,
@@ -23,9 +23,7 @@ pub struct RustUseCase {
 
 impl<'a> RustUseCase {
     pub fn new(manifest: Manifest) -> Self {
-        Self{
-            manifest,
-        }
+        Self{ manifest }
     }
     pub fn gen_file(&self) -> Result<()> {
         self.location_action(&self.manifest)?;

@@ -30,6 +30,10 @@ spec:
             - name: basic
             - name: template
             - name: utils
+        - name: golang
+          codefile:
+            - name: basic
+            - name: template
 
 
 - location: presentation
