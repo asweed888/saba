@@ -13,6 +13,7 @@ use std::fs;
 use std::fs::File;
 use std::path::PathBuf;
 use std::io::prelude::*;
+use regex::Regex;
 use yaml_rust::Yaml;
 use anyhow::Result;
 
@@ -28,11 +29,27 @@ impl<'a> RustUseCase {
     }
     pub fn gen_file(&self) -> Result<()> {
         self.location_action(&self.manifest)?;
-        let mod_block = self.mod_block()?;
-        println!("{}", mod_block);
+        self.write_mod_block4main_rs()?;
         Ok(())
     }
-    fn get_main_file_path(&self) -> Result<PathBuf> {
+    fn write_mod_block4main_rs(&self) -> Result<()> {
+        let main_rs_path = self.get_main_rs_path()?;
+        let mod_block = self.mod_block()?;
+        let mut file = File::open(main_rs_path.clone())?;
+
+        let mut file_contents = String::new();
+        file.read_to_string(&mut file_contents)?;
+
+        let re = Regex::new(r"mod[\s\S]*//.*Automatically exported by saba\.")?;
+
+        let replaced_contents = re.replace_all(&file_contents, mod_block.as_str());
+
+        let mut new_file = File::create(main_rs_path.clone())?;
+        new_file.write_all(replaced_contents.as_bytes())?;
+
+        Ok(())
+    }
+    fn get_main_rs_path(&self) -> Result<PathBuf> {
         let root = self.manifest.root.get_path();
         let fpath1 = PathBuf::from(root.to_string() + "/main.rs");
         let fpath2 = PathBuf::from(root.to_string() + "/lib.rs");
@@ -152,7 +169,7 @@ impl<'a> RustUseCase {
     }
 }
 
-// impl<'a> TGenerateFileUseCase<'a> for RustUseCase {}
+
 impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
     fn di_container_action(
         &self,
