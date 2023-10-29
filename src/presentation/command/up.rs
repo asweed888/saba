@@ -22,7 +22,7 @@ impl UpCommand {
         match manifest.lang.name().as_str() {
             "rust" => {
                 manifest.lang.set_ext(String::from("rs"));
-                manifest.root.set_default(String::from("./_test"));
+                manifest.root.set_default(String::from("./src"));
                 let uc = RustUseCase::new(manifest);
                 uc.gen_file()?;
             }

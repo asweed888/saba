@@ -52,9 +52,10 @@ impl<'a> RustUseCase {
             // ファイル内にパターンが見つからなかった場合はmod_blockをファイルの先頭に挿入
             let temp_file = main_rs_path.with_extension("temp");
             let mut new_file = File::create(&temp_file)?;
+            let new_mod_block = mod_block.clone() + "\n\n\n";
 
             // 先頭にmod_blockを挿入
-            new_file.write_all(mod_block.as_bytes())?;
+            new_file.write_all(new_mod_block.as_bytes())?;
             // 元のファイルの内容をコピー
             new_file.write_all(file_contents.as_bytes())?;
             fs::rename(&temp_file, main_rs_path)?;

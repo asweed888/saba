@@ -87,7 +87,7 @@ impl DIContainer {
     pub fn new() -> Self {
         Self{}
     }
-    pub fn new_app() -> App {
+    pub fn new_app(&self) -> App {
         App{}
     }
 }
