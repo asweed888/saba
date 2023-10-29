@@ -41,6 +41,7 @@ use crate::di::container::DIContainer;
 fn main() -> Result<()> {
     let dic = DIContainer::new();
     let app = dic.new_app();
+    let version = env!("CARGO_PKG_VERSION");
 
     let matches = Command::new("saba")
         .about("This is a very simple declarative development framework.")
@@ -52,6 +53,7 @@ fn main() -> Result<()> {
         .subcommand(
             app.new_cmd.spec()
         )
+        .version(version)
         .get_matches();
 
     match matches.subcommand() {
