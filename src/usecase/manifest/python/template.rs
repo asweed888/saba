@@ -52,19 +52,16 @@ pub struct UseCaseTmpl<'a> {
 
 
 #[derive(Template)]
-#[template(source = "use crate::domain::model::{{ fname }}::{{ utils::to_title(fname) }};
-use crate::usecase::{{ fname }}::{{ utils::to_title(fname) }}UseCase;
+#[template(source = "from abc import ABC, abstractmethod
 
 
-pub struct {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }} {
-    usecase: {{ utils::to_title(fname) }}UseCase,
-}
+class I{{ u::to_title(fname) }}{{ u::to_title(pkgname) }}(ABC):
+    @abstractmethod
 
-impl {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }} {
-    pub fn new(usecase: {{ utils::to_title(fname) }}UseCase) -> Self {
-        Self{ usecase }
-    }
-}
+
+class {{ u::to_title(fname) }}{{ u::to_title(pkgname) }}(I{{ u::to_title(fname) }}{{ u::to_title(pkgname) }}):
+    def __init__(self, usecase):
+        self.usecase = usecase
 ", ext = "txt")]
 pub struct PresentationTmpl<'a> {
     pub fname: &'a str,
@@ -73,30 +70,26 @@ pub struct PresentationTmpl<'a> {
 
 
 #[derive(Template)]
-#[template(source = "{% for import in imports -%}
-{% if !rs_utils::contains_di_str(import) -%}
-use {{ rs_utils::crate_path(import) }};
-{% endif -%}
-{% endfor %}
-pub struct App {}
-
-pub struct DIContainer {}
-
-impl DIContainer {
-    pub fn new() -> Self {
-        Self{}
-    }
-    pub fn new_app(&self) -> App {
-        App{}
-    }
-}
+#[template(source = "class {{ u::to_title(fname) }}:
+    def __init__(self):
 ", ext = "txt")]
-pub struct DiTmpl<'a> {
-    pub imports: &'a Vec<String>,
-}
-
-#[derive(Template)]
-#[template(source = "pub struct {{ utils::to_title(fname) }} {}", ext = "txt")]
 pub struct DefaultTmpl<'a> {
     pub fname: &'a str,
+}
+
+
+pub fn di_tmpl() -> String {
+    String::from("from abc import ABC, abstractmethod
+from infrastructure.datasrore. import
+from usecase. import
+from presentation. import
+
+
+class IDIContainer(ABC):
+    @abstractmethod
+
+
+class DIContainer(IDIContainer):
+    def __init__(self):
+")
 }
