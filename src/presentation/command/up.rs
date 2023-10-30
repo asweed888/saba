@@ -37,6 +37,7 @@ impl UpCommand {
                 bail!("[ERROR] The language is not supported.")
             }
         }
+        println!("[Success] generate of saba has been completed.");
         Ok(())
     }
 }
