@@ -22,6 +22,10 @@ mod usecase {
             pub mod basic;
             pub mod template;
         }
+        pub mod python {
+            pub mod basic;
+            pub mod template;
+        }
         pub mod basic;
         pub mod interface;
         pub mod utils;

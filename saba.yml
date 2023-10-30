@@ -34,6 +34,10 @@ spec:
           codefile:
             - name: basic
             - name: template
+        - name: python
+          codefile:
+            - name: basic
+            - name: template
 
 
 - location: presentation
