@@ -1,9 +1,0 @@
-vec<spec>:
-  - lang: rust
-    arch: ddd
-    root: ./src
-    ext: rs
-    directory: domain/model
-    filename: system_config
-    template: |-
-      pub SystemConfig {}
