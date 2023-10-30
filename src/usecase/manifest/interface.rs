@@ -107,6 +107,9 @@ pub trait TGenerateFileUseCase<'a> {
 
                 self.save_path(workdir.clone(), manifest)?;
             }
+            else if !exists {
+                self.gen_file_default(workdir.clone(), manifest)?;
+            }
         }
 
         if !di_path.as_path().exists() && is_ddd && is_di_container {
@@ -183,7 +186,7 @@ pub trait TGenerateFileUseCase<'a> {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        self.generated_file_message(wd.clone(), manifest)
+        self.gen_file_default(wd.clone(), manifest)
     }
     fn gen_file_default(
         &self,

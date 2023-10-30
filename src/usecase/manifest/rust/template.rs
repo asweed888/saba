@@ -95,3 +95,9 @@ impl DIContainer {
 pub struct DiTmpl<'a> {
     pub imports: &'a Vec<String>,
 }
+
+#[derive(Template)]
+#[template(source = "pub struct {{ utils::to_title(fname) }} {}", ext = "txt")]
+pub struct DefaultTmpl<'a> {
+    pub fname: &'a str,
+}

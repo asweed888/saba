@@ -15,6 +15,7 @@ use crate::usecase::manifest::rust::template::{
     UseCaseTmpl,
     PresentationTmpl,
     DiTmpl,
+    DefaultTmpl,
 };
 
 pub struct RustUseCase {
@@ -290,16 +291,20 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
 
         Ok(())
     }
-    fn gen_file_default_ddd(
+    fn gen_file_default(
         &self,
         wd: PathBuf,
-        _: &'a Manifest,
+        manifest: &'a Manifest,
     ) -> Result<()> {
+        let fname = self.get_fname(wd.clone(), manifest).unwrap();
+        let data = DefaultTmpl{
+            fname: fname.as_str(),
+        };
 
+        let rendered_tmpl = data.render()?;
         let mut file = File::create(wd.to_str().unwrap())?;
-        let file_contents = String::from("");
 
-        file.write_all(file_contents.as_bytes())?;
+        file.write_all(rendered_tmpl.as_bytes())?;
 
         Ok(())
     }

@@ -1,13 +1,19 @@
 use crate::domain::manifest::entity::Manifest;
-use crate::usecase::manifest::interface::{TGenerateFileUseCase, PATH_LIST};
+use crate::usecase::manifest::interface::TGenerateFileUseCase;
 use askama::Template;
-use std::fs;
 use std::fs::File;
 use std::path::PathBuf;
 use std::io::prelude::*;
-use regex::Regex;
-use yaml_rust::Yaml;
 use anyhow::Result;
+use crate::usecase::manifest::golang::template::{
+    DomainModelTmpl,
+    DomainRepositoryTmpl,
+    InfraTmpl,
+    UseCaseTmpl,
+    PresentationTmpl,
+    DefaultTmpl,
+    di_tmpl,
+};
 
 
 pub struct GoLangUseCase {
@@ -31,17 +37,11 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         wd: PathBuf,
         _: &'a Manifest,
     ) -> Result<()> {
-        let path_list_raw = PATH_LIST.lock().unwrap();
-        let path_list = &*path_list_raw;
-        let data = DiTmpl{
-            imports: path_list,
-        };
-
-        let rendered_tmpl = data.render()?;
+        let data = di_tmpl();
 
         let mut file = File::create(wd.to_str().unwrap())?;
 
-        file.write_all(rendered_tmpl.as_bytes())?;
+        file.write_all(data.as_bytes())?;
 
         Ok(())
     }
@@ -50,9 +50,10 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-
+        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DomainModelTmpl{
+            pkgname: pkgname.as_str(),
             fname: fname.as_str(),
         };
 
@@ -68,8 +69,10 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
+        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DomainRepositoryTmpl{
+            pkgname: pkgname.as_str(),
             fname: fname.as_str(),
         };
 
@@ -85,8 +88,10 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
+        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = InfraTmpl{
+            pkgname: pkgname.as_str(),
             fname: fname.as_str(),
         };
 
@@ -102,8 +107,10 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
+        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = UseCaseTmpl{
+            pkgname: pkgname.as_str(),
             fname: fname.as_str(),
         };
 
@@ -119,11 +126,11 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
+        let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = PresentationTmpl{
-            fname: fname.as_str(),
             pkgname: pkgname.as_str(),
+            fname: fname.as_str(),
         };
 
         let rendered_tmpl = data.render()?;
@@ -133,16 +140,20 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
 
         Ok(())
     }
-    fn gen_file_default_ddd(
+    fn gen_file_default(
         &self,
         wd: PathBuf,
-        _: &'a Manifest,
+        manifest: &'a Manifest,
     ) -> Result<()> {
+        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
+        let data = DefaultTmpl{
+            pkgname: pkgname.as_str(),
+        };
 
+        let rendered_tmpl = data.render()?;
         let mut file = File::create(wd.to_str().unwrap())?;
-        let file_contents = String::from("");
 
-        file.write_all(file_contents.as_bytes())?;
+        file.write_all(rendered_tmpl.as_bytes())?;
 
         Ok(())
     }
