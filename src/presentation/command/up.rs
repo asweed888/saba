@@ -2,6 +2,7 @@ use clap::Command;
 use anyhow::{bail, Result};
 use crate::usecase::manifest::basic::ManifestUseCase;
 use crate::usecase::manifest::rust::basic::RustUseCase;
+use crate::usecase::manifest::golang::basic::GoLangUseCase;
 
 
 pub struct UpCommand {
@@ -24,6 +25,12 @@ impl UpCommand {
                 manifest.lang.set_ext(String::from("rs"));
                 manifest.root.set_default(String::from("./src"));
                 let uc = RustUseCase::new(manifest);
+                uc.gen_file()?;
+            }
+            "go" => {
+                manifest.lang.set_ext(String::from("go"));
+                manifest.root.set_default(String::from("."));
+                let uc = GoLangUseCase::new(manifest);
                 uc.gen_file()?;
             }
             _ => {

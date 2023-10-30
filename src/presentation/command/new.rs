@@ -22,6 +22,7 @@ impl NewCommand {
         let is_ddd: bool;
         let options: Vec<&str> = vec![
             "rust",
+            "go",
         ];
 
         let lang_ans = Select::new("Please select a programming language.", options).prompt();
