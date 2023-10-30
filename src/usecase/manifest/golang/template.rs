@@ -28,7 +28,7 @@ pub struct DomainRepositoryTmpl<'a> {
 
 type {{ fname }}Repository struct {}
 
-fanc New{{ utils::to_title(fname) }}Repository() repository.{{ utils::to_title(fname) }}Repository {
+func New{{ utils::to_title(fname) }}Repository() repository.{{ utils::to_title(fname) }}Repository {
     return &{{ fname }}Repository{}
 }
 ", ext = "txt")]
