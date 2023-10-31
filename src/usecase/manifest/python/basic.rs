@@ -50,10 +50,8 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DomainModelTmpl{
-            pkgname: pkgname.as_str(),
             fname: fname.as_str(),
         };
 
@@ -69,10 +67,8 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DomainRepositoryTmpl{
-            pkgname: pkgname.as_str(),
             fname: fname.as_str(),
         };
 
@@ -88,10 +84,8 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = InfraTmpl{
-            pkgname: pkgname.as_str(),
             fname: fname.as_str(),
         };
 
@@ -107,10 +101,8 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = UseCaseTmpl{
-            pkgname: pkgname.as_str(),
             fname: fname.as_str(),
         };
 
@@ -145,9 +137,9 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
+        let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DefaultTmpl{
-            pkgname: pkgname.as_str(),
+            fname: fname.as_str(),
         };
 
         let rendered_tmpl = data.render()?;
