@@ -27,24 +27,30 @@ impl NewCommand {
         ];
 
         let lang_ans = Select::new("Please select a programming language.", options).prompt();
-        let arch_ans = Confirm::new("Do you want to develop applications with ddd (onion architecture)?")
-            .with_default(false)
-            .prompt();
 
         match lang_ans {
             Ok(choice) => {
                 lang = choice.to_string();
+                if lang == "bash" {
+                // shellの場合はis_dddは常にfalse
+                    is_ddd = false;
+                }
+                else {
+                // shell以外の言語はdddオプションあり
+                    let arch_ans = Confirm::new("Do you want to develop applications with ddd (onion architecture)?")
+                        .with_default(false)
+                        .prompt();
+                    match arch_ans {
+                        Ok(true) => { is_ddd = true }
+                        Ok(false) => { is_ddd = false }
+                        Err(_) => {
+                            bail!("[ERROR] An error occurred while executing the command.")
+                        }
+                    }
+                }
             }
             Err(_) => {
                 bail!("[ERROR] An error occurred while executing the command.");
-            }
-        }
-
-        match arch_ans {
-            Ok(true) => { is_ddd = true }
-            Ok(false) => { is_ddd = false }
-            Err(_) => {
-                bail!("[ERROR] An error occurred while executing the command.")
             }
         }
 
