@@ -38,6 +38,9 @@ spec:
           codefile:
             - name: basic
             - name: template
+        - name: bash
+          codefile:
+            - name: basic
 
 
 - location: presentation

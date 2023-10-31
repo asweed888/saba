@@ -24,6 +24,7 @@ impl NewCommand {
             "rust",
             "go",
             "python",
+            "bash",
         ];
 
         let lang_ans = Select::new("Please select a programming language.", options).prompt();

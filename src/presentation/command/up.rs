@@ -4,6 +4,7 @@ use crate::usecase::manifest::basic::ManifestUseCase;
 use crate::usecase::manifest::rust::basic::RustUseCase;
 use crate::usecase::manifest::golang::basic::GoLangUseCase;
 use crate::usecase::manifest::python::basic::PythonUseCase;
+use crate::usecase::manifest::bash::basic::BashUseCase;
 
 
 pub struct UpCommand {
@@ -38,6 +39,12 @@ impl UpCommand {
                 manifest.lang.set_ext(String::from("py"));
                 manifest.root.set_default(String::from("."));
                 let uc = PythonUseCase::new(manifest);
+                uc.gen_file()?;
+            }
+            "bash" => {
+                manifest.lang.set_ext(String::from("sh"));
+                manifest.root.set_default(String::from("."));
+                let uc = BashUseCase::new(manifest);
                 uc.gen_file()?;
             }
             _ => {
