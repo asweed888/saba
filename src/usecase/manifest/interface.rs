@@ -76,7 +76,8 @@ pub trait TGenerateFileUseCase<'a> {
             let filename = f["name"].as_str().unwrap();
 
             workdir.push(filename);
-            workdir.set_extension(ext);
+            self.set_ext(&mut workdir, ext)?;
+
             let path = workdir.to_str().unwrap();
             let exists = workdir.as_path().exists();
             is_ddd = self.is_ddd_enabled(manifest);
@@ -120,6 +121,25 @@ pub trait TGenerateFileUseCase<'a> {
     fn is_ddd_enabled(&self, manifest: &'a Manifest) -> bool {
         manifest.arch.is_ddd()
         && manifest.lang.name().as_str() != "bash"
+    }
+    fn set_ext(
+        &self,
+        wd: &mut PathBuf,
+        ext: &'a str,
+    ) -> Result<()> {
+        if wd.to_str().unwrap().contains(".svelte") {
+            wd.set_extension("svelte");
+        }
+        else if wd.to_str().unwrap().contains(".tsx") {
+            wd.set_extension("tsx");
+        }
+        else if wd.to_str().unwrap().contains(".vue") {
+            wd.set_extension("vue");
+        }
+        else {
+            wd.set_extension(ext);
+        }
+        Ok(())
     }
     fn save_path(
         &self,

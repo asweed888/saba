@@ -24,6 +24,7 @@ impl NewCommand {
             "rust",
             "go",
             "python",
+            "typescript",
             "bash",
         ];
 
