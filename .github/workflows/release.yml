@@ -10,222 +10,116 @@ on:
     ## - release
 
 env:
-  BIN_NAME: saba
-  PROJECT_NAME: saba
-  REPO_NAME: asweed888/saba
-  BREW_TAP: asweed888/homebrew-saba
+  # Define the rust version to use
+  RUST_VERSION: 1.72.1
+  # Rust build arguments
+  BUILD_ARGS: "--release --all-features"
+  # The binary name
+  BIN_NAME: "saba"
+  # Docker token required to pull images from DockerHub
+  DOCKER_LOGIN: ${{ secrets.DOCKER_LOGIN }}
+  DOCKER_TOKEN: ${{ secrets.DOCKER_TOKEN }}
 
 jobs:
-  dist:
-    name: Dist
-    runs-on: ${{ matrix.os }}
+  build:
+    name: Build - ${{ matrix.platform.name }}
+    # By default, runs on Ubuntu, otherwise, override with the desired os
+    runs-on: ${{ matrix.platform.os || 'ubuntu-22.04' }}
     strategy:
-      fail-fast: false # don't fail other jobs if one fails
       matrix:
-        build: [x86_64-linux, aarch64-linux, aarch64-macos, x86_64-macos, x86_64-windows] #, x86_64-win-gnu, win32-msvc
-        include:
-        - build: x86_64-linux
-          os: ubuntu-20.04
-          rust: stable
-          target: x86_64-unknown-linux-gnu
-          cross: false
-        - build: aarch64-linux
-          os: ubuntu-20.04
-          rust: stable
-          target: aarch64-unknown-linux-gnu
-          cross: true
-        - build: aarch64-macos
-          os: macos-latest
-          rust: stable
-          target: aarch64-apple-darwin
-          cross: true
-        - build: x86_64-macos
-          os: macos-latest
-          rust: stable
-          target: x86_64-apple-darwin
-          cross: false
-        - build: x86_64-windows
-          os: windows-2019
-          rust: stable
-          target: x86_64-pc-windows-msvc
-          cross: false
-        # - build: x86_64-win-gnu
-        #   os: windows-2019
-        #   rust: stable-x86_64-gnu
-        #   target: x86_64-pc-windows-gnu
-        # - build: win32-msvc
-        #   os: windows-2019
-        #   rust: stable
-        #   target: i686-pc-windows-msvc
+        # Set platforms you want to build your binaries on
+        platform:
+          # Linux
+            # The name is used for pretty print
+          - name: Linux x86_64
+            # The used Rust target architecture
+            target: x86_64-unknown-linux-gnu
+          - name: Linux aarch64
+            target: aarch64-unknown-linux-gnu
+
+          # Mac OS
+          - name: MacOS x86_64
+            target: x86_64-apple-darwin
+          - name: MacOS aarch64
+            target: aarch64-apple-darwin
+
+          # Windows
+          - name: Windows x86_64
+            # Use another GitHub action OS
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
 
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-        with:
-          submodules: true
+    - name: Checkout Git repo
+      uses: actions/checkout@v3
 
-      - name: Install ${{ matrix.rust }} toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: ${{ matrix.rust }}
-          target: ${{ matrix.target }}
-          override: true
+    # Linux & Windows
+    - name: Install rust toolchain
+      if: ${{ !contains(matrix.platform.target, 'apple') }}
+      uses: actions-rs/toolchain@v1
+      with:
+        # We setup Rust toolchain and the desired target
+        profile: minimal
+        toolchain: "${{ env.RUST_VERSION }}"
+        override: true
+        target: ${{ matrix.platform.target }}
+        components: rustfmt, clippy
+    - name: Build ${{ matrix.platform.name }} binary
+      if: ${{ !contains(matrix.platform.target, 'apple') }}
+      uses: actions-rs/cargo@v1
+      # We use cross-rs if not running on x86_64 architecture on Linux
+      with:
+        command: build
+        use-cross: ${{ !contains(matrix.platform.target, 'x86_64') }}
+        args: ${{ env.BUILD_ARGS }} --target ${{ matrix.platform.target }}
 
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: ${{ matrix.cross }}
-          command: test
-          args: --release --locked --target ${{ matrix.target }}
+    # Mac OS
+    - name: Login to DockerHub
+      if: contains(matrix.platform.target, 'apple')
+      # We log on DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ env.DOCKER_LOGIN }}
+        password: ${{ env.DOCKER_TOKEN }}
+    - name: Build ${{ matrix.platform.name }} binary
+      if: contains(matrix.platform.target, 'apple')
+      # We use a dedicated Rust image containing required Apple libraries to cross-compile on multiple archs
+      run: |
+        docker run --rm --volume "${PWD}":/root/src --workdir /root/src joseluisq/rust-linux-darwin-builder:$RUST_VERSION \
+        sh -c "CC=o64-clang CXX=o64-clang++ cargo build $BUILD_ARGS --target ${{ matrix.platform.target }}"
 
-      - name: Build release binary
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: ${{ matrix.cross }}
-          command: build
-          args: --release --locked --target ${{ matrix.target }}
+    - name: Store artifact
+      uses: actions/upload-artifact@v3
+      with:
+        # Finally, we store the binary as GitHub artifact for later usage
+        name: ${{ matrix.platform.target }}-${{ env.BIN_NAME }}
+        path: target/${{ matrix.platform.target }}/release/${{ env.BIN_NAME }}${{ contains(matrix.platform.target, 'windows') && '.exe' || '' }}
+        retention-days: 1
 
-      - name: Strip release binary (linux and macos)
-        if: matrix.build == 'x86_64-linux' || matrix.build == 'x86_64-macos'
-        run: strip "target/${{ matrix.target }}/release/$BIN_NAME"
-
-      - name: Strip release binary (arm)
-        if: matrix.build == 'aarch64-linux' || matrix.build == 'aarch64-macos'
-        run: |
-          docker run --rm -v \
-            "$PWD/target:/target:Z" \
-            rustembedded/cross:${{ matrix.target }} \
-            aarch64-linux-gnu-strip \
-            /target/${{ matrix.target }}/release/$BIN_NAME
-
-      - name: Build archive
-        shell: bash
-        run: |
-          mkdir dist
-          if [ "${{ matrix.os }}" = "windows-2019" ]; then
-            cp "target/${{ matrix.target }}/release/$BIN_NAME.exe" "dist/"
-          else
-            cp "target/${{ matrix.target }}/release/$BIN_NAME" "dist/"
-          fi
-
-      - uses: actions/upload-artifact@v2.2.4
-        with:
-          name: bins-${{ matrix.build }}
-          path: dist
-
-  publish:
-    name: Publish
-    needs: [dist]
-    runs-on: ubuntu-latest
+  release:
+    name: Release
+    needs: [build]
+    # We run the release job only if a tag starts with 'v' letter
+    if: startsWith( github.ref, 'refs/tags/v' )
+    runs-on: ubuntu-22.04
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v2
-        with:
-          submodules: false
+    - name: Checkout Git repo
+      uses: actions/checkout@v3
 
-      - uses: actions/download-artifact@v2
-        # with:
-        #   path: dist
-      # - run: ls -al ./dist
-      - run: ls -al bins-*
+    # Download all artifacts
+    - uses: actions/download-artifact@v3
+      with:
+        path: artifacts
 
-      - name: Calculate tag name
-        run: |
-          name=dev
-          if [[ $GITHUB_REF == refs/tags/v* ]]; then
-            name=${GITHUB_REF:10}
-          fi
-          echo ::set-output name=val::$name
-          echo TAG=$name >> $GITHUB_ENV
-        id: tagname
-
-      - name: Build archive
-        shell: bash
-        run: |
-          set -ex
-
-          rm -rf tmp
-          mkdir tmp
-          mkdir dist
-
-          for dir in bins-* ; do
-              platform=${dir#"bins-"}
-              unset exe
-              if [[ $platform =~ "windows" ]]; then
-                  exe=".exe"
-              fi
-              pkgname=$PROJECT_NAME-$TAG-$platform
-              mkdir tmp/$pkgname
-              # cp LICENSE README.md tmp/$pkgname
-              mv bins-$platform/$BIN_NAME$exe tmp/$pkgname
-              chmod +x tmp/$pkgname/$BIN_NAME$exe
-
-              if [ "$exe" = "" ]; then
-                  tar cJf dist/$pkgname.tar.xz -C tmp $pkgname
-              else
-                  (cd tmp && 7z a -r ../dist/$pkgname.zip $pkgname)
-              fi
-          done
-
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: dist/*
-          file_glob: true
-          tag: ${{ steps.tagname.outputs.val }}
-          overwrite: true
-
-      - name: Extract version
-        id: extract-version
-        run: |
-          printf "::set-output name=%s::%s\n" tag-name "${GITHUB_REF#refs/tags/}"
-
-      - uses: mislav/bump-homebrew-formula-action@v1
-        with:
-          formula-path: ${{env.PROJECT_NAME}}.rb
-          homebrew-tap: ${{ env.BREW_TAP }}
-          download-url: "https://github.com/${{ env.REPO_NAME }}/releases/download/${{ steps.extract-version.outputs.tag-name }}/${{env.PROJECT_NAME}}-${{ steps.extract-version.outputs.tag-name }}-x86_64-macos.tar.xz"
-          commit-message: updating formula for ${{ env.PROJECT_NAME }}
-        env:
-          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
-      - uses: mislav/bump-homebrew-formula-action@v1
-        with:
-          formula-path: ${{env.PROJECT_NAME}}.rb
-          homebrew-tap: ${{ env.BREW_TAP }}
-          download-url: "https://github.com/${{ env.REPO_NAME }}/releases/download/${{ steps.extract-version.outputs.tag-name }}/${{env.PROJECT_NAME}}-${{ steps.extract-version.outputs.tag-name }}-aarch64-macos.tar.xz"
-          commit-message: updating formula for ${{ env.PROJECT_NAME }}
-        env:
-          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_GITHUB_TOKEN }}
-        #
-        # you can use this initial file in your homebrew-tap if you don't have an initial formula:
-        # <projectname>.rb
-        #
-        # class <Projectname capitalized> < Formula
-        #   desc "A test formula"
-        #   homepage "http://www.example.com"
-        #   url "-----"
-        #   version "-----"
-        #   sha256 "-----"
-
-        #   def install
-        #     bin.install "<bin-name>"
-        #   end
-        # end
-
-
-      # Uncomment this section if you want to release your package to crates.io
-      # Before publishing, make sure you have filled out the following fields:
-      # license or license-file, description, homepage, documentation, repository, readme.
-      # Read more: https://doc.rust-lang.org/cargo/reference/publishing.html
-
-      # - name: Install ${{ matrix.rust }} toolchain
-      #   uses: actions-rs/toolchain@v1
-      #   with:
-      #     profile: minimal
-      #     toolchain: ${{ matrix.rust }}
-      #     target: ${{ matrix.target }}
-      # - run: cargo publish --token ${CRATES_TOKEN}
-      #  env:
-      #    CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+    # Goreleaser
+    - name: Set up Go
+      uses: actions/setup-go@v4
+    - name: Run GoReleaser
+      uses: goreleaser/goreleaser-action@v5
+      with:
+        distribution: goreleaser
+        version: latest
+        # Run goreleaser and ignore non-committed files (downloaded artifacts)
+        args: release --clean --skip=validate
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
