@@ -85,7 +85,7 @@ jobs:
       if: contains(matrix.platform.target, 'apple')
       # We use a dedicated Rust image containing required Apple libraries to cross-compile on multiple archs
       run: |
-        docker run --rm --volume "${PWD}":/root/src --workdir /root/src joseluisq/rust-linux-darwin-builder:$RUST_VERSION \
+        docker run --rm --volume --memory-swap -1 "${PWD}":/root/src --workdir /root/src joseluisq/rust-linux-darwin-builder:$RUST_VERSION \
         sh -c "CC=o64-clang CXX=o64-clang++ cargo build $BUILD_ARGS --target ${{ matrix.platform.target }}"
 
     - name: Store artifact
