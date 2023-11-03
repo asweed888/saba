@@ -23,3 +23,18 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+brews:
+  - name: saba
+    goarm: 6
+    tap:
+      owner: asweed888
+      name: homebrew-saba
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    url_template: "https://github.com/asweed888/saba/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
+    commit_author: # homebrew-tapにcommitするときに使うGitHubアカウント
+      name: inadati
+      email: dr.inadati@gmail.com
+    homepage: "https://github.com/asweed888/saba"
+    description: "Declarative development framework saba"
+    folder: Formula
+    skip_upload: false
