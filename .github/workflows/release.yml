@@ -13,7 +13,7 @@ env:
   # Define the rust version to use
   RUST_VERSION: 1.72.1
   # Rust build arguments
-  BUILD_ARGS: "--release"
+  BUILD_ARGS: "--release --all-features"
   # The binary name
   BIN_NAME: "saba"
   # Docker token required to pull images from DockerHub
