@@ -50,7 +50,7 @@ curl -L $INSTALL_TARGET_URL -o - | tar -xzvf - && mv ./saba $HOME_BIN
 
 alias_name="saba_install"
 if ! grep -q "$alias_name" "$BASHRC"; then
-    echo "alias $alias_name='curl -sSL https://raw.githubusercontent.com/asweed888/saba/main/install.sh | sh -'" >> "$BASHRC"
+    echo "alias $alias_name=\"curl -sSL -H 'Cache-Control: no-cache' https://raw.githubusercontent.com/asweed888/saba/main/install.sh | sh -\"" >> "$BASHRC"
     echo "[info] An alias for saba updates has been registered."
 fi
 
