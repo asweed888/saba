@@ -9,6 +9,7 @@ ARCH="$(uname -m)"
 
 case $OS in
     "Linux")
+        BASHRC="$HOME/.bashrc"
         case $ARCH in
             "x86_64")
                 TARGET=x86_64-unknown-linux-musl
@@ -19,14 +20,15 @@ case $OS in
         esac
     ;;
     "Darwin")
-          case $ARCH in
-          "x86_64")
+        BASHRC="$HOME/.bash_profile"
+        case $ARCH in
+            "x86_64")
               TARGET=x86_64-apple-darwin
-          ;;
-          "arm64")
+            ;;
+            "arm64")
               TARGET=aarch64-apple-darwin
-          ;;
-          esac
+            ;;
+        esac
     ;;
 esac
 
@@ -40,15 +42,15 @@ if [ ! -e "$HOME_BIN" ]; then
 fi
 
 if [[ ":$PATH:" != *":$HOME_BIN:"* ]]; then
-    echo 'export PATH="$PATH:$HOME/.bin"' >> "$HOME/.bashrc"
+    echo 'export PATH="$PATH:$HOME/.bin"' >> "$BASHRC"
     echo "[info] Added $HOME_BIN to PATH."
 fi
 
 curl -L $INSTALL_TARGET_URL -o - | tar -xzvf - && mv ./saba $HOME_BIN
 
 alias_name="saba_install"
-if ! alias | grep -q "\b$alias_name\b"; then
-    echo "alias $alias_name='curl -sSL https://raw.githubusercontent.com/asweed888/saba/main/install.sh | sh -'" >> "$HOME/.bashrc"
+if ! grep -q "$alias_name" "$BASHRC"; then
+    echo "alias $alias_name='curl -sSL https://raw.githubusercontent.com/asweed888/saba/main/install.sh | sh -'" >> "$BASHRC"
     echo "[info] An alias for saba updates has been registered."
 fi
 
