@@ -46,10 +46,10 @@ fi
 
 curl -L $INSTALL_TARGET_URL -o - | tar -xzvf - && mv ./saba $HOME_BIN
 
-# alias_name="saba_update"
-# if ! alias | grep -q "\b$alias_name\b"; then
-#     echo "alias $alias_name=''"
-#     echo "[info] An alias for saba updates has been registered."
-# fi
+alias_name="saba_install"
+if ! alias | grep -q "\b$alias_name\b"; then
+    echo "alias $alias_name='curl -sSL https://raw.githubusercontent.com/asweed888/saba/main/install.sh | sh -'"
+    echo "[info] An alias for saba updates has been registered."
+fi
 
 exec $SHELL -l
