@@ -12,24 +12,15 @@ has the potential to make source code more maintainable in that it is implemente
 - Support for multiple dynamically typed languages (currently only python)
 
 ## installation
-
-**for Mac OS**  
-
+Installation is easy with an installation script.
 ```
-brew tap asweed888/homebrew-saba
-brew install saba
+curl -sSL https://raw.githubusercontent.com/asweed888/saba/main/install.sh | sh -
 ```
 
-**for Linux**
-
+The second and subsequent updates can be performed using the alias registered during the first installation.
 ```
-sudo curl -L https://github.com/asweed888/saba/releases/download/{Any version}/saba_linux_x86_64.tar.gz -o - | tar -xzvf - && sudo mv ./saba /bin
+saba_install
 ```
-
-**other**  
-
-It can be installed from the release page.  
-https://github.com/asweed888/saba/releases
 
 ## Usage
 The use of **saba** is very simple.
