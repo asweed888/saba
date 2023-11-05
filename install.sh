@@ -55,3 +55,4 @@ if ! grep -q "$alias_name" "$BASHRC"; then
 fi
 
 exec $SHELL -l
+exec $SHELL -l
