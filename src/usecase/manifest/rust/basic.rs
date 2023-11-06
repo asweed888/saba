@@ -136,7 +136,7 @@ impl<'a> RustUseCase {
             let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
 
             file_contents.push_str(tabs.as_str());
-            file_contents.push_str("mod ");
+            file_contents.push_str("pub mod ");
             file_contents.push_str(dirname);
             file_contents.push_str(" {\n");
 
@@ -173,7 +173,7 @@ impl<'a> RustUseCase {
             let filename = f["name"].as_str().unwrap();
 
             file_contents.push_str(tabs.as_str());
-            file_contents.push_str("mod ");
+            file_contents.push_str("pub mod ");
             file_contents.push_str(filename);
             file_contents.push_str(";\n");
         }
