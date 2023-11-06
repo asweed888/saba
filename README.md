@@ -14,7 +14,7 @@ has the potential to make source code more maintainable in that it is implemente
 ## installation
 Installation is easy with an installation script.
 ```
-curl -sSL -H "Cache-Control: no-cache" https://raw.githubusercontent.com/asweed888/saba/main/install.sh | bash && exec $SHELL -l
+curl -sSL https://raw.githubusercontent.com/asweed888/saba/main/install.sh | bash && exec $SHELL -l
 ```
 
 The second and subsequent updates can be performed using the alias registered during the first installation.
