@@ -9,7 +9,6 @@ ARCH="$(uname -m)"
 
 case $OS in
     "Linux")
-        BASHRC="$HOME/.bashrc"
         case $ARCH in
             "x86_64")
                 TARGET=x86_64-unknown-linux-musl
@@ -20,7 +19,6 @@ case $OS in
         esac
     ;;
     "Darwin")
-        BASHRC="$HOME/.bash_profile"
         case $ARCH in
             "x86_64")
               TARGET=x86_64-apple-darwin
@@ -34,6 +32,7 @@ esac
 
 INSTALL_TARGET="saba-${VERSION}-${TARGET}.tar.gz"
 INSTALL_TARGET_URL="https://github.com/asweed888/saba/releases/download/${VERSION}/${INSTALL_TARGET}"
+BASHRC="$HOME/.bashrc"
 
 HOME_BIN="$HOME/.bin"
 if [ ! -e "$HOME_BIN" ]; then
@@ -54,5 +53,4 @@ if ! grep -q "$alias_name" "$BASHRC"; then
     echo "[info] An alias for saba updates has been registered."
 fi
 
-echo "The installation of saba is completed."
-echo 'Please execute exec $SHELL -l.'
+exec $SHELL -l
