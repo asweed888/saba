@@ -52,6 +52,3 @@ if ! grep -q "$alias_name" "$BASHRC"; then
     echo "alias $alias_name='curl -sSL -H \"Cache-Control: no-cache\" https://raw.githubusercontent.com/asweed888/saba/main/install.sh | bash && exec \$SHELL -l'" >> "$BASHRC"
     echo "[info] An alias for saba updates has been registered."
 fi
-
-echo "The installation of saba is completed."
-echo 'Please execute exec $SHELL -l.'
