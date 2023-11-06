@@ -54,5 +54,5 @@ if ! grep -q "$alias_name" "$BASHRC"; then
     echo "[info] An alias for saba updates has been registered."
 fi
 
-exec $SHELL -l
-exec $SHELL -l
+echo "The installation of saba is completed."
+echo 'Please execute exec $SHELL -l.'
