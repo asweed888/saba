@@ -1,14 +1,25 @@
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
+pub mod manifest {
+    pub mod rust {
+        pub mod basic;
+        pub mod template;
+        pub mod utils;
     }
-}
+    pub mod golang {
+        pub mod basic;
+        pub mod template;
+    }
+    pub mod python {
+        pub mod basic;
+        pub mod template;
+    }
+    pub mod typescript {
+        pub mod basic;
+        pub mod template;
+    }
+    pub mod bash {
+        pub mod basic;
+    }
+    pub mod basic;
+    pub mod interface;
+    pub mod utils;
+} // Automatically exported by saba.
