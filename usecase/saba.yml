@@ -1,0 +1,28 @@
+lang: rust
+spec:
+- location: manifest
+  codefile:
+    - name: basic
+    - name: interface
+    - name: utils
+  upstream:
+    - name: rust
+      codefile:
+        - name: basic
+        - name: template
+        - name: utils
+    - name: golang
+      codefile:
+        - name: basic
+        - name: template
+    - name: python
+      codefile:
+        - name: basic
+        - name: template
+    - name: typescript
+      codefile:
+        - name: basic
+        - name: template
+    - name: bash
+      codefile:
+        - name: basic
