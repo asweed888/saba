@@ -1,5 +1,6 @@
 use clap::Command;
 use anyhow::{bail, Result};
+use domain::repository::manifest::ManifestRepository;
 use usecase::manifest::basic::ManifestUseCase;
 use usecase::manifest::rust::basic::RustUseCase;
 use usecase::manifest::golang::basic::GoLangUseCase;
@@ -8,12 +9,18 @@ use usecase::manifest::bash::basic::BashUseCase;
 use usecase::manifest::typescript::basic::TypeScriptUseCase;
 
 
-pub struct UpCommand {
-    pub manifest: ManifestUseCase,
+pub struct UpCommand<R>
+where
+    R: ManifestRepository,
+{
+    pub manifest: ManifestUseCase<R>,
 }
 
-impl UpCommand {
-    pub fn new(manifest: ManifestUseCase) -> Self {
+impl<R> UpCommand<R>
+where
+    R: ManifestRepository,
+{
+    pub fn new(manifest: ManifestUseCase<R>) -> Self {
         Self{ manifest }
     }
     pub fn spec(&self) -> Command {

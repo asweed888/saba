@@ -1,7 +1,7 @@
 use yaml_rust::Yaml;
-use crate::manifest::lang::Lang;
-use crate::manifest::arch::Arch;
-use crate::manifest::root::Root;
+use crate::model::manifest::lang::Lang;
+use crate::model::manifest::arch::Arch;
+use crate::model::manifest::root::Root;
 
 #[derive(Debug)]
 pub struct Manifest {

@@ -198,6 +198,7 @@ dependencies = [
 name = "di"
 version = "0.1.0"
 dependencies = [
+ "domain",
  "infrastructure",
  "presentation",
  "usecase",
@@ -207,7 +208,7 @@ dependencies = [
 name = "domain"
 version = "0.1.0"
 dependencies = [
- "clap",
+ "anyhow",
  "getset",
  "yaml-rust",
 ]
@@ -408,6 +409,7 @@ dependencies = [
  "anyhow",
  "askama",
  "clap",
+ "domain",
  "inquire",
  "usecase",
 ]
@@ -645,7 +647,6 @@ dependencies = [
  "anyhow",
  "askama",
  "domain",
- "infrastructure",
  "lazy_static",
  "regex",
  "yaml-rust",

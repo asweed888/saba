@@ -1,8 +1,14 @@
 lang: rust
 spec:
-- location: manifest
+- location: model
+  upstream:
+    - name: manifest
+      codefile:
+        - name: entity
+        - name: lang
+        - name: arch
+        - name: root
+
+- location: repository
   codefile:
-    - name: entity
-    - name: lang
-    - name: arch
-    - name: root
+    - name: manifest

@@ -1,4 +1,4 @@
-use domain::manifest::entity::Manifest;
+use domain::model::manifest::entity::Manifest;
 use crate::manifest::interface::TGenerateFileUseCase;
 use anyhow::Result;
 use std::path::PathBuf;
