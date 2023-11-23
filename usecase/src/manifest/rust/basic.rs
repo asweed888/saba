@@ -33,7 +33,7 @@ impl<'a> RustUseCase {
     }
     fn write_mod_block4main_rs(&self) -> Result<()> {
         let main_rs_path = self.get_main_rs_path()?;
-        let mod_block = self.mod_block()?;
+        let mod_block = self.mod_block(main_rs_path.to_str().unwrap())?;
         let mut file = File::open(main_rs_path.to_str().unwrap())?;
 
         let mut file_contents = String::new();
@@ -79,7 +79,7 @@ impl<'a> RustUseCase {
 
         Ok(fpath1)
     }
-    fn mod_block(&self) -> Result<String> {
+    fn mod_block(&self, main_rs_path: &'a str) -> Result<String> {
         let mut file_contents = String::new();
         let vec_default: &Vec<Yaml> = &vec![];
 
@@ -89,6 +89,10 @@ impl<'a> RustUseCase {
             let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
             let mut tabs = String::new();
 
+            // lib.rsの場合は先頭にpubをつける
+            if main_rs_path.contains("lib.rs") {
+                file_contents += "pub ";
+            }
             file_contents += "mod ";
             file_contents += location;
             file_contents += " {\n";
