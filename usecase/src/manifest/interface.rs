@@ -1,5 +1,5 @@
 use yaml_rust::Yaml;
-use domain::manifest::entity::Manifest;
+use domain::model::manifest::entity::Manifest;
 use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};

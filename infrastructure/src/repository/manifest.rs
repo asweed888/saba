@@ -2,18 +2,22 @@ use yaml_rust::YamlLoader;
 use anyhow::{Context, Result};
 use std::fs;
 
-use domain::manifest::entity::Manifest;
-use domain::manifest::lang::Lang;
-use domain::manifest::arch::Arch;
-use domain::manifest::root::Root;
+use domain::model::manifest::entity::Manifest;
+use domain::model::manifest::lang::Lang;
+use domain::model::manifest::arch::Arch;
+use domain::model::manifest::root::Root;
+use domain::repository::manifest::ManifestRepository;
 
-pub struct ManifestRepository;
+pub struct ManifestRepositoryImpl;
 
-impl ManifestRepository {
+impl ManifestRepositoryImpl {
     pub fn new() -> Self {
         Self{}
     }
-    pub fn load(&self) -> Result<Manifest> {
+}
+
+impl ManifestRepository for ManifestRepositoryImpl {
+    fn load(&self) -> Result<Manifest> {
         let f = fs::read_to_string("./saba.yml");
         let s = f.unwrap().to_string();
         let docs = YamlLoader::load_from_str(&s).unwrap();

@@ -1,15 +1,21 @@
-use domain::manifest::entity::Manifest;
-use infrastructure::repository::manifest::ManifestRepository;
+use domain::model::manifest::entity::Manifest;
+use domain::repository::manifest::ManifestRepository;
 use anyhow::Result;
 use askama::Template;
 
 
-pub struct ManifestUseCase {
-    pub repository: ManifestRepository,
+pub struct ManifestUseCase<R>
+where
+    R: ManifestRepository,
+{
+    pub repository: R,
 }
 
-impl ManifestUseCase {
-    pub fn new(repository: ManifestRepository) -> Self {
+impl<R> ManifestUseCase<R>
+where
+    R: ManifestRepository,
+{
+    pub fn new(repository: R) -> Self {
         Self{
             repository,
         }

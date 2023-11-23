@@ -10,4 +10,5 @@ clap = "4.4.6"
 askama = "0.12.1"
 anyhow = "1.0.75"
 inquire = "0.6.2"
+domain = { path = "../domain" }
 usecase = { path = "../usecase" }

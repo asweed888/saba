@@ -12,4 +12,3 @@ lazy_static = "1.4.0"
 anyhow = "1.0.75"
 regex = "1.10.2"
 domain = { path = "../domain" }
-infrastructure = { path = "../infrastructure" }
