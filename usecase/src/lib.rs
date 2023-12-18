@@ -1,4 +1,4 @@
-pub mod manifest {
+pub pub mod manifest {
     pub mod rust {
         pub mod basic;
         pub mod template;
