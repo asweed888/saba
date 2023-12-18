@@ -1,4 +1,4 @@
-pub mod manifest {
+pub pub mod manifest {
     pub mod rust {
         pub mod basic;
         pub mod template;
@@ -13,6 +13,10 @@ pub mod manifest {
         pub mod template;
     }
     pub mod typescript {
+        pub mod basic;
+        pub mod template;
+    }
+    pub mod lua {
         pub mod basic;
         pub mod template;
     }
