@@ -157,49 +157,45 @@ pub trait TGenerateFileUseCase<'a> {
     }
     fn di_container_action(
         &self,
-        _: PathBuf,
-        _: &'a Manifest,
+        wd: PathBuf,
+        manifest: &'a Manifest,
     ) -> Result<()> {
-        let path_list = PATH_LIST.lock().unwrap();
-        for path in path_list.iter() {
-            println!("path is {}", path);
-        }
-        Ok(())
+        self.gen_file_default_ddd(wd.clone(), manifest)
     }
     fn domain_model_action(
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        self.generated_file_message(wd.clone(), manifest)
+        self.gen_file_default_ddd(wd.clone(), manifest)
     }
     fn domain_repository_action(
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        self.generated_file_message(wd.clone(), manifest)
+        self.gen_file_default_ddd(wd.clone(), manifest)
     }
     fn infra_action(
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        self.generated_file_message(wd.clone(), manifest)
+        self.gen_file_default_ddd(wd.clone(), manifest)
     }
     fn usecase_action(
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        self.generated_file_message(wd.clone(), manifest)
+        self.gen_file_default_ddd(wd.clone(), manifest)
     }
     fn presentation_action(
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> Result<()> {
-        self.generated_file_message(wd.clone(), manifest)
+        self.gen_file_default_ddd(wd.clone(), manifest)
     }
     fn gen_file_default_ddd(
         &self,

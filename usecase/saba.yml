@@ -26,7 +26,6 @@ spec:
     - name: lua
       codefile:
         - name: basic
-        - name: template
     - name: bash
       codefile:
         - name: basic

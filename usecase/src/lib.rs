@@ -18,7 +18,6 @@ pub pub mod manifest {
     }
     pub mod lua {
         pub mod basic;
-        pub mod template;
     }
     pub mod bash {
         pub mod basic;

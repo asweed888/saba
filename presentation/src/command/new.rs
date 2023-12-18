@@ -25,6 +25,7 @@ impl NewCommand {
             "go",
             "python",
             "typescript",
+            "lua",
             "bash",
         ];
 
@@ -33,7 +34,7 @@ impl NewCommand {
         match lang_ans {
             Ok(choice) => {
                 lang = choice.to_string();
-                if lang == "bash" {
+                if lang == "bash" || lang == "lua" {
                 // shellの場合はis_dddは常にfalse
                     is_ddd = false;
                 }
