@@ -7,6 +7,7 @@ use usecase::manifest::golang::basic::GoLangUseCase;
 use usecase::manifest::python::basic::PythonUseCase;
 use usecase::manifest::bash::basic::BashUseCase;
 use usecase::manifest::typescript::basic::TypeScriptUseCase;
+use usecase::manifest::lua::basic::LuaUseCase;
 
 
 pub struct UpCommand<R>
@@ -53,6 +54,12 @@ where
                 manifest.lang.set_ext(String::from("ts"));
                 manifest.root.set_default(String::from("./src"));
                 let uc = TypeScriptUseCase::new(manifest);
+                uc.gen_file()?;
+            }
+            "lua" => {
+                manifest.lang.set_ext(String::from("lua"));
+                manifest.root.set_default(String::from("."));
+                let uc = LuaUseCase::new(manifest);
                 uc.gen_file()?;
             }
             "bash" => {

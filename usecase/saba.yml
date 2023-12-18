@@ -23,6 +23,9 @@ spec:
       codefile:
         - name: basic
         - name: template
+    - name: lua
+      codefile:
+        - name: basic
     - name: bash
       codefile:
         - name: basic
