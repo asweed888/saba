@@ -63,7 +63,7 @@ where
                 uc.gen_file()?;
             }
             "bash" => {
-                manifest.lang.set_ext(String::from("sh"));
+                manifest.lang.set_ext(String::from(""));
                 manifest.root.set_default(String::from("."));
                 let uc = BashUseCase::new(manifest);
                 uc.gen_file()?;
