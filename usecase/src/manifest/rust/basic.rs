@@ -39,7 +39,7 @@ impl<'a> RustUseCase {
         let mut file_contents = String::new();
         file.read_to_string(&mut file_contents)?;
 
-        let re = Regex::new(r"mod[\s\S]*//.*Automatically exported by saba\.")?;
+        let re = Regex::new(self.mod_block_regx(main_rs_path.to_str().unwrap()))?;
 
         if re.is_match(&file_contents) {
             // ファイル内にパターンが見つかった場合は置換
@@ -78,6 +78,14 @@ impl<'a> RustUseCase {
         file.write_all("".as_bytes())?;
 
         Ok(fpath1)
+    }
+    fn mod_block_regx(&self, main_rs_path: &'a str) -> &str {
+        if main_rs_path.contains("lib.rs") {
+            r"pub mod[\s\S]*//.*Automatically exported by saba\."
+        }
+        else {
+            r"mod[\s\S]*//.*Automatically exported by saba\."
+        }
     }
     fn mod_block(&self, main_rs_path: &'a str) -> Result<String> {
         let mut file_contents = String::new();
