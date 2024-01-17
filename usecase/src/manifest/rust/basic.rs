@@ -182,7 +182,12 @@ impl<'a> RustUseCase {
         let mut tabs = String::from(t);
         tabs.push_str("    ");
         for f in codefile {
-            let filename = f["name"].as_str().unwrap();
+            let mut filename = f["name"].as_str().unwrap();
+
+            // filenameがmod.rsの時はr#を追加する
+            if filename == "mod" {
+                filename = "r#mod";
+            }
 
             file_contents.push_str(tabs.as_str());
             file_contents.push_str("pub mod ");
