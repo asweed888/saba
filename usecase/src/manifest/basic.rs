@@ -32,15 +32,17 @@ arch: ddd
 {% endif -%}
 spec:
 {% if !is_ddd -%}
-- location: repository
+- location: character
   codefile:
-    - name: character
+    - name: entity
 {% else -%}
 - location: domain
   upstream:
     - name: model
-      codefile:
+      upstream:
         - name: character
+          codefile:
+            - name: entity
 
     - name: repository
       codefile:
@@ -49,7 +51,7 @@ spec:
 
 - location: infrastructure
   upstream:
-    - name: datastore
+    - name: repository
       codefile:
         - name: character
 

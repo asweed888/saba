@@ -17,3 +17,12 @@ pub fn to_title(input: &str) -> String {
 
     result
 }
+
+pub fn default_struct(pkgname: &str, fname: &str) -> String {
+    if fname == "mod" || fname == "entity" {
+        to_title(pkgname)
+    }
+    else {
+        to_title(fname)
+    }
+}

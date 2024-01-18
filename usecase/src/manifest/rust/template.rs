@@ -3,29 +3,32 @@ use crate::manifest::utils;
 use crate::manifest::rust::utils as rs_utils;
 
 #[derive(Template)]
-#[template(source = "pub struct {{ utils::to_title(fname) }} {}", ext = "txt")]
+#[template(source = "pub struct {{ utils::default_struct(pkgname, fname) }} {}", ext = "txt")]
 pub struct DomainModelTmpl<'a> {
     pub fname: &'a str,
+    pub pkgname: &'a str,
 }
 
 
 #[derive(Template)]
-#[template(source = "pub struct {{ utils::to_title(fname) }}Repository {}", ext = "txt")]
+#[template(source = "pub trait {{ utils::to_title(fname) }}Repository {}", ext = "txt")]
 pub struct DomainRepositoryTmpl<'a> {
     pub fname: &'a str,
 }
 
 
 #[derive(Template)]
-#[template(source = "use crate::domain::model::{{ fname }}::{{ utils::to_title(fname) }};
+#[template(source = "use crate::domain::model::{{ fname }}::entity::{{ utils::to_title(fname) }};
 use crate::domain::repository::{{ fname }}::{{ utils::to_title(fname) }}Repository;
 
 
-impl {{ utils::to_title(fname) }}Repository {
+impl {{ utils::to_title(fname) }}RepositoryImpl {
     pub fn new() -> Self {
         Self{}
     }
 }
+
+impl {{ utils::to_title(fname) }}Repository for {{ utils::to_title(fname) }}RepositoryImpl {}
 ", ext = "txt")]
 pub struct InfraTmpl<'a> {
     pub fname: &'a str,
@@ -33,16 +36,22 @@ pub struct InfraTmpl<'a> {
 
 
 #[derive(Template)]
-#[template(source = "use crate::domain::model::{{ fname }}::{{ utils::to_title(fname) }};
+#[template(source = "use crate::domain::model::{{ fname }}::entity::{{ utils::to_title(fname) }};
 use crate::domain::repository::{{ fname }}::{{ utils::to_title(fname) }}Repository;
 
 
-pub struct {{ utils::to_title(fname) }}UseCase {
-    pub repository: {{ utils::to_title(fname) }}Repository,
+pub struct {{ utils::to_title(fname) }}UseCase<R>
+where
+    R: {{ utils::to_title(fname) }}Repository,
+{
+    pub repository: R,
 }
 
-impl {{ utils::to_title(fname) }}UseCase {
-    pub fn new(repository: {{ utils::to_title(fname) }}Repository) -> Self {
+impl<R> {{ utils::to_title(fname) }}UseCase<R>
+where
+    R: {{ utils::to_title(fname) }}Repository,
+{
+    pub fn new(repository: R) -> Self {
         Self{ repository }
     }
 }
@@ -53,16 +62,23 @@ pub struct UseCaseTmpl<'a> {
 
 
 #[derive(Template)]
-#[template(source = "use crate::domain::model::{{ fname }}::{{ utils::to_title(fname) }};
+#[template(source = "use crate::domain::model::{{ fname }}::entity::{{ utils::to_title(fname) }};
+use crate::usecase::{{ fname }}::{{ utils::to_title(fname) }}Repository;
 use crate::usecase::{{ fname }}::{{ utils::to_title(fname) }}UseCase;
 
 
-pub struct {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }} {
-    usecase: {{ utils::to_title(fname) }}UseCase,
+pub struct {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}<R>
+where
+    R: {{ utils::to_title(fname) }}Repository,
+{
+    usecase: {{ utils::to_title(fname) }}UseCase<R>,
 }
 
-impl {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }} {
-    pub fn new(usecase: {{ utils::to_title(fname) }}UseCase) -> Self {
+impl<R> {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}<R>
+where
+    R: {{ utils::to_title(fname) }}Repository,
+{
+    pub fn new(usecase: {{ utils::to_title(fname) }}UseCase<R>) -> Self {
         Self{ usecase }
     }
 }
@@ -97,7 +113,8 @@ pub struct DiTmpl<'a> {
 }
 
 #[derive(Template)]
-#[template(source = "pub struct {{ utils::to_title(fname) }} {}", ext = "txt")]
+#[template(source = "pub struct {{ utils::default_struct(pkgname, fname) }} {}", ext = "txt")]
 pub struct DefaultTmpl<'a> {
     pub fname: &'a str,
+    pub pkgname: &'a str,
 }
