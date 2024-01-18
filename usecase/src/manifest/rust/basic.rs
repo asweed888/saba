@@ -227,8 +227,10 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
     ) -> Result<()> {
 
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
+        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let data = DomainModelTmpl{
             fname: fname.as_str(),
+            pkgname: pkgname.as_str(),
         };
 
         let rendered_tmpl = data.render()?;
@@ -314,8 +316,10 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
         manifest: &'a Manifest,
     ) -> Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
+        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let data = DefaultTmpl{
             fname: fname.as_str(),
+            pkgname: pkgname.as_str(),
         };
 
         let rendered_tmpl = data.render()?;
