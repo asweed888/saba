@@ -63,7 +63,7 @@ pub struct UseCaseTmpl<'a> {
 
 #[derive(Template)]
 #[template(source = "use crate::domain::model::{{ fname }}::entity::{{ utils::to_title(fname) }};
-use crate::usecase::{{ fname }}::{{ utils::to_title(fname) }}Repository;
+use crate::domain::repository::{{ fname }}::{{ utils::to_title(fname) }}Repository;
 use crate::usecase::{{ fname }}::{{ utils::to_title(fname) }}UseCase;
 
 
