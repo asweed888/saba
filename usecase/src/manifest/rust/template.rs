@@ -22,6 +22,8 @@ pub struct DomainRepositoryTmpl<'a> {
 use crate::domain::repository::{{ fname }}::{{ utils::to_title(fname) }}Repository;
 
 
+pub struct {{ utils::to_title(fname) }}RepositoryImpl;
+
 impl {{ utils::to_title(fname) }}RepositoryImpl {
     pub fn new() -> Self {
         Self{}
@@ -71,7 +73,7 @@ pub struct {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}<R>
 where
     R: {{ utils::to_title(fname) }}Repository,
 {
-    usecase: {{ utils::to_title(fname) }}UseCase<R>,
+    pub usecase: {{ utils::to_title(fname) }}UseCase<R>,
 }
 
 impl<R> {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}<R>
