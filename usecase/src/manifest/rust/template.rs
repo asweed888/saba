@@ -22,7 +22,7 @@ pub struct DomainRepositoryTmpl<'a> {
 use crate::domain::repository::{{ fname }}::{{ utils::to_title(fname) }}Repository;
 
 
-pub struct {{ utils::to_title(fname) }}RepositoryImpl;
+pub struct {{ utils::to_title(fname) }}RepositoryImpl{}
 
 impl {{ utils::to_title(fname) }}RepositoryImpl {
     pub fn new() -> Self {
@@ -42,14 +42,14 @@ pub struct InfraTmpl<'a> {
 use crate::domain::repository::{{ fname }}::{{ utils::to_title(fname) }}Repository;
 
 
-pub struct {{ utils::to_title(fname) }}UseCaseImpl<R>;
+pub struct {{ utils::to_title(fname) }}UseCaseImpl<R>
 where
     R: {{ utils::to_title(fname) }}Repository,
 {
     pub repository: R,
 }
 
-impl<R> {{ utils::to_title(fname) }}UseCaseImpl<R>;
+impl<R> {{ utils::to_title(fname) }}UseCaseImpl<R>
 where
     R: {{ utils::to_title(fname) }}Repository,
 {
@@ -69,14 +69,14 @@ use crate::domain::repository::{{ fname }}::{{ utils::to_title(fname) }}Reposito
 use crate::usecase::{{ fname }}::{{ utils::to_title(fname) }}UseCaseImpl;
 
 
-pub struct {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}<R>
+pub struct {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}Impl<R>
 where
     R: {{ utils::to_title(fname) }}Repository,
 {
     pub usecase: {{ utils::to_title(fname) }}UseCaseImpl<R>,
 }
 
-impl<R> {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}<R>
+impl<R> {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}Impl<R>
 where
     R: {{ utils::to_title(fname) }}Repository,
 {
