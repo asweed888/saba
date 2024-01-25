@@ -1,7 +1,7 @@
 use clap::Command;
 use anyhow::{bail, Result};
 use domain::repository::manifest::ManifestRepository;
-use usecase::manifest::basic::ManifestUseCase;
+use sabacan::manifest::load::manifest::ManifestLoadUsecase;
 use usecase::manifest::rust::basic::RustUseCase;
 use usecase::manifest::golang::basic::GoLangUseCase;
 use usecase::manifest::python::basic::PythonUseCase;
@@ -14,14 +14,14 @@ pub struct UpCommand<R>
 where
     R: ManifestRepository,
 {
-    pub manifest: ManifestUseCase<R>,
+    pub manifest: ManifestLoadUsecase<R>,
 }
 
 impl<R> UpCommand<R>
 where
     R: ManifestRepository,
 {
-    pub fn new(manifest: ManifestUseCase<R>) -> Self {
+    pub fn new(manifest: ManifestLoadUsecase<R>) -> Self {
         Self{ manifest }
     }
     pub fn spec(&self) -> Command {

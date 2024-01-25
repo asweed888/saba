@@ -5,7 +5,7 @@ use askama::Template;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use usecase::manifest::basic::ManifestTmpl;
+use sabacan::manifest::template::ManifestTemplate;
 
 pub struct NewCommand {}
 
@@ -57,7 +57,7 @@ impl NewCommand {
             }
         }
 
-        let data = ManifestTmpl{
+        let data = ManifestTemplate{
             lang,
             is_ddd,
         };

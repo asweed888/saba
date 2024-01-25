@@ -12,3 +12,4 @@ anyhow = "1.0.75"
 inquire = "0.6.2"
 domain = { path = "../domain" }
 usecase = { path = "../usecase" }
+sabacan = { git = "https://github.com/asweed888/sabacan.git", branch = "main", version = "0.1.0" }
