@@ -1,5 +1,34 @@
 lang: rust
 spec:
+- location: generate
+  upstream:
+    - name: codefile
+      upstream:
+        - name: rust
+          codefile:
+            - name: mod
+            - name: template
+            - name: utils
+        - name: golang
+          codefile:
+            - name: mod
+            - name: template
+        - name: python
+          codefile:
+            - name: mod
+            - name: template
+        - name: typescript
+          codefile:
+            - name: mod
+            - name: template
+        - name: lua
+          codefile:
+            - name: mod
+        - name: bash
+          codefile:
+            - name: mod
+
+
 - location: manifest
   codefile:
     - name: basic
