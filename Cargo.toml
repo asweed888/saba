@@ -11,5 +11,5 @@ path = "src/main.rs"
 
 [dependencies]
 clap = "4.4.6"
-anyhow = "1.0.75"
+anyhow = "1.0.79"
 di = { path = "./di" }

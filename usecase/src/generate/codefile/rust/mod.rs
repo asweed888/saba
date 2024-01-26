@@ -25,12 +25,12 @@ impl<'a> GenerateRustFileUseCaseImpl {
     pub fn new(manifest: Manifest) -> Self {
         Self{ manifest }
     }
-    pub fn gen_file(&self) -> Result<()> {
+    pub fn gen_file(&self) -> anyhow::Result<()> {
         self.location_action(&self.manifest)?;
         self.write_mod_block4main_rs()?;
         Ok(())
     }
-    fn write_mod_block4main_rs(&self) -> Result<()> {
+    fn write_mod_block4main_rs(&self) -> anyhow::Result<()> {
         let main_rs_path = self.get_main_rs_path()?;
         let mod_block = self.mod_block(main_rs_path.to_str().unwrap())?;
         let mut file = File::open(main_rs_path.to_str().unwrap())?;
@@ -61,7 +61,7 @@ impl<'a> GenerateRustFileUseCaseImpl {
 
         Ok(())
     }
-    fn get_main_rs_path(&self) -> Result<PathBuf> {
+    fn get_main_rs_path(&self) -> anyhow::Result<PathBuf> {
         let root = self.manifest.root.get_path();
         let fpath1 = PathBuf::from(root.to_string() + "/main.rs");
         let fpath2 = PathBuf::from(root.to_string() + "/lib.rs");
@@ -86,7 +86,7 @@ impl<'a> GenerateRustFileUseCaseImpl {
             r"mod[\s\S]*//.*Automatically exported by saba\."
         }
     }
-    fn mod_block(&self, main_rs_path: &'a str) -> Result<String> {
+    fn mod_block(&self, main_rs_path: &'a str) -> anyhow::Result<String> {
         let mut file_contents = String::new();
         let vec_default: &Vec<Yaml> = &vec![];
 
@@ -136,7 +136,7 @@ impl<'a> GenerateRustFileUseCaseImpl {
         upstream: &Vec<Yaml>,
         file_contents: &mut String,
         t: &'a str,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let vec_default: &Vec<Yaml> = &vec![];
         let mut tabs = String::from(t);
         tabs.push_str("    ");
@@ -177,7 +177,7 @@ impl<'a> GenerateRustFileUseCaseImpl {
         codefile: &Vec<Yaml>,
         file_contents: &mut String,
         t: &'a str,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let mut tabs = String::from(t);
         tabs.push_str("    ");
         for f in codefile {
@@ -204,7 +204,7 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         &self,
         wd: PathBuf,
         _: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let path_list_raw = PATH_LIST.lock().unwrap();
         let path_list = &*path_list_raw;
         let data = DiTmpl{
@@ -223,7 +223,7 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
 
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
@@ -243,7 +243,7 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DomainRepositoryTmpl{
             fname: fname.as_str(),
@@ -260,7 +260,7 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = InfraTmpl{
             fname: fname.as_str(),
@@ -277,7 +277,7 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = UseCaseTmpl{
             fname: fname.as_str(),
@@ -294,7 +294,7 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let data = PresentationTmpl{
@@ -313,7 +313,7 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let data = DefaultTmpl{

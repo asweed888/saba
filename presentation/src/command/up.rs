@@ -1,13 +1,13 @@
 use clap::Command;
-use anyhow::{bail, Result};
-use domain::repository::manifest::ManifestRepository;
-use sabacan::manifest::load::manifest::LoadManifestUseCaseImpl;
-use usecase::manifest::rust::basic::RustUseCase;
-use usecase::manifest::golang::basic::GoLangUseCase;
-use usecase::manifest::python::basic::PythonUseCase;
-use usecase::manifest::bash::basic::BashUseCase;
-use usecase::manifest::typescript::basic::TypeScriptUseCase;
-use usecase::manifest::lua::basic::LuaUseCase;
+use anyhow::bail;
+use sabacan::manifest::domain::repository::ManifestRepository;
+use sabacan::manifest::usecase::load::manifest::LoadManifestUseCaseImpl;
+use usecase::generate::codefile::rust::r#mod::GenerateRustFileUseCaseImpl;
+use usecase::generate::codefile::golang::r#mod::GenerateGoLangFileUseCaseImpl;
+use usecase::generate::codefile::python::r#mod::GeneratePythonFileUseCaseImpl;
+use usecase::generate::codefile::bash::r#mod::GenerateBashFileUseCaseImpl;
+use usecase::generate::codefile::typescript::r#mod::GenerateTypeScriptFileUseCaseImpl;
+use usecase::generate::codefile::lua::r#mod::GenerateLuaFileUseCaseImpl;
 
 
 pub struct UpCommand<R>
@@ -28,44 +28,44 @@ where
         Command::new("up")
             .about("up command")
     }
-    pub fn action(&self) -> Result<()> {
+    pub fn action(&self) -> anyhow::Result<()> {
         let mut manifest = self.manifest.load().unwrap();
 
         match manifest.lang.name().as_str() {
             "rust" => {
                 manifest.lang.set_ext(String::from("rs"));
                 manifest.root.set_default(String::from("./src"));
-                let uc = RustUseCase::new(manifest);
+                let uc = GenerateRustFileUseCaseImpl::new(manifest);
                 uc.gen_file()?;
             }
             "go" => {
                 manifest.lang.set_ext(String::from("go"));
                 manifest.root.set_default(String::from("."));
-                let uc = GoLangUseCase::new(manifest);
+                let uc = GenerateGoLangFileUseCaseImpl::new(manifest);
                 uc.gen_file()?;
             }
             "python" => {
                 manifest.lang.set_ext(String::from("py"));
                 manifest.root.set_default(String::from("."));
-                let uc = PythonUseCase::new(manifest);
+                let uc = GeneratePythonFileUseCaseImpl::new(manifest);
                 uc.gen_file()?;
             }
             "typescript" => {
                 manifest.lang.set_ext(String::from("ts"));
                 manifest.root.set_default(String::from("./src"));
-                let uc = TypeScriptUseCase::new(manifest);
+                let uc = GenerateTypeScriptFileUseCaseImpl::new(manifest);
                 uc.gen_file()?;
             }
             "lua" => {
                 manifest.lang.set_ext(String::from("lua"));
                 manifest.root.set_default(String::from("."));
-                let uc = LuaUseCase::new(manifest);
+                let uc = GenerateLuaFileUseCaseImpl::new(manifest);
                 uc.gen_file()?;
             }
             "bash" => {
                 manifest.lang.set_ext(String::from(""));
                 manifest.root.set_default(String::from("."));
-                let uc = BashUseCase::new(manifest);
+                let uc = GenerateBashFileUseCaseImpl::new(manifest);
                 uc.gen_file()?;
             }
             _ => {

@@ -1,5 +1,5 @@
 use clap::Command;
-use anyhow::{bail, Result};
+use anyhow::bail;
 use inquire::{Select, Confirm};
 use askama::Template;
 use std::fs::File;
@@ -17,7 +17,7 @@ impl NewCommand {
         Command::new("new")
             .about("new command")
     }
-    pub fn action(&self) -> Result<()> {
+    pub fn action(&self) -> anyhow::Result<()> {
         let lang: String;
         let is_ddd: bool;
         let options: Vec<&str> = vec![
