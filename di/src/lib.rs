@@ -1,6 +1,6 @@
-use domain::repository::manifest::ManifestRepository;
-use infrastructure::repository::manifest::ManifestRepositoryImpl;
-use usecase::manifest::basic::ManifestUseCase;
+use sabacan::manifest::domain::repository::ManifestRepository;
+use sabacan::manifest::infra::repository::ManifestRepositoryImpl;
+use sabacan::manifest::usecase::load::manifest::LoadManifestUseCaseImpl;
 use presentation::command::up::UpCommand;
 use presentation::command::new::NewCommand;
 
@@ -42,11 +42,11 @@ impl DIContainer {
     fn new_manifest_repository(&self) -> ManifestRepositoryImpl {
         ManifestRepositoryImpl::new()
     }
-    fn new_manifest_usecase(&self) -> ManifestUseCase<ManifestRepositoryImpl> {
-        ManifestUseCase::new(self.new_manifest_repository())
+    fn new_load_manifest_usecase(&self) -> LoadManifestUseCaseImpl<ManifestRepositoryImpl> {
+        LoadManifestUseCaseImpl::new(self.new_manifest_repository())
     }
     fn new_up_cmd(&self) -> UpCommand<ManifestRepositoryImpl> {
-        UpCommand::new(self.new_manifest_usecase())
+        UpCommand::new(self.new_load_manifest_usecase())
     }
     fn new_new_cmd(&self) -> NewCommand {
         NewCommand::new()

@@ -1,5 +1,3 @@
-use domain::model::manifest::entity::Manifest;
-use crate::manifest::interface::{TGenerateFileUseCase, PATH_LIST};
 use askama::Template;
 use std::fs;
 use std::fs::File;
@@ -7,8 +5,9 @@ use std::path::PathBuf;
 use std::io::prelude::*;
 use regex::Regex;
 use yaml_rust::Yaml;
-use anyhow::Result;
-use crate::manifest::rust::template::{
+use sabacan::manifest::domain::model::entity::Manifest;
+use sabacan::manifest::usecase::generate::codefile::{CodefileGenerator, PATH_LIST};
+use crate::generate::codefile::rust::template::{
     DomainModelTmpl,
     DomainRepositoryTmpl,
     InfraTmpl,
@@ -18,20 +17,20 @@ use crate::manifest::rust::template::{
     DefaultTmpl,
 };
 
-pub struct RustUseCase {
+pub struct GenerateRustFileUseCaseImpl {
     manifest: Manifest,
 }
 
-impl<'a> RustUseCase {
+impl<'a> GenerateRustFileUseCaseImpl {
     pub fn new(manifest: Manifest) -> Self {
         Self{ manifest }
     }
-    pub fn gen_file(&self) -> Result<()> {
+    pub fn gen_file(&self) -> anyhow::Result<()> {
         self.location_action(&self.manifest)?;
         self.write_mod_block4main_rs()?;
         Ok(())
     }
-    fn write_mod_block4main_rs(&self) -> Result<()> {
+    fn write_mod_block4main_rs(&self) -> anyhow::Result<()> {
         let main_rs_path = self.get_main_rs_path()?;
         let mod_block = self.mod_block(main_rs_path.to_str().unwrap())?;
         let mut file = File::open(main_rs_path.to_str().unwrap())?;
@@ -62,7 +61,7 @@ impl<'a> RustUseCase {
 
         Ok(())
     }
-    fn get_main_rs_path(&self) -> Result<PathBuf> {
+    fn get_main_rs_path(&self) -> anyhow::Result<PathBuf> {
         let root = self.manifest.root.get_path();
         let fpath1 = PathBuf::from(root.to_string() + "/main.rs");
         let fpath2 = PathBuf::from(root.to_string() + "/lib.rs");
@@ -87,7 +86,7 @@ impl<'a> RustUseCase {
             r"mod[\s\S]*//.*Automatically exported by saba\."
         }
     }
-    fn mod_block(&self, main_rs_path: &'a str) -> Result<String> {
+    fn mod_block(&self, main_rs_path: &'a str) -> anyhow::Result<String> {
         let mut file_contents = String::new();
         let vec_default: &Vec<Yaml> = &vec![];
 
@@ -137,7 +136,7 @@ impl<'a> RustUseCase {
         upstream: &Vec<Yaml>,
         file_contents: &mut String,
         t: &'a str,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let vec_default: &Vec<Yaml> = &vec![];
         let mut tabs = String::from(t);
         tabs.push_str("    ");
@@ -178,7 +177,7 @@ impl<'a> RustUseCase {
         codefile: &Vec<Yaml>,
         file_contents: &mut String,
         t: &'a str,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let mut tabs = String::from(t);
         tabs.push_str("    ");
         for f in codefile {
@@ -200,12 +199,12 @@ impl<'a> RustUseCase {
 }
 
 
-impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
+impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
     fn di_container_action(
         &self,
         wd: PathBuf,
         _: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let path_list_raw = PATH_LIST.lock().unwrap();
         let path_list = &*path_list_raw;
         let data = DiTmpl{
@@ -224,7 +223,7 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
 
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
@@ -244,7 +243,7 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DomainRepositoryTmpl{
             fname: fname.as_str(),
@@ -261,7 +260,7 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = InfraTmpl{
             fname: fname.as_str(),
@@ -278,7 +277,7 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = UseCaseTmpl{
             fname: fname.as_str(),
@@ -295,7 +294,7 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let data = PresentationTmpl{
@@ -314,7 +313,7 @@ impl<'a> TGenerateFileUseCase<'a> for RustUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let data = DefaultTmpl{

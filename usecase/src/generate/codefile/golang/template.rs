@@ -1,5 +1,5 @@
 use askama::Template;
-use crate::manifest::utils;
+use sabacan::codefile::template::utils;
 
 #[derive(Template)]
 #[template(source = "package {{ pkgname }}

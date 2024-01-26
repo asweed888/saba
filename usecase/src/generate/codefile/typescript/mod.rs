@@ -1,11 +1,10 @@
-use domain::model::manifest::entity::Manifest;
-use crate::manifest::interface::TGenerateFileUseCase;
+use sabacan::manifest::domain::model::entity::Manifest;
+use sabacan::manifest::usecase::generate::codefile::CodefileGenerator;
 use askama::Template;
 use std::fs::File;
 use std::path::PathBuf;
 use std::io::prelude::*;
-use anyhow::Result;
-use crate::manifest::python::template::{
+use crate::generate::codefile::typescript::template::{
     DomainModelTmpl,
     DomainRepositoryTmpl,
     InfraTmpl,
@@ -16,27 +15,27 @@ use crate::manifest::python::template::{
 };
 
 
-pub struct PythonUseCase {
+pub struct GenerateTypeScriptFileUseCaseImpl {
     manifest: Manifest,
 }
 
-impl<'a> PythonUseCase {
+impl<'a> GenerateTypeScriptFileUseCaseImpl {
     pub fn new(manifest: Manifest) -> Self {
         Self{ manifest }
     }
-    pub fn gen_file(&self) -> Result<()> {
+    pub fn gen_file(&self) -> anyhow::Result<()> {
         self.location_action(&self.manifest)?;
         Ok(())
     }
 }
 
 
-impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
+impl<'a> CodefileGenerator<'a> for GenerateTypeScriptFileUseCaseImpl {
     fn di_container_action(
         &self,
         wd: PathBuf,
         _: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let data = di_tmpl();
 
         let mut file = File::create(wd.to_str().unwrap())?;
@@ -49,7 +48,7 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DomainModelTmpl{
             fname: fname.as_str(),
@@ -66,7 +65,7 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DomainRepositoryTmpl{
             fname: fname.as_str(),
@@ -83,7 +82,7 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = InfraTmpl{
             fname: fname.as_str(),
@@ -100,7 +99,7 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = UseCaseTmpl{
             fname: fname.as_str(),
@@ -117,7 +116,7 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = PresentationTmpl{
@@ -136,7 +135,7 @@ impl<'a> TGenerateFileUseCase<'a> for PythonUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DefaultTmpl{
             fname: fname.as_str(),

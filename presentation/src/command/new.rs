@@ -1,11 +1,11 @@
 use clap::Command;
-use anyhow::{bail, Result};
+use anyhow::bail;
 use inquire::{Select, Confirm};
 use askama::Template;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use usecase::manifest::basic::ManifestTmpl;
+use sabacan::manifest::template::ManifestTemplate;
 
 pub struct NewCommand {}
 
@@ -17,7 +17,7 @@ impl NewCommand {
         Command::new("new")
             .about("new command")
     }
-    pub fn action(&self) -> Result<()> {
+    pub fn action(&self) -> anyhow::Result<()> {
         let lang: String;
         let is_ddd: bool;
         let options: Vec<&str> = vec![
@@ -57,7 +57,7 @@ impl NewCommand {
             }
         }
 
-        let data = ManifestTmpl{
+        let data = ManifestTemplate{
             lang,
             is_ddd,
         };

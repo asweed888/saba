@@ -9,6 +9,6 @@ edition = "2021"
 yaml-rust = "0.4.5"
 askama = "0.12.1"
 lazy_static = "1.4.0"
-anyhow = "1.0.75"
+anyhow = "1.0.79"
 regex = "1.10.2"
-domain = { path = "../domain" }
+sabacan = { git = "https://github.com/asweed888/sabacan.git", branch = "main", version = "0.1.0" }

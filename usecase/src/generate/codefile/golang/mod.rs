@@ -1,11 +1,10 @@
-use domain::model::manifest::entity::Manifest;
-use crate::manifest::interface::TGenerateFileUseCase;
+use sabacan::manifest::domain::model::entity::Manifest;
+use sabacan::manifest::usecase::generate::codefile::CodefileGenerator;
 use askama::Template;
 use std::fs::File;
 use std::path::PathBuf;
 use std::io::prelude::*;
-use anyhow::Result;
-use crate::manifest::golang::template::{
+use crate::generate::codefile::golang::template::{
     DomainModelTmpl,
     DomainRepositoryTmpl,
     InfraTmpl,
@@ -16,27 +15,27 @@ use crate::manifest::golang::template::{
 };
 
 
-pub struct GoLangUseCase {
+pub struct GenerateGoLangFileUseCaseImpl {
     manifest: Manifest,
 }
 
-impl<'a> GoLangUseCase {
+impl<'a> GenerateGoLangFileUseCaseImpl {
     pub fn new(manifest: Manifest) -> Self {
         Self{ manifest }
     }
-    pub fn gen_file(&self) -> Result<()> {
+    pub fn gen_file(&self) -> anyhow::Result<()> {
         self.location_action(&self.manifest)?;
         Ok(())
     }
 }
 
 
-impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
+impl<'a> CodefileGenerator<'a> for GenerateGoLangFileUseCaseImpl {
     fn di_container_action(
         &self,
         wd: PathBuf,
         _: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let data = di_tmpl();
 
         let mut file = File::create(wd.to_str().unwrap())?;
@@ -49,7 +48,7 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DomainModelTmpl{
@@ -68,7 +67,7 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DomainRepositoryTmpl{
@@ -87,7 +86,7 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = InfraTmpl{
@@ -106,7 +105,7 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = UseCaseTmpl{
@@ -125,7 +124,7 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = PresentationTmpl{
@@ -144,7 +143,7 @@ impl<'a> TGenerateFileUseCase<'a> for GoLangUseCase {
         &self,
         wd: PathBuf,
         manifest: &'a Manifest,
-    ) -> Result<()> {
+    ) -> anyhow::Result<()> {
         let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let data = DefaultTmpl{
             pkgname: pkgname.as_str(),

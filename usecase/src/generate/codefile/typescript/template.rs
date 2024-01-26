@@ -1,5 +1,5 @@
 use askama::Template;
-use crate::manifest::utils as u;
+use sabacan::codefile::template::utils as u;
 
 #[derive(Template)]
 #[template(source = "export class {{ u::to_title(fname) }} {

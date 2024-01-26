@@ -1,6 +1,7 @@
 use askama::Template;
-use crate::manifest::utils;
-use crate::manifest::rust::utils as rs_utils;
+use sabacan::codefile::template::utils;
+use crate::generate::codefile::rust::utils as rs_utils;
+
 
 #[derive(Template)]
 #[template(source = "pub struct {{ utils::default_struct(pkgname, fname) }} {}", ext = "txt")]
