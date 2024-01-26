@@ -17,11 +17,11 @@ use crate::generate::codefile::rust::template::{
     DefaultTmpl,
 };
 
-pub struct RustFileGenerateUseCase {
+pub struct GenerateRustFileUseCaseImpl {
     manifest: Manifest,
 }
 
-impl<'a> RustFileGenerateUseCase {
+impl<'a> GenerateRustFileUseCaseImpl {
     pub fn new(manifest: Manifest) -> Self {
         Self{ manifest }
     }
@@ -199,7 +199,7 @@ impl<'a> RustFileGenerateUseCase {
 }
 
 
-impl<'a> CodefileGenerator<'a> for RustFileGenerateUseCase {
+impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
     fn di_container_action(
         &self,
         wd: PathBuf,
