@@ -7,7 +7,7 @@ spec:
         - name: rust
           codefile:
             - name: mod
-            - name: tiny_project
+            - name: slim
             - name: template
             - name: utils
         - name: golang

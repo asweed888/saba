@@ -642,7 +642,6 @@ dependencies = [
  "askama",
  "lazy_static",
  "regex",
- "sabacan",
  "yaml-rust",
 ]
 

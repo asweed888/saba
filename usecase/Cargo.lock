@@ -242,7 +242,7 @@ checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 [[package]]
 name = "sabacan"
 version = "0.1.0"
-source = "git+https://github.com/asweed888/sabacan.git?branch=main#7abbd1d72c51542a53b5e7de4f679f4285cdf2bf"
+source = "git+https://github.com/asweed888/sabacan.git?branch=main#1f03268506539f148dbf227834613775f6392f01"
 dependencies = [
  "anyhow",
  "askama",
