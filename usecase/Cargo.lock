@@ -13,9 +13,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.75"
+version = "1.0.79"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4668cab20f66d8d020e1fbc0ebe47217433c1b6c8f2040faf858554e394ace6"
+checksum = "080e9890a082662b09c1ad45f567faeeb47f22b5fb23895fbe1e651e718e25ca"
 
 [[package]]
 name = "askama"
@@ -74,15 +74,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2f2139706359229bfa8f19142ac1155b4b80beafb7a60471ac5dd109d4a19778"
 dependencies = [
  "serde",
-]
-
-[[package]]
-name = "domain"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "getset",
- "yaml-rust",
 ]
 
 [[package]]
@@ -249,6 +240,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08c74e62047bb2de4ff487b251e4a92e24f48745648451635cec7d591162d9f"
 
 [[package]]
+name = "sabacan"
+version = "0.1.0"
+source = "git+https://github.com/asweed888/sabacan.git?branch=main#7abbd1d72c51542a53b5e7de4f679f4285cdf2bf"
+dependencies = [
+ "anyhow",
+ "askama",
+ "getset",
+ "lazy_static",
+ "yaml-rust",
+]
+
+[[package]]
 name = "serde"
 version = "1.0.193"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -311,9 +314,9 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "askama",
- "domain",
  "lazy_static",
  "regex",
+ "sabacan",
  "yaml-rust",
 ]
 

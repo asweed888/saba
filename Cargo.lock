@@ -482,6 +482,7 @@ dependencies = [
  "anyhow",
  "clap",
  "di",
+ "sabacan",
 ]
 
 [[package]]
