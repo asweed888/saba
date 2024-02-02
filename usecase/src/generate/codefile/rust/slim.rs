@@ -34,15 +34,46 @@ impl<'a> GenerateRustFileUseCaseImpl {
 }
 
 impl<'a> modblock::Handler<'a> for GenerateRustFileUseCaseImpl {
-    fn write_modblock(&self, manifest: &'a Manifest) -> anyhow::Result<()> {
+    fn save_modblock(&self, manifest: &'a Manifest) -> anyhow::Result<()> {
+        // メインとなるファイルのパスの取得とファイルの生成
         let main_rs_path = main_rs::path(&PathBuf::from(manifest.root.get_path()))?;
         main_rs::gen(&main_rs_path)?;
-        let mod_block = self.modblock(&manifest, Some(&main_rs_path));
+
+        // ファイルに書き込むmodのブロックを作成
+        let mod_block = self.modblock(&manifest, &main_rs_path)?;
+
+        // メインとなるファイルを開き現在の内容を読み込む
+        let mut file = File::open(main_rs_path)?;
+        let mut file_contents = String::new();
+        file.read_to_string(&mut file_contents)?;
+
+        // mod_blockのパターン
+        let re = Regex::new(self.modblock_pattern(&main_rs_path))?;
+
+        if re.is_match(&file_contents) {
+            // ファイル内にパターンが見つかった場合は置換
+            let replaced_contents = re.replace_all(&file_contents, mod_block.as_str());
+            let mut new_file = File::create(main_rs_path)?;
+            new_file.write_all(replaced_contents.as_bytes())?;
+        }
+        else {
+            // ファイル内にパターンが見つからなかった場合はmod_blockをファイルの先頭に挿入
+            let temp_file = main_rs_path.with_extension("temp");
+            let mut new_file = File::create(&temp_file)?;
+            let new_mod_block = mod_block.clone() + "\n\n\n";
+
+            // 先頭にmod_blockを挿入
+            new_file.write_all(new_mod_block.as_bytes())?;
+            // 元のファイルの内容をコピー
+            new_file.write_all(file_contents.as_bytes())?;
+            fs::rename(&temp_file, main_rs_path)?;
+        }
+
         Ok(())
     }
     fn modblock(&self, manifest: &'a Manifest, path: &'a PathBuf) -> anyhow::Result<String> {
         let path = path.to_str().unwrap().to_string();
-        let mut file_contents = String::new();
+        let mut mod_block = String::new();
         let vec_default: &Vec<Yaml> = &vec![];
 
         for (idx, spec) in self.manifest.spec.iter().enumerate() {
@@ -53,41 +84,94 @@ impl<'a> modblock::Handler<'a> for GenerateRustFileUseCaseImpl {
 
             // lib.rsの場合は先頭にpubをつける
             if path.contains("lib.rs") {
-                file_contents += "pub ";
+                mod_block += "pub ";
             }
-            file_contents += "mod ";
-            file_contents += location;
-            file_contents += " {\n";
+            mod_block += "mod ";
+            mod_block += location;
+            mod_block += " {\n";
 
             if !upstream.is_empty() {
                 self.upstream_modblock(
                     upstream,
-                    &mut file_contents,
+                    &mut mod_block,
                     &tabs,
                 )?;
                 tabs = String::new();
             }
 
             if !codefile.is_empty() {
-                self.codefile_mod_block(
+                self.codefile_modblock(
                     codefile,
-                    &mut file_contents,
+                    &mut mod_block,
                     &tabs,
                 )?;
             }
 
             if idx == self.manifest.spec.len() - 1 {
-                file_contents.push_str("} // Automatically exported by saba.");
+                mod_block.push_str("} // Automatically exported by saba.");
             }
             else {
-                file_contents.push_str("}\n");
+                mod_block.push_str("}\n");
             }
         }
 
-        Ok(file_contents)
+        Ok(mod_block)
     }
-    fn upstream_modblock(&self, upstream: &Vec<Yaml>, mod_block: &mut String, tabs: &'a str) -> anyhow::Result<String> {}
-    fn codefile_modblock(&self, codefile: &Vec<Yaml>, mod_block: &mut String, tabs: &'a str) {}
+    fn upstream_modblock(&self, upstream: &Vec<Yaml>, mod_block: &mut String, tabs: &'a str) -> anyhow::Result<()> {
+        let vec_default: &Vec<Yaml> = &vec![];
+        let mut tabs = String::from(tabs);
+        tabs.push_str("    ");
+
+        for u in upstream {
+            let dirname = u["name"].as_str().unwrap();
+            let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
+
+            mod_block.push_str(tabs.as_str());
+            mod_block.push_str("pub mod ");
+            mod_block.push_str(dirname);
+            mod_block.push_str(" {\n");
+
+            if !upstream.is_empty() {
+                self.upstream_modblock(
+                    upstream,
+                    mod_block,
+                    &tabs,
+                )?;
+            }
+
+            if !codefile.is_empty() {
+                self.codefile_modblock(
+                    codefile,
+                    mod_block,
+                    &tabs,
+                )?;
+            }
+
+            mod_block.push_str(tabs.as_str());
+            mod_block.push_str("}\n");
+        };
+        Ok(())
+    }
+    fn codefile_modblock(&self, codefile: &Vec<Yaml>, mod_block: &mut String, tabs: &'a str) -> anyhow::Result<()> {
+        let mut tabs = String::from(tabs);
+        tabs.push_str("    ");
+        for f in codefile {
+            let mut filename = f["name"].as_str().unwrap();
+
+            // filenameがmod.rsの時はr#を追加する
+            if filename == "mod" {
+                filename = "r#mod";
+            }
+
+            mod_block.push_str(tabs.as_str());
+            mod_block.push_str("pub mod ");
+            mod_block.push_str(filename);
+            mod_block.push_str(";\n");
+        }
+
+        Ok(())
+    }
 }
 
 impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
