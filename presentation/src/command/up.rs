@@ -2,7 +2,6 @@ use clap::Command;
 use anyhow::bail;
 use sabacan::manifest::domain::repository::ManifestRepository;
 use sabacan::manifest::usecase::load::manifest::LoadManifestUseCaseImpl;
-use usecase::generate::codefile::rust::r#mod::GenerateRustFileUseCaseImpl;
 use usecase::generate::codefile::rust;
 use usecase::generate::codefile::golang::r#mod::GenerateGoLangFileUseCaseImpl;
 use usecase::generate::codefile::python::r#mod::GeneratePythonFileUseCaseImpl;

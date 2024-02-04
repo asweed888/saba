@@ -43,12 +43,12 @@ impl<'a> modblock::Handler<'a> for GenerateRustFileUseCaseImpl {
         let mod_block = self.modblock(&manifest, &main_rs_path)?;
 
         // メインとなるファイルを開き現在の内容を読み込む
-        let mut file = File::open(main_rs_path)?;
+        let mut file = File::open(main_rs_path.clone())?;
         let mut file_contents = String::new();
         file.read_to_string(&mut file_contents)?;
 
         // mod_blockのパターン
-        let re = Regex::new(self.modblock_pattern(&main_rs_path))?;
+        let re = Regex::new(self.modblock_pattern(main_rs_path.clone()))?;
 
         if re.is_match(&file_contents) {
             // ファイル内にパターンが見つかった場合は置換
@@ -71,7 +71,7 @@ impl<'a> modblock::Handler<'a> for GenerateRustFileUseCaseImpl {
 
         Ok(())
     }
-    fn modblock(&self, manifest: &'a Manifest, path: &'a PathBuf) -> anyhow::Result<String> {
+    fn modblock(&self, _manifest: &'a Manifest, path: &'a PathBuf) -> anyhow::Result<String> {
         let path = path.to_str().unwrap().to_string();
         let mut mod_block = String::new();
         let vec_default: &Vec<Yaml> = &vec![];
