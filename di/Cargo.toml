@@ -8,4 +8,4 @@ edition = "2021"
 [dependencies]
 usecase = { path = "../usecase" }
 presentation = { path = "../presentation" }
-sabacan = { git = "https://github.com/asweed888/sabacan.git", branch = "main", version = "0.1.0" }
+sabacan = { git = "https://github.com/asweed888/sabacan.git", branch = "main" }

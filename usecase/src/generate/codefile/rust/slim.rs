@@ -7,7 +7,7 @@ use regex::Regex;
 use yaml_rust::Yaml;
 use sabacan::manifest::domain::model::entity::Manifest;
 use sabacan::manifest::usecase::generate::codefile::{CodefileGenerator, PATH_LIST};
-use sabacan::rust::modblock;
+use sabacan::rust::modblock::ModblockHandler;
 use sabacan::rust::main_rs;
 use crate::generate::codefile::rust::template::{
     DomainModelTmpl,
@@ -29,11 +29,13 @@ impl<'a> GenerateRustFileUseCaseImpl {
     }
     pub fn gen_file(&self) -> anyhow::Result<()> {
         self.location_action(&self.manifest)?;
+        self.save_modblock(&self.manifest)?;
+
         Ok(())
     }
 }
 
-impl<'a> modblock::Handler<'a> for GenerateRustFileUseCaseImpl {
+impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
     fn save_modblock(&self, manifest: &'a Manifest) -> anyhow::Result<()> {
         // メインとなるファイルのパスの取得とファイルの生成
         let main_rs_path = main_rs::path(&PathBuf::from(manifest.root.get_path()))?;
@@ -48,7 +50,7 @@ impl<'a> modblock::Handler<'a> for GenerateRustFileUseCaseImpl {
         file.read_to_string(&mut file_contents)?;
 
         // mod_blockのパターン
-        let re = Regex::new(self.modblock_pattern(main_rs_path.clone()))?;
+        let re = Regex::new(self.modblock_pattern(&main_rs_path))?;
 
         if re.is_match(&file_contents) {
             // ファイル内にパターンが見つかった場合は置換
