@@ -1,6 +1,0 @@
-lang: rust
-spec:
-- location: command
-  codefile:
-    - name: up
-    - name: new
