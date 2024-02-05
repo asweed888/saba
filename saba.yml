@@ -1,0 +1,45 @@
+lang: rust
+arch: ddd
+spec:
+- location: usecase
+  upstream:
+    - name: generate
+      upstream:
+        - name: codefile
+          upstream:
+            - name: rust
+              codefile:
+                - name: slim
+                - name: template
+                - name: utils
+            - name: golang
+              codefile:
+                - name: mod
+                - name: template
+            - name: python
+              codefile:
+                - name: mod
+                - name: template
+            - name: typescript
+              codefile:
+                - name: mod
+                - name: template
+            - name: lua
+              codefile:
+                - name: mod
+            - name: bash
+              codefile:
+                - name: mod
+
+
+- location: presentation
+  upstream:
+    - name: command
+      codefile:
+        - name: up
+        - name: new
+
+
+- location: di
+  codefile:
+    - name: container

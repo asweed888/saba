@@ -12,5 +12,8 @@ path = "src/main.rs"
 [dependencies]
 clap = "4.4.6"
 anyhow = "1.0.79"
-di = { path = "./di" }
+askama = "0.12.1"
+inquire = "0.6.2"
+regex = "1.10.2"
+yaml-rust = "0.4.5"
 sabacan = { git = "https://github.com/asweed888/sabacan.git", branch = "main" }

@@ -195,15 +195,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "di"
-version = "0.1.0"
-dependencies = [
- "presentation",
- "sabacan",
- "usecase",
-]
-
-[[package]]
 name = "dyn-clone"
 version = "1.0.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -384,18 +375,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3148f5046208a5d56bcfc03053e3ca6334e51da8dfb19b6cdc8b306fae3283e"
 
 [[package]]
-name = "presentation"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "askama",
- "clap",
- "inquire",
- "sabacan",
- "usecase",
-]
-
-[[package]]
 name = "proc-macro-error"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -480,9 +459,12 @@ name = "saba"
 version = "1.2.10"
 dependencies = [
  "anyhow",
+ "askama",
  "clap",
- "di",
+ "inquire",
+ "regex",
  "sabacan",
+ "yaml-rust",
 ]
 
 [[package]]
@@ -633,18 +615,6 @@ name = "unicode-width"
 version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e51733f11c9c4f72aa0c160008246859e340b00807569a0da0e7a1079b27ba85"
-
-[[package]]
-name = "usecase"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "askama",
- "lazy_static",
- "regex",
- "sabacan",
- "yaml-rust",
-]
 
 [[package]]
 name = "utf8parse"
