@@ -2,6 +2,7 @@ pub mod generate {
     pub mod codefile {
         pub mod rust {
             pub mod r#mod;
+            pub mod slim;
             pub mod template;
             pub mod utils;
         }

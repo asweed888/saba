@@ -2,7 +2,7 @@ use clap::Command;
 use anyhow::bail;
 use sabacan::manifest::domain::repository::ManifestRepository;
 use sabacan::manifest::usecase::load::manifest::LoadManifestUseCaseImpl;
-use usecase::generate::codefile::rust::r#mod::GenerateRustFileUseCaseImpl;
+use usecase::generate::codefile::rust;
 use usecase::generate::codefile::golang::r#mod::GenerateGoLangFileUseCaseImpl;
 use usecase::generate::codefile::python::r#mod::GeneratePythonFileUseCaseImpl;
 use usecase::generate::codefile::bash::r#mod::GenerateBashFileUseCaseImpl;
@@ -35,7 +35,7 @@ where
             "rust" => {
                 manifest.lang.set_ext(String::from("rs"));
                 manifest.root.set_default(String::from("./src"));
-                let uc = GenerateRustFileUseCaseImpl::new(manifest);
+                let uc = rust::slim::GenerateRustFileUseCaseImpl::new(manifest);
                 uc.gen_file()?;
             }
             "go" => {

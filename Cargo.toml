@@ -13,3 +13,4 @@ path = "src/main.rs"
 clap = "4.4.6"
 anyhow = "1.0.79"
 di = { path = "./di" }
+sabacan = { git = "https://github.com/asweed888/sabacan.git", branch = "main" }

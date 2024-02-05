@@ -11,4 +11,4 @@ askama = "0.12.1"
 anyhow = "1.0.79"
 inquire = "0.6.2"
 usecase = { path = "../usecase" }
-sabacan = { git = "https://github.com/asweed888/sabacan.git", branch = "main", version = "0.1.0" }
+sabacan = { git = "https://github.com/asweed888/sabacan.git", branch = "main" }
