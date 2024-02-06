@@ -9,6 +9,7 @@ spec:
           upstream:
             - name: rust
               codefile:
+                - name: wide
                 - name: slim
                 - name: template
                 - name: utils
