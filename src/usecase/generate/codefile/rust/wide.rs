@@ -177,6 +177,47 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
 }
 
 impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
+    fn location_action(&self, manifest: &'a Manifest) -> anyhow::Result<()> {
+        let root_path = manifest.root.get_path();
+        let vec_default: &Vec<Yaml> = &vec![];
+
+        for spec in manifest.spec.clone() {
+            let mut workdir = PathBuf::from(&root_path);
+            let location = spec["location"].as_str().unwrap();
+            let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
+
+            if location == "target" || location == ".cargo" {
+                println!("[NOTE] target or .cargo is an important directory for your Rust project, so we will skip the operation.");
+                continue;
+            }
+            else if location == "src" {
+                workdir.push(location);
+                fs::create_dir_all(workdir.clone())?;
+            }
+            else {
+                workdir.push(location);
+
+                // lib.rsの生成
+                let mut lib_rs = workdir.clone();
+                lib_rs.push("lib.rs");
+                main_rs::gen(&lib_rs)?;
+
+                // libプロジェクト向けなのでsrcをパスに追加
+                workdir.push("src");
+                fs::create_dir_all(workdir.clone())?;
+            }
+
+            if !upstream.is_empty() {
+                self.upstream_action(workdir.clone(), upstream, &manifest)?;
+            }
+
+            if !codefile.is_empty() {
+                self.codefile_action(workdir.clone(), codefile, &manifest)?;
+            }
+        }
+        Ok(())
+    }
     fn di_container_action(
         &self,
         wd: PathBuf,
