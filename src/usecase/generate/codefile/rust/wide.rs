@@ -1,5 +1,4 @@
 use askama::Template;
-use getset::{Getters, Setters};
 use std::fs;
 use std::fs::File;
 use std::path::PathBuf;
@@ -20,19 +19,13 @@ use crate::usecase::generate::codefile::rust::template::{
     DefaultTmpl,
 };
 
-#[derive(Getters, Setters)]
 pub struct GenerateRustFileUseCaseImpl {
     manifest: Manifest,
-    #[getset(get = "pub", set = "pub")]
-    main_rs_path: String,
 }
 
 impl<'a> GenerateRustFileUseCaseImpl {
     pub fn new(manifest: Manifest) -> Self {
-        Self{
-            manifest,
-            main_rs_path: String::from(""),
-        }
+        Self{ manifest }
     }
     pub fn gen_file(&self) -> anyhow::Result<()> {
         self.location_action(&self.manifest)?;
@@ -80,7 +73,7 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
 
         Ok(())
     }
-    fn modblock(&mut self, _manifest: &'a Manifest, _path: &'a PathBuf) -> anyhow::Result<String> {
+    fn modblock(&self, _manifest: &'a Manifest, _path: &'a PathBuf) -> anyhow::Result<String> {
         let mut mod_block = String::new();
         let vec_default: &Vec<Yaml> = &vec![];
 
@@ -90,26 +83,22 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
             let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
 
             let main_rs_path = main_rs::path(&PathBuf::from(location))?;
-            let main_rs_path_str = main_rs_path.to_str().unwrap().to_string();
-            self.set_main_rs_path(main_rs_path_str);
-
-            let main_rs_path = main_rs::path(&PathBuf::from(location))?;
-            let path = main_rs_path.to_str().unwrap().to_string();
             let mut tabs = String::new();
 
             // lib.rsの場合は先頭にpubをつける
-            if path.contains("lib.rs") {
-                mod_block += "pub ";
-            }
+            // if path.contains("lib.rs") {
+            //     mod_block += "pub ";
+            // }
             // mod_block += "mod ";
             // mod_block += location;
             // mod_block += " {\n";
 
             if !upstream.is_empty() {
-                self.upstream_modblock(
+                self.upstream_modblock_with_path(
                     upstream,
                     &mut mod_block,
                     &tabs,
+                    &main_rs_path,
                 )?;
                 tabs = String::new();
             }
@@ -144,6 +133,47 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
         }
 
         Ok(mod_block)
+    }
+    fn upstream_modblock_with_path(&self, upstream: &Vec<Yaml>, mod_block: &mut String, tabs: &'a str, path: &'a PathBuf) -> anyhow::Result<()> {
+        let path = path.to_str().unwrap().to_string();
+        let vec_default: &Vec<Yaml> = &vec![];
+        let mut tabs = String::from(tabs);
+
+        for u in upstream {
+            let dirname = u["name"].as_str().unwrap();
+            let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
+
+            if path.contains("lib.rs") {
+
+            }
+
+            mod_block.push_str(tabs.as_str());
+            mod_block.push_str("pub mod ");
+            mod_block.push_str(dirname);
+            mod_block.push_str(" {\n");
+
+            if !upstream.is_empty() {
+                tabs.push_str("    ");
+                self.upstream_modblock(
+                    upstream,
+                    mod_block,
+                    &tabs,
+                )?;
+            }
+
+            if !codefile.is_empty() {
+                self.codefile_modblock(
+                    codefile,
+                    mod_block,
+                    &tabs,
+                )?;
+            }
+
+            mod_block.push_str(tabs.as_str());
+            mod_block.push_str("}\n");
+        };
+        Ok(())
     }
     fn upstream_modblock(&self, upstream: &Vec<Yaml>, mod_block: &mut String, tabs: &'a str) -> anyhow::Result<()> {
         let vec_default: &Vec<Yaml> = &vec![];
