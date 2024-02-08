@@ -1,4 +1,5 @@
 use askama::Template;
+use getset::{Getters, Setters};
 use std::fs;
 use std::fs::File;
 use std::path::PathBuf;
@@ -19,13 +20,19 @@ use crate::usecase::generate::codefile::rust::template::{
     DefaultTmpl,
 };
 
+#[derive(Getters, Setters)]
 pub struct GenerateRustFileUseCaseImpl {
     manifest: Manifest,
+    #[getset(get = "pub", set = "pub")]
+    main_rs_path: String,
 }
 
 impl<'a> GenerateRustFileUseCaseImpl {
     pub fn new(manifest: Manifest) -> Self {
-        Self{ manifest }
+        Self{
+            manifest,
+            main_rs_path: String::from(""),
+        }
     }
     pub fn gen_file(&self) -> anyhow::Result<()> {
         self.location_action(&self.manifest)?;
@@ -73,8 +80,7 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
 
         Ok(())
     }
-    fn modblock(&self, _manifest: &'a Manifest, path: &'a PathBuf) -> anyhow::Result<String> {
-        let path = path.to_str().unwrap().to_string();
+    fn modblock(&mut self, _manifest: &'a Manifest, _path: &'a PathBuf) -> anyhow::Result<String> {
         let mut mod_block = String::new();
         let vec_default: &Vec<Yaml> = &vec![];
 
@@ -82,15 +88,22 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
             let location = spec["location"].as_str().unwrap();
             let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
             let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
+
+            let main_rs_path = main_rs::path(&PathBuf::from(location))?;
+            let main_rs_path_str = main_rs_path.to_str().unwrap().to_string();
+            self.set_main_rs_path(main_rs_path_str);
+
+            let main_rs_path = main_rs::path(&PathBuf::from(location))?;
+            let path = main_rs_path.to_str().unwrap().to_string();
             let mut tabs = String::new();
 
             // lib.rsの場合は先頭にpubをつける
             if path.contains("lib.rs") {
                 mod_block += "pub ";
             }
-            mod_block += "mod ";
-            mod_block += location;
-            mod_block += " {\n";
+            // mod_block += "mod ";
+            // mod_block += location;
+            // mod_block += " {\n";
 
             if !upstream.is_empty() {
                 self.upstream_modblock(
@@ -109,12 +122,25 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
                 )?;
             }
 
-            if idx == self.manifest.spec.len() - 1 {
-                mod_block.push_str("} // Automatically exported by saba.");
+            mod_block.push_str("} // Automatically exported by saba.");
+            // メインとなるファイルを開き現在の内容を読み込む
+            let mut file = File::open(main_rs_path.clone())?;
+            let mut file_contents = String::new();
+            file.read_to_string(&mut file_contents)?;
+
+            // mod_blockのパターン
+            let re = Regex::new(self.modblock_pattern(&main_rs_path))?;
+
+            if re.is_match(&file_contents) {
+                // ファイル内にパターンが見つかった場合は置換
+                let replaced_contents = re.replace_all(&file_contents, mod_block.as_str());
+                let mut new_file = File::create(main_rs_path)?;
+                new_file.write_all(replaced_contents.as_bytes())?;
             }
             else {
-                mod_block.push_str("}\n");
+
             }
+
         }
 
         Ok(mod_block)
@@ -122,7 +148,6 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
     fn upstream_modblock(&self, upstream: &Vec<Yaml>, mod_block: &mut String, tabs: &'a str) -> anyhow::Result<()> {
         let vec_default: &Vec<Yaml> = &vec![];
         let mut tabs = String::from(tabs);
-        tabs.push_str("    ");
 
         for u in upstream {
             let dirname = u["name"].as_str().unwrap();
@@ -135,6 +160,7 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
             mod_block.push_str(" {\n");
 
             if !upstream.is_empty() {
+                tabs.push_str("    ");
                 self.upstream_modblock(
                     upstream,
                     mod_block,
