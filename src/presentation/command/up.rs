@@ -37,7 +37,8 @@ where
                 manifest.root.set_default(String::from("./src"));
                 let root_path = manifest.root.get_path();
                 if root_path == "." {
-                    println!("path: {}", root_path);
+                    let uc = rust::wide::GenerateRustFileUseCaseImpl::new(manifest);
+                    uc.gen_file()?;
                 }
                 else {
                     manifest.root.set_path(String::from("./src"));

@@ -29,20 +29,20 @@ impl<'a> GenerateRustFileUseCaseImpl {
     }
     pub fn gen_file(&self) -> anyhow::Result<()> {
         self.location_action(&self.manifest)?;
-        self.save_modblock(&self.manifest)?;
+        self.save_modblock()?;
 
         Ok(())
     }
 }
 
 impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
-    fn save_modblock(&self, manifest: &'a Manifest) -> anyhow::Result<()> {
+    fn save_modblock(&self) -> anyhow::Result<()> {
         // メインとなるファイルのパスの取得とファイルの生成
-        let main_rs_path = main_rs::path(&PathBuf::from(manifest.root.get_path()))?;
+        let main_rs_path = main_rs::path(&PathBuf::from(self.manifest.root.get_path()))?;
         main_rs::gen(&main_rs_path)?;
 
         // ファイルに書き込むmodのブロックを作成
-        let mod_block = self.modblock(&manifest, &main_rs_path)?;
+        let mod_block = self.modblock(&main_rs_path)?;
 
         // メインとなるファイルを開き現在の内容を読み込む
         let mut file = File::open(main_rs_path.clone())?;
@@ -73,7 +73,7 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
 
         Ok(())
     }
-    fn modblock(&self, _manifest: &'a Manifest, path: &'a PathBuf) -> anyhow::Result<String> {
+    fn modblock(&self, path: &'a PathBuf) -> anyhow::Result<String> {
         let path = path.to_str().unwrap().to_string();
         let mut mod_block = String::new();
         let vec_default: &Vec<Yaml> = &vec![];
