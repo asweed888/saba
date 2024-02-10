@@ -35,8 +35,16 @@ where
             "rust" => {
                 manifest.lang.set_ext(String::from("rs"));
                 manifest.root.set_default(String::from("./src"));
-                let uc = rust::slim::GenerateRustFileUseCaseImpl::new(manifest);
-                uc.gen_file()?;
+                let root_path = manifest.root.get_path();
+                if root_path == "." {
+                    let uc = rust::wide::GenerateRustFileUseCaseImpl::new(manifest);
+                    uc.gen_file()?;
+                }
+                else {
+                    manifest.root.set_path(String::from("./src"));
+                    let uc = rust::slim::GenerateRustFileUseCaseImpl::new(manifest);
+                    uc.gen_file()?;
+                }
             }
             "go" => {
                 manifest.lang.set_ext(String::from("go"));

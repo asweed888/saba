@@ -2,6 +2,7 @@ mod usecase {
     pub mod generate {
         pub mod codefile {
             pub mod rust {
+                pub mod wide;
                 pub mod slim;
                 pub mod template;
                 pub mod utils;
