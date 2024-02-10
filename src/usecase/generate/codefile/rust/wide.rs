@@ -33,6 +33,82 @@ impl<'a> GenerateRustFileUseCaseImpl {
 
         Ok(())
     }
+    fn upstream_modblock_with_path(
+        &self,
+        upstream: &Vec<Yaml>,
+        mod_block: &mut String,
+        path: &'a PathBuf,
+        tabs: &'a str
+    ) -> anyhow::Result<()> {
+        let path = path.to_str().unwrap().to_string();
+        let vec_default: &Vec<Yaml> = &vec![];
+        let mut tabs = String::from(tabs);
+
+        for u in upstream {
+            let dirname = u["name"].as_str().unwrap();
+            let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
+
+            if path.contains("lib.rs") {
+                mod_block.push_str("pub ");
+            }
+            mod_block.push_str("mod ");
+            mod_block.push_str(dirname);
+            mod_block.push_str(" {\n");
+
+            if !upstream.is_empty() {
+                self.upstream_modblock(
+                    upstream,
+                    mod_block,
+                    &tabs,
+                )?;
+            }
+
+            if !codefile.is_empty() {
+                self.codefile_modblock(
+                    codefile,
+                    mod_block,
+                    &tabs,
+                )?;
+            }
+
+            mod_block.push_str(tabs.as_str());
+            mod_block.push_str("}\n");
+        };
+        Ok(())
+    }
+    fn codefile_modblock_with_path(
+        &self,
+        codefile: &Vec<Yaml>,
+        mod_block: &mut String,
+        path: &'a PathBuf,
+        tabs: &'a str
+    ) -> anyhow::Result<()> {
+        let path = path.to_str().unwrap().to_string();
+        let mut tabs = String::from(tabs);
+        tabs.push_str("    ");
+        for f in codefile {
+            let mut filename = f["name"].as_str().unwrap();
+
+
+            // filenameがmod.rsの時はr#を追加する
+            if filename == "main" {
+                println!("[WORKING] Do not include main.rs in the list of codefiles.");
+            }
+            else if filename == "mod" {
+                filename = "r#mod";
+            }
+
+            if path.contains("lib.rs") {
+                mod_block.push_str("pub ");
+            }
+            mod_block.push_str("mod ");
+            mod_block.push_str(filename);
+            mod_block.push_str(";\n");
+        }
+
+        Ok(())
+    }
 }
 
 impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
@@ -59,14 +135,15 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
             }
 
             if !codefile.is_empty() {
-                self.codefile_modblock(
+                self.codefile_modblock_with_path(
                     codefile,
                     &mut mod_block,
+                    &main_rs_path,
                     &tabs,
                 )?;
             }
 
-            mod_block.push_str("} // Automatically exported by saba.");
+            mod_block.push_str("// Automatically exported by saba.");
             // メインとなるファイルを開き現在の内容を読み込む
             let mut file = File::open(main_rs_path.clone())?;
             let mut file_contents = String::new();
@@ -93,54 +170,16 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
                 new_file.write_all(file_contents.as_bytes())?;
                 fs::rename(&temp_file, main_rs_path)?;
             }
-
+            mod_block = String::new();
         }
 
 
         Ok(())
     }
-    fn upstream_modblock_with_path(&self, upstream: &Vec<Yaml>, mod_block: &mut String, path: &'a PathBuf, tabs: &'a str) -> anyhow::Result<()> {
-        let path = path.to_str().unwrap().to_string();
-        let vec_default: &Vec<Yaml> = &vec![];
-        let mut tabs = String::from(tabs);
-
-        for u in upstream {
-            let dirname = u["name"].as_str().unwrap();
-            let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
-            let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
-
-            if path.contains("lib.rs") {
-                mod_block.push_str("pub ");
-            }
-            mod_block.push_str("mod ");
-            mod_block.push_str(dirname);
-            mod_block.push_str(" {\n");
-
-            if !upstream.is_empty() {
-                tabs.push_str("    ");
-                self.upstream_modblock(
-                    upstream,
-                    mod_block,
-                    &tabs,
-                )?;
-            }
-
-            if !codefile.is_empty() {
-                self.codefile_modblock(
-                    codefile,
-                    mod_block,
-                    &tabs,
-                )?;
-            }
-
-            mod_block.push_str(tabs.as_str());
-            mod_block.push_str("}\n");
-        };
-        Ok(())
-    }
     fn upstream_modblock(&self, upstream: &Vec<Yaml>, mod_block: &mut String, tabs: &'a str) -> anyhow::Result<()> {
         let vec_default: &Vec<Yaml> = &vec![];
         let mut tabs = String::from(tabs);
+        tabs.push_str("    ");
 
         for u in upstream {
             let dirname = u["name"].as_str().unwrap();
@@ -153,7 +192,6 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
             mod_block.push_str(" {\n");
 
             if !upstream.is_empty() {
-                tabs.push_str("    ");
                 self.upstream_modblock(
                     upstream,
                     mod_block,

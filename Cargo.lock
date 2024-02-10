@@ -470,7 +470,7 @@ dependencies = [
 [[package]]
 name = "sabacan"
 version = "0.1.0"
-source = "git+https://github.com/asweed888/sabacan.git?branch=main#46837dc40848f3321635782c3975b7b71ec6914b"
+source = "git+https://github.com/asweed888/sabacan.git?branch=main#77cd7332427be24e6f9eba2eedb24eac88baf690"
 dependencies = [
  "anyhow",
  "askama",
