@@ -39,28 +39,30 @@ pub struct InfraTmpl<'a> {
 
 
 #[derive(Template)]
-#[template(source = "use crate::domain::model::{{ fname }}::entity::{{ utils::to_title(fname) }};
-use crate::domain::repository::{{ fname }}::{{ utils::to_title(fname) }}Repository;
+#[template(source = "use crate::domain::model::{{ pkgname }}::entity::{{ utils::to_title(pkgname) }};
+use crate::domain::repository::{{ pkgname }}::{{ utils::to_title(pkgname) }}Repository;
 
 
-pub struct {{ utils::to_title(fname) }}UseCaseImpl<R>
+pub struct {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}Impl<R>
 where
     R: {{ utils::to_title(fname) }}Repository,
 {
     pub repository: R,
 }
 
-impl<R> {{ utils::to_title(fname) }}UseCaseImpl<R>
+impl<R> {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}Impl<R>
 where
     R: {{ utils::to_title(fname) }}Repository,
 {
     pub fn new(repository: R) -> Self {
         Self{ repository }
     }
+    pub fn {{ fname }}_{{ pkgname }}(&self) {}
 }
 ", ext = "txt")]
 pub struct UseCaseTmpl<'a> {
     pub fname: &'a str,
+    pub pkgname: &'a str,
 }
 
 
