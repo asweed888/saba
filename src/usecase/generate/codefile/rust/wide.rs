@@ -363,8 +363,10 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         manifest: &'a Manifest,
     ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
+        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
         let data = UseCaseTmpl{
             fname: fname.as_str(),
+            pkgname: pkgname.as_str(),
         };
 
         let rendered_tmpl = data.render()?;
