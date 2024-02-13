@@ -45,14 +45,14 @@ use crate::domain::repository::{{ pkgname }}::{{ utils::to_title(pkgname) }}Repo
 
 pub struct {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}Impl<R>
 where
-    R: {{ utils::to_title(fname) }}Repository,
+    R: {{ utils::to_title(pkgname) }}Repository,
 {
     pub repository: R,
 }
 
 impl<R> {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}Impl<R>
 where
-    R: {{ utils::to_title(fname) }}Repository,
+    R: {{ utils::to_title(pkgname) }}Repository,
 {
     pub fn new(repository: R) -> Self {
         Self{ repository }
