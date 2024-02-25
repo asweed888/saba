@@ -119,7 +119,12 @@ pub struct DiTmpl<'a> {
 }
 
 #[derive(Template)]
-#[template(source = "pub struct {{ utils::default_struct(pkgname, fname) }} {}", ext = "txt")]
+#[template(source = "{%- if pkgname == \"act\" || fname == \"act\" -%}
+pub trait Act {}
+{%- else -%}
+pub struct {{ utils::default_struct(pkgname, fname) }} {}
+{%- endif -%}
+", ext = "txt")]
 pub struct DefaultTmpl<'a> {
     pub fname: &'a str,
     pub pkgname: &'a str,
