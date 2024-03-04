@@ -39,27 +39,29 @@ pub struct InfraTmpl<'a> {
 
 
 #[derive(Template)]
-#[template(source = "{%- let arg1 = utils::either(pkgname, fname, 0) -%}
-{%- let arg2 = utils::either(pkgname, fname, 1) -%}
-use crate::domain::model::{{ arg1 }}::entity::{{ utils::to_title(arg1) }};
-use crate::domain::repository::{{ arg1 }}::{{ utils::to_title(arg1) }}Repository;
+#[template(source = "use crate::domain::model::{{ fname }}::entity::{{ utils::to_title(fname) }};
+use crate::domain::repository::{{ fname }}::{{ utils::to_title(fname) }}Repository;
 
-
-pub struct {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}Impl<R>
+pub fn create<R>(repo: &R)
 where
-    R: {{ utils::to_title(arg1) }}Repository,
-{
-    pub repository: R,
-}
+    R: {{ utils::to_title(fname) }}Repository
+{}
 
-impl<R> {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}Impl<R>
+pub fn get_all<R>(repo: &R)
 where
-    R: {{ utils::to_title(arg1) }}Repository,
-{
-    pub fn new(repository: R) -> Self {
-        Self{ repository }
-    }
-}
+    R: {{ utils::to_title(fname) }}Repository
+{}
+
+pub fn update<R>(repo: &R)
+where
+    R: {{ utils::to_title(fname) }}Repository
+{}
+
+pub fn delete<R>(repo: &R)
+where
+    R: {{ utils::to_title(fname) }}Repository
+{}
+
 ", ext = "txt")]
 pub struct UseCaseTmpl<'a> {
     pub fname: &'a str,
