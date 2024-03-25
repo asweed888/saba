@@ -121,8 +121,8 @@ pub struct DiTmpl<'a> {
 }
 
 #[derive(Template)]
-#[template(source = "{%- if pkgname == \"act\" || fname == \"act\" -%}
-pub trait Act {}
+#[template(source = "{%- if rs_utils::contains_traits_str(wd) -%}
+pub trait Trait {}
 {%- else -%}
 pub struct {{ utils::default_struct(pkgname, fname) }} {}
 {%- endif -%}
@@ -130,4 +130,5 @@ pub struct {{ utils::default_struct(pkgname, fname) }} {}
 pub struct DefaultTmpl<'a> {
     pub fname: &'a str,
     pub pkgname: &'a str,
+    pub wd: &'a str,
 }

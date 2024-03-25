@@ -9,3 +9,7 @@ pub fn crate_path(path: &str) -> String {
 pub fn contains_di_str(path: &str) -> bool {
     path.contains("/di/")
 }
+
+pub fn contains_traits_str(path: &str) -> bool {
+    path.contains("/traits/")
+}

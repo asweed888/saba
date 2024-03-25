@@ -42,7 +42,7 @@ impl<'a> GenerateRustFileUseCaseImpl {
     ) -> anyhow::Result<()> {
         let path = path.to_str().unwrap().to_string();
         let vec_default: &Vec<Yaml> = &vec![];
-        let mut tabs = String::from(tabs);
+        let tabs = String::from(tabs);
 
         for u in upstream {
             let dirname = u["name"].as_str().unwrap();
@@ -405,6 +405,7 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         let data = DefaultTmpl{
             fname: fname.as_str(),
             pkgname: pkgname.as_str(),
+            wd: wd.to_str().unwrap(),
         };
 
         let rendered_tmpl = data.render()?;
