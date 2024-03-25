@@ -298,6 +298,7 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         let data = DefaultTmpl{
             fname: fname.as_str(),
             pkgname: pkgname.as_str(),
+            wd: wd.to_str().unwrap(),
         };
 
         let rendered_tmpl = data.render()?;
