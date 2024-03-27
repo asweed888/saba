@@ -12,6 +12,7 @@ use crate::usecase::generate::codefile::typescript::template::{
     PresentationTmpl,
     DefaultTmpl,
     di_tmpl,
+    vue_tmpl,
 };
 
 
@@ -26,6 +27,19 @@ impl<'a> GenerateTypeScriptFileUseCaseImpl {
     pub fn gen_file(&self) -> anyhow::Result<()> {
         self.location_action(&self.manifest)?;
         Ok(())
+    }
+    fn gen_irregular_file_terminus(
+        &self,
+        wd: PathBuf,
+    ) -> anyhow::Result<bool> {
+        if wd.extension().unwrap() == "vue" {
+            let data = vue_tmpl();
+            let mut file = File::create(wd.to_str().unwrap())?;
+
+            file.write_all(data.as_bytes())?;
+            return Ok(true)
+        }
+        Ok(false)
     }
 }
 
@@ -136,6 +150,12 @@ impl<'a> CodefileGenerator<'a> for GenerateTypeScriptFileUseCaseImpl {
         wd: PathBuf,
         manifest: &'a Manifest,
     ) -> anyhow::Result<()> {
+
+        // .vueの場合別のテンプレートでファイルを出力
+        if self.gen_irregular_file_terminus(wd.clone()).unwrap() {
+            return Ok(())
+        }
+
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
         let data = DefaultTmpl{
             fname: fname.as_str(),

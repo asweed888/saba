@@ -95,3 +95,25 @@ export class DIContainer implements IDIContainer {
 }
 ")
 }
+
+
+pub fn vue_tmpl() -> String {
+    String::from("<template>
+  <div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: '',
+  data() {
+    return {
+    };
+  }
+}
+</script>
+
+<style scoped>
+</style>
+")
+}
