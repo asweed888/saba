@@ -27,6 +27,13 @@ impl<'a> GenerateTypeScriptFileUseCaseImpl {
         self.location_action(&self.manifest)?;
         Ok(())
     }
+    // fn gen_irregular_file(
+    //     &self,
+    //     wd: PathBuf,
+    // ) -> anyhow::Result<()> {
+    //
+    //     Ok(())
+    // }
 }
 
 
