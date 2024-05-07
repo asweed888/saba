@@ -31,6 +31,9 @@ spec:
             - name: bash
               codefile:
                 - name: mod
+            - name: html
+              codefile:
+                - name: mod
 
 
 - location: presentation

@@ -27,6 +27,7 @@ impl NewCommand {
             "typescript",
             "lua",
             "bash",
+            "html",
         ];
 
         let lang_ans = Select::new("Please select a programming language.", options).prompt();
@@ -34,8 +35,11 @@ impl NewCommand {
         match lang_ans {
             Ok(choice) => {
                 lang = choice.to_string();
-                if lang == "bash" || lang == "lua" {
-                // shellの場合はis_dddは常にfalse
+                if lang == "bash"
+                || lang == "lua"
+                || lang == "html"
+                {
+                    // shellの場合はis_dddは常にfalse
                     is_ddd = false;
                 }
                 else {
