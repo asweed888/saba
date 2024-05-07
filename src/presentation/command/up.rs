@@ -8,6 +8,7 @@ use crate::usecase::generate::codefile::python::r#mod::GeneratePythonFileUseCase
 use crate::usecase::generate::codefile::bash::r#mod::GenerateBashFileUseCaseImpl;
 use crate::usecase::generate::codefile::typescript::r#mod::GenerateTypeScriptFileUseCaseImpl;
 use crate::usecase::generate::codefile::lua::r#mod::GenerateLuaFileUseCaseImpl;
+use crate::usecase::generate::codefile::html::r#mod::GenerateHtmlFileUseCaseImpl;
 
 
 pub struct UpCommand<R>
@@ -74,6 +75,12 @@ where
                 manifest.lang.set_ext(String::from(""));
                 manifest.root.set_default(String::from("."));
                 let uc = GenerateBashFileUseCaseImpl::new(manifest);
+                uc.gen_file()?;
+            }
+            "html" => {
+                manifest.lang.set_ext(String::from("html"));
+                manifest.root.set_default(String::from("."));
+                let uc = GenerateHtmlFileUseCaseImpl::new(manifest);
                 uc.gen_file()?;
             }
             _ => {

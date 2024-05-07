@@ -25,6 +25,9 @@ mod usecase {
             pub mod bash {
                 pub mod r#mod;
             }
+            pub mod html {
+                pub mod r#mod;
+            }
         }
     }
 }
