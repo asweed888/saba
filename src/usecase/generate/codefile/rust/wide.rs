@@ -150,7 +150,7 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
             file.read_to_string(&mut file_contents)?;
 
             // mod_blockのパターン
-            let re = Regex::new(self.modblock_pattern(&main_rs_path))?;
+            let re = Regex::new(self.modblock_pattern())?;
 
             if re.is_match(&file_contents) {
                 // ファイル内にパターンが見つかった場合は置換

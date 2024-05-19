@@ -33,6 +33,26 @@ impl<'a> GenerateRustFileUseCaseImpl {
 
         Ok(())
     }
+    fn codefile_modblock4location_src(
+        &self,
+        codefile: &Vec<Yaml>,
+        mod_block: &mut String,
+    ) -> anyhow::Result<()> {
+        for f in codefile {
+            let mut filename = f["name"].as_str().unwrap();
+
+            // filenameがmod.rsの時はr#を追加する
+            if filename == "mod" {
+                filename = "r#mod";
+            }
+
+            mod_block.push_str("pub mod ");
+            mod_block.push_str(filename);
+            mod_block.push_str(";\n");
+        }
+
+        Ok(())
+    }
 }
 
 impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
@@ -50,7 +70,7 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
         file.read_to_string(&mut file_contents)?;
 
         // mod_blockのパターン
-        let re = Regex::new(self.modblock_pattern(&main_rs_path))?;
+        let re = Regex::new(self.modblock_pattern())?;
 
         if re.is_match(&file_contents) {
             // ファイル内にパターンが見つかった場合は置換
@@ -73,8 +93,7 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
 
         Ok(())
     }
-    fn modblock(&self, path: &'a PathBuf) -> anyhow::Result<String> {
-        let path = path.to_str().unwrap().to_string();
+    fn modblock(&self, _path: &'a PathBuf) -> anyhow::Result<String> {
         let mut mod_block = String::new();
         let vec_default: &Vec<Yaml> = &vec![];
 
@@ -82,15 +101,14 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
             let location = spec["location"].as_str().unwrap();
             let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
             let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
+            let is_location_src = location == "src";
             let mut tabs = String::new();
 
-            // lib.rsの場合は先頭にpubをつける
-            if path.contains("lib.rs") {
-                mod_block += "pub ";
+            if !is_location_src {
+                mod_block += "pub mod ";
+                mod_block += location;
+                mod_block += " {\n";
             }
-            mod_block += "mod ";
-            mod_block += location;
-            mod_block += " {\n";
 
             if !upstream.is_empty() {
                 self.upstream_modblock(
@@ -101,19 +119,28 @@ impl<'a> ModblockHandler<'a> for GenerateRustFileUseCaseImpl {
                 tabs = String::new();
             }
 
-            if !codefile.is_empty() {
-                self.codefile_modblock(
-                    codefile,
-                    &mut mod_block,
-                    &tabs,
-                )?;
-            }
-
-            if idx == self.manifest.spec.len() - 1 {
-                mod_block.push_str("} // Automatically exported by saba.");
+            if !is_location_src {
+                if !codefile.is_empty() {
+                    self.codefile_modblock(
+                        codefile,
+                        &mut mod_block,
+                        &tabs,
+                    )?;
+                }
+                mod_block.push_str("}\n");
             }
             else {
-                mod_block.push_str("}\n");
+                if !codefile.is_empty() {
+                    self.codefile_modblock4location_src(
+                        codefile,
+                        &mut mod_block,
+                    )?;
+                }
+            }
+
+
+            if idx == self.manifest.spec.len() - 1 {
+                mod_block.push_str("// Automatically exported by saba.");
             }
         }
 
@@ -294,7 +321,7 @@ impl<'a> CodefileGenerator<'a> for GenerateRustFileUseCaseImpl {
         manifest: &'a Manifest,
     ) -> anyhow::Result<()> {
         let fname = self.get_fname(wd.clone(), manifest).unwrap();
-        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap();
+        let pkgname = self.get_pkgname(wd.clone(), manifest).unwrap_or("".to_string());
         let data = DefaultTmpl{
             fname: fname.as_str(),
             pkgname: pkgname.as_str(),
