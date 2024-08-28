@@ -123,6 +123,8 @@ pub struct DiTmpl<'a> {
 #[derive(Template)]
 #[template(source = "{%- if rs_utils::contains_traits_str(wd) -%}
 pub trait Trait {}
+{%- else if rs_utils::contains_act_str(wd) -%}
+pub trait Act {}
 {%- else -%}
 pub struct {{ utils::default_struct(pkgname, fname) }} {}
 {%- endif -%}
