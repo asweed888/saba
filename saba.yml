@@ -3,6 +3,19 @@ arch: ddd
 spec:
 - location: utils
   upstream:
+    - name: act
+      codefile:
+        - name: gen_codefile
+
+- location: domain
+  upstream:
+    - name: model
+      codefile:
+        - name: manifest
+        - name: rust
+
+- location: usecase
+  upstream:
     - name: templates
       codefile:
         - name: rust
