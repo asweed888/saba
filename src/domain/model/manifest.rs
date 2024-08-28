@@ -44,6 +44,15 @@ impl Manifest {
             spec,
         })
     }
+    pub fn get_src_root(&self, lang_src_root: &str) -> String {
+        match self.root.as_str() {
+            "" => lang_src_root.to_string(),
+            _ => self.root.clone(),
+        }
+    }
+    pub fn is_ddd(&self) -> bool {
+        self.arch.as_str() == "ddd"
+    }
 }
 
 pub static MANIFEST: Lazy<anyhow::Result<Manifest>> = Lazy::new(|| Manifest::new());
