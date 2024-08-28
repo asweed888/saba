@@ -1,40 +1,33 @@
 lang: rust
 arch: ddd
 spec:
-- location: usecase
+- location: utils
   upstream:
-    - name: generate
-      upstream:
-        - name: codefile
-          upstream:
-            - name: rust
-              codefile:
-                - name: wide
-                - name: slim
-                - name: template
-                - name: utils
-            - name: golang
-              codefile:
-                - name: mod
-                - name: template
-            - name: python
-              codefile:
-                - name: mod
-                - name: template
-            - name: typescript
-              codefile:
-                - name: mod
-                - name: template
-            - name: lua
-              codefile:
-                - name: mod
-            - name: bash
-              codefile:
-                - name: mod
-            - name: html
-              codefile:
-                - name: mod
+    - name: templates
+      codefile:
+        - name: rust
 
+    - name: act
+      codefile:
+        - name: codefile
+      upstream:
+        - name: gen
+          codefile:
+            - name: codefile
+
+        - name: write
+          codefile:
+            - name: codefile
+
+- location: domain
+  upstream:
+    - name: model
+      codefile:
+        - name: manifest
+
+- location: usecase
+  codefile:
+    - name: rust_usecase
 
 - location: presentation
   upstream:
@@ -43,7 +36,3 @@ spec:
         - name: up
         - name: new
 
-
-- location: di
-  codefile:
-    - name: container

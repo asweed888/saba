@@ -1,45 +1,32 @@
-mod usecase {
-    pub mod generate {
-        pub mod codefile {
-            pub mod rust {
-                pub mod wide;
-                pub mod slim;
-                pub mod template;
-                pub mod utils;
-            }
-            pub mod golang {
-                pub mod r#mod;
-                pub mod template;
-            }
-            pub mod python {
-                pub mod r#mod;
-                pub mod template;
-            }
-            pub mod typescript {
-                pub mod r#mod;
-                pub mod template;
-            }
-            pub mod lua {
-                pub mod r#mod;
-            }
-            pub mod bash {
-                pub mod r#mod;
-            }
-            pub mod html {
-                pub mod r#mod;
-            }
+pub mod utils {
+    pub mod templates {
+        pub mod rust;
+    }
+    pub mod act {
+        pub mod gen {
+            pub mod codefile;
         }
+        pub mod write {
+            pub mod codefile;
+        }
+        pub mod codefile;
     }
 }
-mod presentation {
+pub mod domain {
+    pub mod model {
+        pub mod manifest;
+    }
+}
+pub mod usecase {
+    pub mod rust_usecase;
+}
+pub mod presentation {
     pub mod command {
         pub mod up;
         pub mod new;
     }
 }
-mod di {
-    pub mod container;
-} // Automatically exported by saba.
+// Automatically exported by saba.
 
 
 use clap::Command;
