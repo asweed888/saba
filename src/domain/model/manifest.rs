@@ -2,11 +2,13 @@ use yaml_rust::Yaml;
 use yaml_rust::YamlLoader;
 use anyhow::Context;
 use std::default::Default;
+use std::sync::Mutex;
 use once_cell::sync::Lazy;
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 pub struct Manifest {
     pub lang: String,
+    pub ext: String,
     pub arch: String,
     pub root: String,
     pub spec: Vec<Yaml>,
@@ -24,6 +26,8 @@ impl Manifest {
             .as_str()
             .context("[ERROR] lang is a required field. lang is not set.")?
             .to_string();
+        let ext = String::new();
+
         let arch = manifest["arch"]
             .as_str()
             .unwrap_or("plain")
@@ -39,6 +43,7 @@ impl Manifest {
 
         Ok(Self{
             lang,
+            ext,
             arch,
             root,
             spec,
@@ -53,6 +58,12 @@ impl Manifest {
     pub fn is_ddd(&self) -> bool {
         self.arch.as_str() == "ddd"
     }
+    pub fn set_ext(&mut self, ext: &str) {
+        self.ext = ext.to_string();
+    }
 }
 
-pub static MANIFEST: Lazy<anyhow::Result<Manifest>> = Lazy::new(|| Manifest::new());
+pub static MANIFEST: Lazy<Mutex<Manifest>> = Lazy::new(|| {
+    let manifest = Manifest::new().expect("[ERROR] Manifest initialization failed.");
+    Mutex::new(manifest)
+});
