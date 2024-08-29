@@ -11,6 +11,7 @@ pub struct Manifest {
     pub ext: String,
     pub arch: String,
     pub root: String,
+    root_raw: String,
     pub spec: Vec<Yaml>,
 }
 
@@ -32,7 +33,8 @@ impl Manifest {
             .as_str()
             .unwrap_or("plain")
             .to_string();
-        let root = manifest["root"]
+        let root = String::new();
+        let root_raw = manifest["root"]
             .as_str()
             .unwrap_or("")
             .to_string();
@@ -46,20 +48,26 @@ impl Manifest {
             ext,
             arch,
             root,
+            root_raw,
             spec,
         })
-    }
-    pub fn get_src_root(&self, lang_src_root: &str) -> String {
-        match self.root.as_str() {
-            "" => lang_src_root.to_string(),
-            _ => self.root.clone(),
-        }
     }
     pub fn is_ddd(&self) -> bool {
         self.arch.as_str() == "ddd"
     }
     pub fn set_ext(&mut self, ext: &str) {
         self.ext = ext.to_string();
+    }
+    pub fn set_root(&mut self, lang_default_root: &str) {
+        // saba.ymlにrootの指定が無い場合は言語のデフォルトを設定する
+        match self.root_raw.as_str() {
+            "" =>  {
+                self.root = lang_default_root.to_string();
+            },
+            _ => {
+                self.root = self.root_raw.clone();
+            }
+        }
     }
 }
 

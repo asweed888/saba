@@ -70,8 +70,11 @@ fn main() -> anyhow::Result<()> {
 
 
 
-    manifest.set_ext("rs");
+    // manifest.set_ext("rs");
+    //
+    // println!("拡張子: {}", manifest.ext);
 
-    println!("拡張子: {}", manifest.ext);
+    manifest.set_root("./lang_src");
+    println!("root: {}", manifest.root);
     Ok(())
 }
