@@ -1,31 +1,31 @@
-// pub mod utils {
-//     pub mod templates {
-//         pub mod rust;
-//     }
-//     pub mod act {
-//         pub mod gen {
-//             pub mod codefile;
-//         }
-//         pub mod write {
-//             pub mod codefile;
-//         }
-//         pub mod codefile;
-//     }
-// }
+pub mod utils {
+    pub mod templates {
+        pub mod rust;
+    }
+    pub mod act {
+        pub mod gen {
+            pub mod codefile;
+        }
+        pub mod write {
+            pub mod codefile;
+        }
+        pub mod codefile;
+    }
+}
 pub mod domain {
     pub mod model {
         pub mod manifest;
     }
 }
-// pub mod usecase {
-//     pub mod rust_usecase;
-// }
-// pub mod presentation {
-//     pub mod command {
-//         pub mod up;
-//         pub mod new;
-//     }
-// }
+pub mod usecase {
+    pub mod rust_usecase;
+}
+pub mod presentation {
+    pub mod command {
+        pub mod up;
+        pub mod new;
+    }
+}
 // Automatically exported by saba.
 
 
