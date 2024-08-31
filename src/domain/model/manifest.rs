@@ -12,6 +12,8 @@ pub struct Manifest {
     pub arch: String,
     pub root: String,
     root_raw: String,
+    pub main_file: String,
+    pub mod_file: String,
     pub spec: Vec<Yaml>,
 }
 
@@ -49,6 +51,8 @@ impl Manifest {
             arch,
             root,
             root_raw,
+            main_file: "main".to_string(),
+            mod_file: String::new(),
             spec,
         })
     }
@@ -68,6 +72,12 @@ impl Manifest {
                 self.root = self.root_raw.clone();
             }
         }
+    }
+    pub fn set_main_file(&mut self, main_file_name: &str) {
+        self.main_file = main_file_name.to_string();
+    }
+    pub fn set_mod_file(&mut self, mod_file_name: &str) {
+        self.mod_file = mod_file_name.to_string();
     }
 }
 
