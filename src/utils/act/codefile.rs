@@ -25,8 +25,13 @@ pub trait Act {
             if !upstream.is_empty() {
                 self.gen_upstream(workdir.clone(), upstream)?;
             }
+
+            if !codefile.is_empty() {
+                self.gen_codefile(workdir.clone(), codefile)?;
+            }
         }
 
+        self.gen_location_post()?;
         Ok(())
     }
     fn gen_upstream(&self, wd: PathBuf, upstream: &Vec<Yaml>) -> anyhow::Result<()> {
@@ -45,8 +50,13 @@ pub trait Act {
             if !upstream.is_empty() {
                 self.gen_upstream(workdir.clone(), upstream)?;
             }
+
+            if !codefile.is_empty() {
+                self.gen_codefile(workdir.clone(), codefile)?;
+            }
         }
 
+        self.gen_upstream_post(wd.clone())?;
         Ok(())
     }
     fn gen_codefile(&self, wd: PathBuf, codefile: &Vec<Yaml>) -> anyhow::Result<()> {
@@ -57,21 +67,28 @@ pub trait Act {
             let mut workdir = PathBuf::from(wd.to_str().unwrap());
             let filename = f["name"].as_str().unwrap();
 
+            if filename == manifest.main_file.as_str()
+                || filename == manifest.mod_file.as_str()
+            {
+                continue;
+            }
+
             workdir.push(filename);
-            self.set_ext(&mut workdir, ext.as_str())?;
+            self.set_ext(&mut workdir, ext.clone())?;
 
             if !workdir.as_path().exists() {
-                self.gen_codefile_default(workdir.clone())?
+                self.gen_codefile_main(workdir.clone())?
             }
         }
 
         Ok(())
     }
-    fn gen_codefile_default(&self, wd: PathBuf) -> anyhow::Result<()> {
+    fn gen_codefile_main(&self, wd: PathBuf) -> anyhow::Result<()> {
         File::create(wd.to_str().unwrap())?;
         Ok(())
     }
-    fn set_ext(&self, wd: &mut PathBuf, ext: &'a str) -> anyhow::Result<()> {
+    fn set_ext(&self, wd: &mut PathBuf, ext: String) -> anyhow::Result<()> {
+        let ext = ext.as_str();
         if wd.to_str().unwrap().contains(".svelte") {
             wd.set_extension("svelte");
         }
@@ -84,6 +101,12 @@ pub trait Act {
         else {
             wd.set_extension(ext);
         }
+        Ok(())
+    }
+    fn gen_location_post(&self) -> anyhow::Result<()> {
+        Ok(())
+    }
+    fn gen_upstream_post(&self, _wd: PathBuf) -> anyhow::Result<()> {
         Ok(())
     }
 }
