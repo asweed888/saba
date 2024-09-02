@@ -10,6 +10,9 @@ spec:
     - name: templates
       codefile:
         - name: rust
+        - name: golang
+        - name: python
+        - name: typescript
 
     - name: act
       codefile:
@@ -24,6 +27,12 @@ spec:
 - location: usecase
   codefile:
     - name: rust_usecase
+    - name: golang_usecase
+    - name: python_usecase
+    - name: typescript_usecase
+    - name: lua_usecase
+    - name: bash_usecase
+    - name: html_usecase
 
 - location: presentation
   upstream:

@@ -1,6 +1,9 @@
 pub mod utils {
     pub mod templates {
         pub mod rust;
+        pub mod golang;
+        pub mod python;
+        pub mod typescript;
     }
     pub mod act {
         pub mod codefile;
@@ -15,6 +18,12 @@ pub mod domain {
 }
 pub mod usecase {
     pub mod rust_usecase;
+    pub mod golang_usecase;
+    pub mod python_usecase;
+    pub mod typescript_usecase;
+    pub mod lua_usecase;
+    pub mod bash_usecase;
+    pub mod html_usecase;
 }
 pub mod presentation {
     pub mod command {
