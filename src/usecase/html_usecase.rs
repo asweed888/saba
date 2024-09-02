@@ -1,23 +1,31 @@
-use crate::domain::model::html_usecase::entity::HtmlUsecase;
-use crate::domain::repository::html_usecase::HtmlUsecaseRepository;
+use crate::domain::model::manifest::Manifest;
+use crate::utils::act::codefile::Act as CodefileAct;
+use std::path::PathBuf;
+use std::fs::File;
 
-pub fn create<R>(repo: &R)
-where
-    R: HtmlUsecaseRepository
-{}
 
-pub fn get_all<R>(repo: &R)
-where
-    R: HtmlUsecaseRepository
-{}
+pub struct Html<'a> {
+    manifest: &'a Manifest,
+}
 
-pub fn update<R>(repo: &R)
-where
-    R: HtmlUsecaseRepository
-{}
+impl<'a> Html<'a> {
+    pub fn new(manifest: &'a mut Manifest) -> anyhow::Result<Self> {
+        manifest.set_root(".");
+        manifest.set_ext("html");
 
-pub fn delete<R>(repo: &R)
-where
-    R: HtmlUsecaseRepository
-{}
+        Ok(Self{ manifest })
+    }
+    pub fn gen_file(&self) -> anyhow::Result<()> {
+        self.gen_location(&self.manifest)?;
+        Ok(())
+    }
+}
 
+impl<'a> CodefileAct<'a> for Html<'a> {
+    fn gen_codefile_main(&self, wd: PathBuf, manifest: &'a Manifest) -> anyhow::Result<()> {
+        let path = wd.to_str().unwrap();
+
+        File::create(wd.to_str().unwrap())?;
+        Ok(())
+    }
+}

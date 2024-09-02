@@ -5,6 +5,9 @@ use crate::usecase::rust_usecase::Rust;
 use crate::usecase::golang_usecase::Golang;
 use crate::usecase::python_usecase::Python;
 use crate::usecase::typescript_usecase::TypeScript;
+use crate::usecase::lua_usecase::Lua;
+use crate::usecase::bash_usecase::Bash;
+use crate::usecase::html_usecase::Html;
 
 pub fn spec() -> Command {
     Command::new("up")
@@ -32,10 +35,16 @@ pub fn action() -> anyhow::Result<()> {
             typescript.gen_file()?;
         }
         "lua" => {
+            let lua = Lua::new(&mut manifest)?;
+            lua.gen_file()?;
         }
         "bash" => {
+            let bash = Bash::new(&mut manifest)?;
+            bash.gen_file()?;
         }
         "html" => {
+            let html = Html::new(&mut manifest)?;
+            html.gen_file()?;
         }
         _ => {
             bail!("[ERROR] The language is not supported.")
