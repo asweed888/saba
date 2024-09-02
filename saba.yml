@@ -2,6 +2,10 @@ lang: rust
 arch: ddd
 spec:
 - location: utils
+  codefile:
+    - name: generic
+    - name: rust
+
   upstream:
     - name: templates
       codefile:

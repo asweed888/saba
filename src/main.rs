@@ -5,6 +5,8 @@ pub mod utils {
     pub mod act {
         pub mod codefile;
     }
+    pub mod generic;
+    pub mod rust;
 }
 pub mod domain {
     pub mod model {
