@@ -5,7 +5,6 @@ use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use regex::Regex;
-use anyhow::Context;
 
 pub struct Rust;
 
@@ -41,12 +40,12 @@ impl Rust {
             .file_name()
             .unwrap()
             .to_str()
-            .context("[ERROR] Failed to obtain main.rs or lib.rs information.");
+            .expect("[ERROR] Failed to obtain main.rs or lib.rs information.");
 
-        main_rs
+        Ok(main_rs.to_string())
     }
     fn mod_rs(&self, wd: PathBuf) -> anyhow::Result<String> {
-        let workdir = wd.to_str().unwrap();
+        let workdir = wd.to_str().unwrap().to_string();
         let mod_rs = if PathBuf::from(workdir.clone() + "mod.rs").exists() {
             PathBuf::from(workdir.clone() + "mod.rs")
         }
@@ -59,9 +58,37 @@ impl Rust {
             .file_name()
             .unwrap()
             .to_str()
-            .context("[ERROR] Failed to obtain mod.rs information.");
+            .expect("[ERROR] Failed to obtain mod.rs information.");
 
-        mod_rs
+        Ok(mod_rs.to_string())
+    }
+    fn write_modblock(&self, file_path: PathBuf, modblock: String) -> anyhow::Result<()> {
+        let mut file = File::open(file_path.clone())?;
+        let mut file_contents = String::new();
+        let regx = self.modblock_pattern()?;
+
+        // 今のファイルの内容を読み込み
+        file.read_to_string(&mut file_contents)?;
+
+        // ファイル内にパターンが見つかった場合は置換
+        if regx.is_match(&file_contents) {
+            let replaced_contents = regx.replace_all(&file_contents, modblock);
+            let mut new_file = File::create(file_path)?;
+            new_file.write_all(replaced_contents.as_bytes())?;
+        }
+        // ファイル内にパターンが見つからなかった場合はmodblockをファイルの先頭に挿入
+        else {
+            let temp_file = file_path.with_extension("temp");
+            let mut new_file = File::create(&temp_file)?;
+            let new_modblock = format!("{}\n\n", modblock);
+
+            // 先頭にmodblockを挿入
+            new_file.write_all(new_modblock.as_bytes())?;
+            // 元のファイルの内容を挿入
+            new_file.write_all(file_contents.as_bytes())?;
+            fs::rename(&temp_file, file_path)?;
+        }
+        Ok(())
     }
 }
 
@@ -72,17 +99,22 @@ impl codefile::Act for Rust {
         let root = manifest.root.clone();
         let main_rs = self.main_rs(root.clone())?;
         let main_rs_path = PathBuf::from(root.clone() + main_rs.as_str());
-        let mut file = File::open(main_rs_path.clone())?;
-        let mut file_contents = String::new();
-        let regx = self.modblock_pattern()?;
 
         // 新しいmodblockを作成
         let mut modblock = self.modblock_start();
         for entry in fs::read_dir(root)? {
             let entry = entry?;
             let path = entry.path();
-            let file_name = path.file_name().unwrap().to_str().unwrap_or("");
-            let file_stem = path.file_stem().unwrap().to_str().unwrap_or("");
+            let file_name = path
+                .file_name()
+                .unwrap()
+                .to_str()
+                .expect("[ERROR] Failed to get file name.");
+            let file_stem = path
+                .file_stem()
+                .unwrap()
+                .to_str()
+                .expect("[ERROR] Failed to obtain file stem.");
 
             if file_name == main_rs.as_str() {
                 continue;
@@ -96,37 +128,14 @@ impl codefile::Act for Rust {
         }
         modblock = format!("{}{}", modblock, self.modblock_end());
 
-        // 今のファイルの内容を読み込み
-        file.read_to_string(&mut file_contents)?;
-
-        // ファイル内にパターンが見つかった場合は置換
-        if regx.is_match(&file_contents) {
-            let replaced_contents = regx.replace_all(&file_contents, modblock);
-            let mut new_file = File::create(main_rs_path)?;
-            new_file.write_all(replaced_contents.as_bytes())?;
-        }
-        // ファイル内にパターンが見つからなかった場合はmodblockをファイルの先頭に挿入
-        else {
-            let temp_file = main_rs_path.with_extension("temp");
-            let mut new_file = File::create(&temp_file)?;
-            let new_modblock = format!("{}\n\n", modblock);
-
-            // 先頭にmodblockを挿入
-            new_file.write_all(new_modblock.as_bytes())?;
-            // 元のファイルの内容を挿入
-            new_file.write_all(file_contents.as_bytes())?;
-            fs::rename(&temp_file, main_rs_path)?;
-        }
+        self.write_modblock(main_rs_path, modblock)?;
 
         Ok(())
     }
     fn gen_upstream_post(&self, wd: PathBuf) -> anyhow::Result<()> {
-        let workdir = wd.to_str().unwrap();
+        let workdir = wd.to_str().unwrap().to_string();
         let mod_rs = self.mod_rs(wd.clone())?;
-        let mod_rs_path = PathBuf::from(workdir.clone() + mod_rs);
-        let mut file = File::open(mod_rs_path.clone())?;
-        let mut file_contents = String::new();
-        let regx = self.modblock_pattern()?;
+        let mod_rs_path = PathBuf::from(workdir.clone() + mod_rs.as_str());
 
         let mut modblock = self.modblock_start();
         for entry in fs::read_dir(workdir)? {
@@ -154,28 +163,7 @@ impl codefile::Act for Rust {
         }
         modblock = format!("{}{}", modblock, self.modblock_end());
 
-        // 今のファイルの内容を読み込み
-        file.read_to_string(&mut file_contents)?;
-
-        // ファイル内にパターンが見つかった場合は置換
-        if regx.is_match(&file_contents) {
-            let replaced_contents = regx.replace_all(&file_contents, modblock);
-            let mut new_file = File::create(mod_rs_path)?;
-            new_file.write_all(replaced_contents.as_bytes())?;
-        }
-        // ファイル内にパターンが見つからなかった場合はmodblockをファイルの先頭に挿入
-        else {
-            let temp_file = mod_rs_path.with_extension("temp");
-            let mut new_file = File::create(&temp_file)?;
-            let new_modblock = format!("{}\n\n", modblock);
-
-            // 先頭にmodblockを挿入
-            new_file.write_all(new_modblock.as_bytes())?;
-            // 元のファイルの内容を挿入
-            new_file.write_all(file_contents.as_bytes())?;
-            fs::rename(&temp_file, mod_rs_path)?;
-        }
-
+        self.write_modblock(mod_rs_path, modblock)?;
 
         Ok(())
     }
