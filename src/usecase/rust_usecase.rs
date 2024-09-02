@@ -1,10 +1,19 @@
-use crate::domain::model::manifest::MANIFEST;
+use crate::domain::model::manifest::{Manifest, MANIFEST};
 use crate::utils::act::codefile;
 use std::path::PathBuf;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
 use regex::Regex;
+use askama::Template;
+use crate::utils::templates::rust::{
+    DomainModelTmpl,
+    DomainRepositoryTmpl,
+    InfraTmpl,
+    UseCaseTmpl,
+    PresentationTmpl,
+    DefaultTmpl,
+};
 
 pub struct Rust;
 
@@ -95,10 +104,68 @@ impl Rust {
 
 impl codefile::Act for Rust {
     fn gen_codefile_main(&self, wd: PathBuf) -> anyhow::Result<()> {
+        let manifest: Manifest;
+        {
+            manifest = MANIFEST.lock().unwrap().clone();
+        }
+        let path = wd.to_str().unwrap();
+        let is_ddd = manifest.is_ddd();
+        let (fname, pkgname) = self.workdir_info(wd.clone());
+        let (fname, pkgname) = { (fname.unwrap(), pkgname.unwrap()) };
+        let (fname, pkgname) = { (fname.as_str(), pkgname.as_str()) };
+
+        if is_ddd {
+            if path.contains("/domain/model/") {
+                let data = DomainModelTmpl{fname, pkgname};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(wd.to_str().unwrap())?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+            else if path.contains("/domain/repository/") {
+                let data = DomainRepositoryTmpl{fname};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(wd.to_str().unwrap())?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+            else if path.contains("/infrastructure/") {
+                let data = InfraTmpl{fname};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(wd.to_str().unwrap())?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+            else if path.contains("/usecase/") {
+                let data = UseCaseTmpl{fname, pkgname};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(wd.to_str().unwrap())?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+            else if path.contains("/presentation/") {
+                let data = PresentationTmpl{fname, pkgname};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(wd.to_str().unwrap())?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+            else {
+                let data = DefaultTmpl{fname, pkgname, wd: wd.to_str().unwrap()};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(wd.to_str().unwrap())?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+        }
+        else {
+            let data = DefaultTmpl{fname, pkgname, wd: wd.to_str().unwrap()};
+            let rendered_tmpl = data.render()?;
+            let mut file = File::create(wd.to_str().unwrap())?;
+            file.write_all(rendered_tmpl.as_bytes())?;
+        }
+
         Ok(())
     }
     fn gen_location_post(&self) -> anyhow::Result<()> {
-        let manifest = MANIFEST.lock().unwrap();
+        let manifest: Manifest;
+        {
+            manifest = MANIFEST.lock().unwrap().clone();
+        }
         let root = manifest.root.clone();
         let main_rs = self.main_rs(root.clone())?;
         let main_rs_path = PathBuf::from(root.clone() + main_rs.as_str());

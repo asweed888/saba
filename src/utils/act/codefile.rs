@@ -1,4 +1,4 @@
-use crate::domain::model::manifest::MANIFEST;
+use crate::domain::model::manifest::{Manifest, MANIFEST};
 use std::fs;
 use std::fs::File;
 use std::path::PathBuf;
@@ -7,7 +7,10 @@ use yaml_rust::Yaml;
 
 pub trait Act {
     fn gen_location(&self) -> anyhow::Result<()> {
-        let manifest = MANIFEST.lock().unwrap();
+        let manifest: Manifest;
+        {
+            manifest = MANIFEST.lock().unwrap().clone();
+        }
         let root_path = manifest.root.clone();
         let vec_default: &Vec<Yaml> = &vec![];
 
@@ -60,7 +63,10 @@ pub trait Act {
         Ok(())
     }
     fn gen_codefile(&self, wd: PathBuf, codefile: &Vec<Yaml>) -> anyhow::Result<()> {
-        let manifest = MANIFEST.lock().unwrap();
+        let manifest: Manifest;
+        {
+            manifest = MANIFEST.lock().unwrap().clone();
+        }
         let ext = manifest.ext.clone();
 
         for f in codefile {
@@ -108,5 +114,49 @@ pub trait Act {
     }
     fn gen_upstream_post(&self, _wd: PathBuf) -> anyhow::Result<()> {
         Ok(())
+    }
+    fn workdir_info(&self, wd: PathBuf) -> (Option<String>, Option<String>) {
+        let manifest: Manifest;
+        {
+            manifest = MANIFEST.lock().unwrap().clone();
+        }
+        let root = manifest.root.clone();
+        let fname = Some(
+            wd.file_stem()
+            .unwrap()
+            .to_str()
+            .unwrap_or(root.as_str())
+            .to_string()
+        );
+
+        let parent = wd
+            .parent()
+            .unwrap()
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap_or("");
+
+        let pkgname = match root.as_str() {
+            "." => {
+                if parent != "." {
+                    Some(parent.to_string())
+                }
+                else {
+                    None
+                }
+            }
+            _ => {
+                let replaced = root.replace("./", "");
+                if parent != replaced.as_str() {
+                    Some(parent.to_string())
+                }
+                else {
+                    None
+                }
+            }
+        };
+
+        (fname, pkgname)
     }
 }
