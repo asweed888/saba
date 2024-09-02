@@ -1,18 +1,12 @@
-use crate::domain::model::manifest::{Manifest, MANIFEST};
+use crate::domain::model::manifest::Manifest;
 use std::fs;
 use std::fs::File;
 use std::path::PathBuf;
 use yaml_rust::Yaml;
 
 
-pub trait Act {
-    fn gen_location(&self) -> anyhow::Result<()> {
-        let manifest: Manifest;
-        {
-            manifest = MANIFEST.lock().unwrap().clone();
-            println!("manifest3: {:?}", manifest);
-        }
-        println!("manifest4: {:?}", manifest);
+pub trait Act<'a> {
+    fn gen_location(&self, manifest: &'a Manifest) -> anyhow::Result<()> {
         let root_path = manifest.root.clone();
         let vec_default: &Vec<Yaml> = &vec![];
 
@@ -28,18 +22,18 @@ pub trait Act {
             }
 
             if !upstream.is_empty() {
-                self.gen_upstream(workdir.clone(), upstream)?;
+                self.gen_upstream(workdir.clone(), upstream, &manifest)?;
             }
 
             if !codefile.is_empty() {
-                self.gen_codefile(workdir.clone(), codefile)?;
+                self.gen_codefile(workdir.clone(), codefile, &manifest)?;
             }
         }
 
-        self.gen_location_post()?;
+        self.gen_location_post(&manifest)?;
         Ok(())
     }
-    fn gen_upstream(&self, wd: PathBuf, upstream: &Vec<Yaml>) -> anyhow::Result<()> {
+    fn gen_upstream(&self, wd: PathBuf, upstream: &Vec<Yaml>, manifest: &'a Manifest) -> anyhow::Result<()> {
         let vec_default: &Vec<Yaml> = &vec![];
 
         for u in upstream {
@@ -53,22 +47,18 @@ pub trait Act {
             fs::create_dir_all(workdir.clone())?;
 
             if !upstream.is_empty() {
-                self.gen_upstream(workdir.clone(), upstream)?;
+                self.gen_upstream(workdir.clone(), upstream, &manifest)?;
             }
 
             if !codefile.is_empty() {
-                self.gen_codefile(workdir.clone(), codefile)?;
+                self.gen_codefile(workdir.clone(), codefile, &manifest)?;
             }
         }
 
         self.gen_upstream_post(wd.clone())?;
         Ok(())
     }
-    fn gen_codefile(&self, wd: PathBuf, codefile: &Vec<Yaml>) -> anyhow::Result<()> {
-        let manifest: Manifest;
-        {
-            manifest = MANIFEST.lock().unwrap().clone();
-        }
+    fn gen_codefile(&self, wd: PathBuf, codefile: &Vec<Yaml>, manifest: &'a Manifest) -> anyhow::Result<()> {
         let ext = manifest.ext.clone();
 
         for f in codefile {
@@ -85,13 +75,13 @@ pub trait Act {
             self.set_ext(&mut workdir, ext.clone())?;
 
             if !workdir.as_path().exists() {
-                self.gen_codefile_main(workdir.clone())?
+                self.gen_codefile_main(workdir.clone(), &manifest)?
             }
         }
 
         Ok(())
     }
-    fn gen_codefile_main(&self, wd: PathBuf) -> anyhow::Result<()> {
+    fn gen_codefile_main(&self, wd: PathBuf, _manifest: &'a Manifest) -> anyhow::Result<()> {
         File::create(wd.to_str().unwrap())?;
         Ok(())
     }
@@ -111,17 +101,13 @@ pub trait Act {
         }
         Ok(())
     }
-    fn gen_location_post(&self) -> anyhow::Result<()> {
+    fn gen_location_post(&self, _manifest: &'a Manifest) -> anyhow::Result<()> {
         Ok(())
     }
     fn gen_upstream_post(&self, _wd: PathBuf) -> anyhow::Result<()> {
         Ok(())
     }
-    fn workdir_info(&self, wd: PathBuf) -> (Option<String>, Option<String>) {
-        let manifest: Manifest;
-        {
-            manifest = MANIFEST.lock().unwrap().clone();
-        }
+    fn workdir_info(&self, wd: PathBuf, manifest: &'a Manifest) -> (Option<String>, Option<String>) {
         let root = manifest.root.clone();
         let fname = Some(
             wd.file_stem()

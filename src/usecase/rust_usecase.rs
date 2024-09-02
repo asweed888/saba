@@ -1,7 +1,6 @@
-use crate::domain::model::manifest::{Manifest, MANIFEST};
+use crate::domain::model::manifest::Manifest;
 use crate::utils::act::codefile::Act as CodefileAct;
 use crate::utils::rust as rs_utils;
-use crate::utils::generic as utils;
 use std::path::PathBuf;
 use std::fs;
 use std::fs::File;
@@ -17,29 +16,23 @@ use crate::utils::templates::rust::{
     DefaultTmpl,
 };
 
-pub struct Rust;
+pub struct Rust<'a> {
+    manifest: &'a Manifest,
+}
 
-impl Rust {
-    pub fn new() -> anyhow::Result<Self> {
-        let default_root = "./src";
-        utils::gen_root(default_root);
-        let mut manifest: Manifest;
-        {
-            manifest = MANIFEST.lock().unwrap().clone();
-            manifest.ext = "rs".to_string();
-            manifest.root = default_root.to_string();
+impl<'a> Rust<'a> {
+    pub fn new(manifest: &'a mut Manifest) -> anyhow::Result<Self> {
+        manifest.set_root("./src");
+        manifest.set_ext("rs");
 
-            let main_rs = rs_utils::main_rs(manifest.root.clone()).unwrap();
-            manifest.main_file = main_rs.to_string();
-            manifest.mod_file = "mod.rs".to_string();
-        }
+        let main_rs = rs_utils::main_rs(manifest.root.clone()).unwrap();
+        manifest.set_main_file(main_rs.as_str());
+        manifest.set_mod_file("mod.rs");
 
-        println!("manifest2: {:?}", manifest);
-
-        Ok(Self{})
+        Ok(Self{ manifest })
     }
     pub fn gen_file(&self) -> anyhow::Result<()> {
-        self.gen_location()?;
+        self.gen_location(&self.manifest)?;
         Ok(())
     }
     fn modblock_start(&self) -> String {
@@ -83,17 +76,13 @@ impl Rust {
 }
 
 
-impl CodefileAct for Rust {
-    fn gen_codefile_main(&self, wd: PathBuf) -> anyhow::Result<()> {
-        let manifest: Manifest;
-        {
-            manifest = MANIFEST.lock().unwrap().clone();
-        }
+impl<'a> CodefileAct<'a> for Rust<'a> {
+    fn gen_codefile_main(&self, wd: PathBuf, manifest: &'a Manifest) -> anyhow::Result<()> {
         let path = wd.to_str().unwrap();
         println!("workdir: {}", path);
 
         let is_ddd = manifest.is_ddd();
-        let (fname, pkgname) = self.workdir_info(wd.clone());
+        let (fname, pkgname) = self.workdir_info(wd.clone(), &manifest);
         let (fname, pkgname) = { (fname.unwrap(), pkgname.unwrap()) };
         let (fname, pkgname) = { (fname.as_str(), pkgname.as_str()) };
 
@@ -144,13 +133,9 @@ impl CodefileAct for Rust {
 
         Ok(())
     }
-    fn gen_location_post(&self) -> anyhow::Result<()> {
-        let manifest: Manifest;
-        {
-            manifest = MANIFEST.lock().unwrap().clone();
-        }
+    fn gen_location_post(&self, manifest: &'a Manifest) -> anyhow::Result<()> {
         let root = manifest.root.clone();
-        let main_rs = manifest.main_file;
+        let main_rs = manifest.main_file.clone();
         let main_rs_path = PathBuf::from(root.clone() + "/" + main_rs.as_str());
 
         // 新しいmodblockを作成

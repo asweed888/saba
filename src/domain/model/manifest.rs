@@ -2,8 +2,6 @@ use yaml_rust::Yaml;
 use yaml_rust::YamlLoader;
 use anyhow::Context;
 use std::default::Default;
-use std::sync::Mutex;
-use once_cell::sync::Lazy;
 use std::path::PathBuf;
 
 #[derive(Default, Clone)]
@@ -90,8 +88,3 @@ impl Manifest {
         self.mod_file = mod_file_name.to_string();
     }
 }
-
-pub static MANIFEST: Lazy<Mutex<Manifest>> = Lazy::new(|| {
-    let manifest = Manifest::new().expect("[ERROR] Manifest initialization failed.");
-    Mutex::new(manifest)
-});

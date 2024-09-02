@@ -1,5 +1,3 @@
-use std::path::PathBuf;
-
 pub fn to_title(input: &str) -> String {
     let mut result = String::new();
     let mut capitalize_next = true;
@@ -44,13 +42,4 @@ pub fn either(pkgname: &str, fname: &str, num: u16) -> String {
             }
         }
     }
-}
-
-
-pub fn gen_root(root: &str) {
-    if root == ""
-        || root == "."
-        || PathBuf::from(root).exists()
-    { return; }
-    std::fs::create_dir_all(root).unwrap();
 }

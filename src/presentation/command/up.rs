@@ -1,6 +1,6 @@
 use clap::Command;
 use anyhow::bail;
-use crate::domain::model::manifest::{Manifest, MANIFEST};
+use crate::domain::model::manifest::Manifest;
 use crate::usecase::rust_usecase::Rust;
 
 
@@ -13,14 +13,11 @@ pub fn spec() -> Command {
 }
 
 pub fn action() -> anyhow::Result<()> {
-    let manifest: Manifest;
-    {
-        manifest = MANIFEST.lock().unwrap().clone();
-    }
+    let mut manifest = Manifest::new()?;
 
     match manifest.lang.as_str() {
         "rust" => {
-            let rust = Rust::new()?;
+            let rust = Rust::new(&mut manifest)?;
             rust.gen_file()?;
         }
         "go" => {
