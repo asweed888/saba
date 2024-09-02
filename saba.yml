@@ -10,14 +10,6 @@ spec:
     - name: act
       codefile:
         - name: codefile
-      upstream:
-        - name: gen
-          codefile:
-            - name: codefile
-
-        - name: write
-          codefile:
-            - name: codefile
 
 - location: domain
   upstream:

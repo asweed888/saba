@@ -94,6 +94,9 @@ impl Rust {
 
 
 impl codefile::Act for Rust {
+    fn gen_codefile_main(&self, wd: PathBuf) -> anyhow::Result<()> {
+        Ok(())
+    }
     fn gen_location_post(&self) -> anyhow::Result<()> {
         let manifest = MANIFEST.lock().unwrap();
         let root = manifest.root.clone();

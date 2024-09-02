@@ -3,12 +3,6 @@ pub mod utils {
         pub mod rust;
     }
     pub mod act {
-        pub mod gen {
-            pub mod codefile;
-        }
-        pub mod write {
-            pub mod codefile;
-        }
         pub mod codefile;
     }
 }
