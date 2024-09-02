@@ -78,7 +78,7 @@ pub trait Act<'a> {
                 self.gen_codefile_main(workdir.clone(), &manifest)?
             }
         }
-
+        self.gen_codefile_post(wd.clone())?;
         Ok(())
     }
     fn gen_codefile_main(&self, wd: PathBuf, _manifest: &'a Manifest) -> anyhow::Result<()> {
@@ -105,6 +105,9 @@ pub trait Act<'a> {
         Ok(())
     }
     fn gen_upstream_post(&self, _wd: PathBuf) -> anyhow::Result<()> {
+        Ok(())
+    }
+    fn gen_codefile_post(&self, _wd: PathBuf) -> anyhow::Result<()> {
         Ok(())
     }
     fn workdir_info(&self, wd: PathBuf, manifest: &'a Manifest) -> (Option<String>, Option<String>) {

@@ -39,7 +39,7 @@ impl<'a> Rust<'a> {
         "// start auto exported by saba.\n".to_string()
     }
     fn modblock_end(&self) -> String {
-        "// end auto exported by saba.\n".to_string()
+        "// end auto exported by saba.".to_string()
     }
     fn modblock_pattern(&self) -> anyhow::Result<Regex> {
         let pattern = r"// start auto exported by saba\.[\s\S]*// end auto exported by saba\.";
@@ -79,7 +79,6 @@ impl<'a> Rust<'a> {
 impl<'a> CodefileAct<'a> for Rust<'a> {
     fn gen_codefile_main(&self, wd: PathBuf, manifest: &'a Manifest) -> anyhow::Result<()> {
         let path = wd.to_str().unwrap();
-        println!("workdir: {}", path);
 
         let is_ddd = manifest.is_ddd();
         let (fname, pkgname) = self.workdir_info(wd.clone(), &manifest);
@@ -204,5 +203,8 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
         self.write_modblock(mod_rs_path, modblock)?;
 
         Ok(())
+    }
+    fn gen_codefile_post(&self, wd: PathBuf) -> anyhow::Result<()> {
+        self.gen_upstream_post(wd.clone())
     }
 }
