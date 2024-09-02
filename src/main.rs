@@ -25,52 +25,50 @@ pub mod presentation {
 // Automatically exported by saba.
 
 
-// use clap::Command;
-// use anyhow::Result;
-// use crate::di::container::DIContainer;
-//
-// fn main() -> Result<()> {
-//     let dic = DIContainer::new();
-//     let app = dic.new_app();
-//     let version = env!("CARGO_PKG_VERSION");
-//
-//     let matches = Command::new("saba")
-//         .about("This is a very simple declarative development framework.")
-//         .subcommand_required(true)
-//         .arg_required_else_help(true)
-//         .subcommand(
-//             app.up_cmd.spec()
-//         )
-//         .subcommand(
-//             app.new_cmd.spec()
-//         )
-//         .version(version)
-//         .get_matches();
-//
-//     match matches.subcommand() {
-//         Some(("up", _)) => {
-//             app.up_cmd.action()
-//         }
-//         Some(("new", _)) => {
-//             app.new_cmd.action()
-//         }
-//         _ => unreachable!()
-//     }
-// }
+use clap::Command;
+use crate::presentation::command;
 
-use domain::model::manifest::MANIFEST;
-
-// テスト用
 fn main() -> anyhow::Result<()> {
-    let mut manifest = MANIFEST.lock().unwrap();
 
+    let version = env!("CARGO_PKG_VERSION");
 
+    let matches = Command::new("saba")
+        .about("This is a very simple declarative development framework.")
+        .subcommand_required(true)
+        .arg_required_else_help(true)
+        .subcommand(
+            command::up::spec()
+        )
+        .subcommand(
+            command::new::spec()
+        )
+        .version(version)
+        .get_matches();
 
-    // manifest.set_ext("rs");
-    //
-    // println!("拡張子: {}", manifest.ext);
-
-    manifest.set_root("./lang_src");
-    println!("root: {}", manifest.root);
-    Ok(())
+    match matches.subcommand() {
+        Some(("up", _)) => {
+            command::up::action()
+        }
+        Some(("new", _)) => {
+            command::new::action()
+        }
+        _ => unreachable!()
+    }
 }
+
+// use domain::model::manifest::MANIFEST;
+//
+// // テスト用
+// fn main() -> anyhow::Result<()> {
+//     let mut manifest = MANIFEST.lock().unwrap();
+//
+//
+//
+//     // manifest.set_ext("rs");
+//     //
+//     // println!("拡張子: {}", manifest.ext);
+//
+//     manifest.set_root("./lang_src");
+//     println!("root: {}", manifest.root);
+//     Ok(())
+// }

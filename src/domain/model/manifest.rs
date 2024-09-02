@@ -4,6 +4,7 @@ use anyhow::Context;
 use std::default::Default;
 use std::sync::Mutex;
 use once_cell::sync::Lazy;
+use std::path::PathBuf;
 
 #[derive(Default, Clone)]
 pub struct Manifest {
@@ -51,7 +52,7 @@ impl Manifest {
             arch,
             root,
             root_raw,
-            main_file: "main".to_string(),
+            main_file: String::new(),
             mod_file: String::new(),
             spec,
         })
@@ -66,12 +67,21 @@ impl Manifest {
         // saba.ymlにrootの指定が無い場合は言語のデフォルトを設定する
         match self.root_raw.as_str() {
             "" =>  {
+                self.gen_root(lang_default_root);
                 self.root = lang_default_root.to_string();
             },
             _ => {
+                self.gen_root(lang_default_root);
                 self.root = self.root_raw.clone();
             }
         }
+    }
+    fn gen_root(&self, root: &str) {
+        if root == ""
+            || root == "."
+            || PathBuf::from(root).exists()
+        { return; }
+        std::fs::create_dir_all(root).unwrap();
     }
     pub fn set_main_file(&mut self, main_file_name: &str) {
         self.main_file = main_file_name.to_string();

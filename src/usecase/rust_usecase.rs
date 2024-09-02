@@ -1,5 +1,7 @@
 use crate::domain::model::manifest::{Manifest, MANIFEST};
-use crate::utils::act::codefile;
+use crate::utils::act::codefile::Act as CodefileAct;
+use crate::utils::rust as rs_utils;
+use crate::utils::generic as utils;
 use std::path::PathBuf;
 use std::fs;
 use std::fs::File;
@@ -19,7 +21,26 @@ pub struct Rust;
 
 impl Rust {
     pub fn new() -> anyhow::Result<Self> {
+        let default_root = "./src";
+        utils::gen_root(default_root);
+        let mut manifest: Manifest;
+        {
+            manifest = MANIFEST.lock().unwrap().clone();
+            manifest.ext = "rs".to_string();
+            manifest.root = default_root.to_string();
+
+            let main_rs = rs_utils::main_rs(manifest.root.clone()).unwrap();
+            manifest.main_file = main_rs.to_string();
+            manifest.mod_file = "mod.rs".to_string();
+        }
+
+        println!("manifest2: {:?}", manifest);
+
         Ok(Self{})
+    }
+    pub fn gen_file(&self) -> anyhow::Result<()> {
+        self.gen_location()?;
+        Ok(())
     }
     fn modblock_start(&self) -> String {
         "// start auto exported by saba.\n".to_string()
@@ -30,46 +51,6 @@ impl Rust {
     fn modblock_pattern(&self) -> anyhow::Result<Regex> {
         let pattern = r"// start auto exported by saba\.[\s\S]*// end auto exported by saba\.";
         Ok(Regex::new(pattern)?)
-    }
-    fn main_rs(&self, root: String) -> anyhow::Result<String> {
-        let main_rs = if PathBuf::from(root.clone() + "lib.rs").exists()
-        {
-            PathBuf::from(root.clone() + "lib.rs")
-        }
-        else if PathBuf::from(root.clone() + "main.rs").exists()
-        {
-            PathBuf::from(root.clone() + "main.rs")
-        }
-        else {
-            let path = PathBuf::from(root.clone() + "main.rs");
-            File::create(path.to_str().unwrap())?;
-            path
-        };
-        let main_rs = main_rs
-            .file_name()
-            .unwrap()
-            .to_str()
-            .expect("[ERROR] Failed to obtain main.rs or lib.rs information.");
-
-        Ok(main_rs.to_string())
-    }
-    fn mod_rs(&self, wd: PathBuf) -> anyhow::Result<String> {
-        let workdir = wd.to_str().unwrap().to_string();
-        let mod_rs = if PathBuf::from(workdir.clone() + "mod.rs").exists() {
-            PathBuf::from(workdir.clone() + "mod.rs")
-        }
-        else {
-            let path = PathBuf::from(workdir.clone() + "mod.rs");
-            File::create(path.to_str().unwrap())?;
-            path
-        };
-        let mod_rs = mod_rs
-            .file_name()
-            .unwrap()
-            .to_str()
-            .expect("[ERROR] Failed to obtain mod.rs information.");
-
-        Ok(mod_rs.to_string())
     }
     fn write_modblock(&self, file_path: PathBuf, modblock: String) -> anyhow::Result<()> {
         let mut file = File::open(file_path.clone())?;
@@ -102,13 +83,15 @@ impl Rust {
 }
 
 
-impl codefile::Act for Rust {
+impl CodefileAct for Rust {
     fn gen_codefile_main(&self, wd: PathBuf) -> anyhow::Result<()> {
         let manifest: Manifest;
         {
             manifest = MANIFEST.lock().unwrap().clone();
         }
         let path = wd.to_str().unwrap();
+        println!("workdir: {}", path);
+
         let is_ddd = manifest.is_ddd();
         let (fname, pkgname) = self.workdir_info(wd.clone());
         let (fname, pkgname) = { (fname.unwrap(), pkgname.unwrap()) };
@@ -167,8 +150,8 @@ impl codefile::Act for Rust {
             manifest = MANIFEST.lock().unwrap().clone();
         }
         let root = manifest.root.clone();
-        let main_rs = self.main_rs(root.clone())?;
-        let main_rs_path = PathBuf::from(root.clone() + main_rs.as_str());
+        let main_rs = manifest.main_file;
+        let main_rs_path = PathBuf::from(root.clone() + "/" + main_rs.as_str());
 
         // 新しいmodblockを作成
         let mut modblock = self.modblock_start();
@@ -204,8 +187,8 @@ impl codefile::Act for Rust {
     }
     fn gen_upstream_post(&self, wd: PathBuf) -> anyhow::Result<()> {
         let workdir = wd.to_str().unwrap().to_string();
-        let mod_rs = self.mod_rs(wd.clone())?;
-        let mod_rs_path = PathBuf::from(workdir.clone() + mod_rs.as_str());
+        let mod_rs = rs_utils::mod_rs(wd.clone())?;
+        let mod_rs_path = PathBuf::from(workdir.clone() + "/" + mod_rs.as_str());
 
         let mut modblock = self.modblock_start();
         for entry in fs::read_dir(workdir)? {

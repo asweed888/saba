@@ -10,7 +10,9 @@ pub trait Act {
         let manifest: Manifest;
         {
             manifest = MANIFEST.lock().unwrap().clone();
+            println!("manifest3: {:?}", manifest);
         }
+        println!("manifest4: {:?}", manifest);
         let root_path = manifest.root.clone();
         let vec_default: &Vec<Yaml> = &vec![];
 
