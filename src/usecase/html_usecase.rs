@@ -22,8 +22,7 @@ impl<'a> Html<'a> {
 }
 
 impl<'a> CodefileAct<'a> for Html<'a> {
-    fn gen_codefile_main(&self, wd: PathBuf, manifest: &'a Manifest) -> anyhow::Result<()> {
-        let path = wd.to_str().unwrap();
+    fn gen_codefile_main(&self, wd: PathBuf, _manifest: &'a Manifest) -> anyhow::Result<()> {
 
         File::create(wd.to_str().unwrap())?;
         Ok(())

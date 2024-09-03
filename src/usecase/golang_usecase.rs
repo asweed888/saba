@@ -48,13 +48,13 @@ impl<'a> CodefileAct<'a> for Golang<'a> {
                 file.write_all(rendered_tmpl.as_bytes())?;
             }
             else if path.contains("/domain/repository/") {
-                let data = DomainRepositoryTmpl{fname};
+                let data = DomainRepositoryTmpl{fname, pkgname};
                 let rendered_tmpl = data.render()?;
                 let mut file = File::create(wd.to_str().unwrap())?;
                 file.write_all(rendered_tmpl.as_bytes())?;
             }
             else if path.contains("/infrastructure/") {
-                let data = InfraTmpl{fname};
+                let data = InfraTmpl{fname, pkgname};
                 let rendered_tmpl = data.render()?;
                 let mut file = File::create(wd.to_str().unwrap())?;
                 file.write_all(rendered_tmpl.as_bytes())?;
@@ -72,14 +72,14 @@ impl<'a> CodefileAct<'a> for Golang<'a> {
                 file.write_all(rendered_tmpl.as_bytes())?;
             }
             else {
-                let data = DefaultTmpl{fname, pkgname, wd: wd.to_str().unwrap()};
+                let data = DefaultTmpl{pkgname};
                 let rendered_tmpl = data.render()?;
                 let mut file = File::create(wd.to_str().unwrap())?;
                 file.write_all(rendered_tmpl.as_bytes())?;
             }
         }
         else {
-            let data = DefaultTmpl{fname, pkgname, wd: wd.to_str().unwrap()};
+            let data = DefaultTmpl{pkgname};
             let rendered_tmpl = data.render()?;
             let mut file = File::create(wd.to_str().unwrap())?;
             file.write_all(rendered_tmpl.as_bytes())?;

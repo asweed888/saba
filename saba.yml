@@ -9,6 +9,7 @@ spec:
   upstream:
     - name: templates
       codefile:
+        - name: manifest
         - name: rust
         - name: golang
         - name: python

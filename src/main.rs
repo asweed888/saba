@@ -1,5 +1,6 @@
 pub mod utils {
     pub mod templates {
+        pub mod manifest;
         pub mod rust;
         pub mod golang;
         pub mod python;

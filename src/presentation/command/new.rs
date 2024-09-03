@@ -5,7 +5,7 @@ use askama::Template;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use sabacan::manifest::template::ManifestTemplate;
+use crate::utils::templates::manifest::ManifestTemplate;
 
 pub fn spec() -> Command {
     Command::new("new")
