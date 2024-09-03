@@ -1,6 +1,6 @@
 use askama::Template;
-use sabacan::codefile::template::utils;
-use crate::usecase::generate::codefile::rust::utils as rs_utils;
+use crate::utils::generic as utils;
+use crate::utils::rust as rs_utils;
 
 
 #[derive(Template)]
@@ -97,28 +97,6 @@ pub struct PresentationTmpl<'a> {
 }
 
 
-#[derive(Template)]
-#[template(source = "{% for import in imports -%}
-{% if !rs_utils::contains_di_str(import) -%}
-use {{ rs_utils::crate_path(import) }};
-{% endif -%}
-{% endfor %}
-pub struct App {}
-
-pub struct DIContainer {}
-
-impl DIContainer {
-    pub fn new() -> Self {
-        Self{}
-    }
-    pub fn new_app(&self) -> App {
-        App{}
-    }
-}
-", ext = "txt")]
-pub struct DiTmpl<'a> {
-    pub imports: &'a Vec<String>,
-}
 
 #[derive(Template)]
 #[template(source = "{%- if rs_utils::contains_traits_str(wd) -%}

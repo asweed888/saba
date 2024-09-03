@@ -1,54 +1,45 @@
-mod usecase {
-    pub mod generate {
-        pub mod codefile {
-            pub mod rust {
-                pub mod wide;
-                pub mod slim;
-                pub mod template;
-                pub mod utils;
-            }
-            pub mod golang {
-                pub mod r#mod;
-                pub mod template;
-            }
-            pub mod python {
-                pub mod r#mod;
-                pub mod template;
-            }
-            pub mod typescript {
-                pub mod r#mod;
-                pub mod template;
-            }
-            pub mod lua {
-                pub mod r#mod;
-            }
-            pub mod bash {
-                pub mod r#mod;
-            }
-            pub mod html {
-                pub mod r#mod;
-            }
-        }
+pub mod utils {
+    pub mod templates {
+        pub mod manifest;
+        pub mod rust;
+        pub mod golang;
+        pub mod python;
+        pub mod typescript;
+    }
+    pub mod act {
+        pub mod codefile;
+    }
+    pub mod generic;
+    pub mod rust;
+}
+pub mod domain {
+    pub mod model {
+        pub mod manifest;
     }
 }
-mod presentation {
+pub mod usecase {
+    pub mod rust_usecase;
+    pub mod golang_usecase;
+    pub mod python_usecase;
+    pub mod typescript_usecase;
+    pub mod lua_usecase;
+    pub mod bash_usecase;
+    pub mod html_usecase;
+}
+pub mod presentation {
     pub mod command {
         pub mod up;
         pub mod new;
     }
 }
-mod di {
-    pub mod container;
-} // Automatically exported by saba.
+// Automatically exported by saba.
 
 
 use clap::Command;
-use anyhow::Result;
-use crate::di::container::DIContainer;
+use crate::presentation::command;
 
-fn main() -> Result<()> {
-    let dic = DIContainer::new();
-    let app = dic.new_app();
+fn main() -> anyhow::Result<()> {
+
     let version = env!("CARGO_PKG_VERSION");
 
     let matches = Command::new("saba")
@@ -56,21 +47,38 @@ fn main() -> Result<()> {
         .subcommand_required(true)
         .arg_required_else_help(true)
         .subcommand(
-            app.up_cmd.spec()
+            command::up::spec()
         )
         .subcommand(
-            app.new_cmd.spec()
+            command::new::spec()
         )
         .version(version)
         .get_matches();
 
     match matches.subcommand() {
         Some(("up", _)) => {
-            app.up_cmd.action()
+            command::up::action()
         }
         Some(("new", _)) => {
-            app.new_cmd.action()
+            command::new::action()
         }
         _ => unreachable!()
     }
 }
+
+// use domain::model::manifest::MANIFEST;
+//
+// // テスト用
+// fn main() -> anyhow::Result<()> {
+//     let mut manifest = MANIFEST.lock().unwrap();
+//
+//
+//
+//     // manifest.set_ext("rs");
+//     //
+//     // println!("拡張子: {}", manifest.ext);
+//
+//     manifest.set_root("./lang_src");
+//     println!("root: {}", manifest.root);
+//     Ok(())
+// }
