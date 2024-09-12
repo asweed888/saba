@@ -6,5 +6,6 @@ pub mod lua_usecase;
 pub mod typescript_usecase;
 pub mod bash_usecase;
 pub mod html_usecase;
+pub mod tera_usecase;
 // end auto exported by saba.
 

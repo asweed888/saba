@@ -34,6 +34,7 @@ spec:
     - name: lua_usecase
     - name: bash_usecase
     - name: html_usecase
+    - name: tera_usecase
 
 - location: presentation
   upstream:

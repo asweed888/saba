@@ -8,6 +8,7 @@ use crate::usecase::typescript_usecase::TypeScript;
 use crate::usecase::lua_usecase::Lua;
 use crate::usecase::bash_usecase::Bash;
 use crate::usecase::html_usecase::Html;
+use crate::usecase::tera_usecase::Tera;
 
 pub fn spec() -> Command {
     Command::new("up")
@@ -45,6 +46,10 @@ pub fn action() -> anyhow::Result<()> {
         "html" => {
             let html = Html::new(&mut manifest)?;
             html.gen_file()?;
+        }
+        "tera" => {
+            let tera = Tera::new(&mut manifest)?;
+            tera.gen_file()?;
         }
         _ => {
             bail!("[ERROR] The language is not supported.")
