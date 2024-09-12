@@ -17,12 +17,13 @@ pub fn action() -> anyhow::Result<()> {
     let is_ddd: bool;
     let options: Vec<&str> = vec![
         "rust",
+        "tera",
         "go",
         "python",
         "typescript",
-        "lua",
         "bash",
         "html",
+        "lua",
     ];
 
     let lang_ans = Select::new("Please select a programming language.", options).prompt();
@@ -33,6 +34,7 @@ pub fn action() -> anyhow::Result<()> {
             if lang == "bash"
                 || lang == "lua"
                 || lang == "html"
+                || lang == "tera"
             {
                 // shellの場合はis_dddは常にfalse
                 is_ddd = false;
