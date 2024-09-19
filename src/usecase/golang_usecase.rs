@@ -10,6 +10,7 @@ use crate::utils::templates::golang::{
     InfraTmpl,
     UseCaseTmpl,
     PresentationTmpl,
+    di_tmpl,
     DefaultTmpl,
 };
 
@@ -68,6 +69,11 @@ impl<'a> CodefileAct<'a> for Golang<'a> {
             else if path.contains("/presentation/") {
                 let data = PresentationTmpl{fname, pkgname};
                 let rendered_tmpl = data.render()?;
+                let mut file = File::create(wd.to_str().unwrap())?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+            else if path.contains("/di/") {
+                let rendered_tmpl = di_tmpl();
                 let mut file = File::create(wd.to_str().unwrap())?;
                 file.write_all(rendered_tmpl.as_bytes())?;
             }

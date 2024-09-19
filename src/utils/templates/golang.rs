@@ -15,7 +15,7 @@ pub struct DomainModelTmpl<'a> {
 #[derive(Template)]
 #[template(source = "package {{ pkgname }}
 
-type {{ utils::to_title(fname) }}Repository interface {}
+type {{ utils::to_title(fname) }}RepositoryAct interface {}
 ", ext = "txt")]
 pub struct DomainRepositoryTmpl<'a> {
     pub pkgname: &'a str,
@@ -28,7 +28,7 @@ pub struct DomainRepositoryTmpl<'a> {
 
 type {{ fname }}Repository struct {}
 
-func New{{ utils::to_title(fname) }}Repository() repository.{{ utils::to_title(fname) }}Repository {
+func New{{ utils::to_title(fname) }}Repository() repository.{{ utils::to_title(fname) }}RepositoryAct {
     return &{{ fname }}Repository{}
 }
 ", ext = "txt")]
@@ -41,13 +41,13 @@ pub struct InfraTmpl<'a> {
 #[derive(Template)]
 #[template(source = "package {{ pkgname }}
 
-type {{ utils::to_title(fname) }}UseCase interface {}
+type {{ utils::to_title(fname) }}UseCaseAct interface {}
 
 type {{ fname }}UseCase struct {
-    repository.{{ utils::to_title(fname) }}Repository
+    repository.{{ utils::to_title(fname) }}RepositoryAct
 }
 
-func New{{ utils::to_title(fname) }}UseCase(r repository.{{ utils::to_title(fname) }}Repository) {{ utils::to_title(fname) }}UseCase {
+func New{{ utils::to_title(fname) }}UseCase(r repository.{{ utils::to_title(fname) }}RepositoryAct) {{ utils::to_title(fname) }}UseCaseAct {
     return &{{ fname }}UseCase{r}
 }
 ", ext = "txt")]
@@ -60,14 +60,14 @@ pub struct UseCaseTmpl<'a> {
 #[derive(Template)]
 #[template(source = "package {{ pkgname }}
 
-type {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }} interface {}
+type {{ utils::to_title(fname) }}HandlerAct interface {}
 
-type {{ fname }}{{ utils::to_title(pkgname) }} struct {
-    usecase.{{ utils::to_title(fname) }}UseCase
+type {{ fname }}Handler struct {
+    usecase.{{ utils::to_title(fname) }}UseCaseAct
 }
 
-func New{{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }}(u usecase.{{ utils::to_title(fname) }}UseCase) {{ utils::to_title(fname) }}{{ utils::to_title(pkgname) }} {
-    return &{{ fname }}{{ utils::to_title(pkgname) }}{u}
+func New{{ utils::to_title(fname) }}Handler(u usecase.{{ utils::to_title(fname) }}UseCaseAct) {{ utils::to_title(fname) }}HandlerAct {
+    return &{{ fname }}Handler{u}
 }
 ", ext = "txt")]
 pub struct PresentationTmpl<'a> {
@@ -86,11 +86,11 @@ pub struct DefaultTmpl<'a> {
 pub fn di_tmpl() -> String {
     String::from("package di
 
-type DiContainer interface {}
+type DiContainerAct interface {}
 
 type diContainer struct {}
 
-func NewDiContainer() DiContainer {
+func NewDiContainer() DiContainerAct {
     return &diContainer{}
 }
 ")

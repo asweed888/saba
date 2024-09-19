@@ -17,11 +17,11 @@ pub fn action() -> anyhow::Result<()> {
     let is_ddd: bool;
     let options: Vec<&str> = vec![
         "rust",
-        "tera",
         "go",
         "python",
         "typescript",
         "bash",
+        "tera",
         "html",
         "lua",
     ];
