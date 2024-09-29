@@ -12,7 +12,7 @@ use crate::utils::templates::rust::{
     DomainRepositoryTmpl,
     InfraTmpl,
     UseCaseTmpl,
-    PresentationTmpl,
+    // PresentationTmpl,
     DefaultTmpl,
 };
 
@@ -110,12 +110,12 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
                 let mut file = File::create(wd.to_str().unwrap())?;
                 file.write_all(rendered_tmpl.as_bytes())?;
             }
-            else if path.contains("/presentation/") {
-                let data = PresentationTmpl{fname, pkgname};
-                let rendered_tmpl = data.render()?;
-                let mut file = File::create(wd.to_str().unwrap())?;
-                file.write_all(rendered_tmpl.as_bytes())?;
-            }
+            // else if path.contains("/presentation/") {
+            //     let data = PresentationTmpl{fname, pkgname};
+            //     let rendered_tmpl = data.render()?;
+            //     let mut file = File::create(wd.to_str().unwrap())?;
+            //     file.write_all(rendered_tmpl.as_bytes())?;
+            // }
             else {
                 let data = DefaultTmpl{fname, pkgname, wd: wd.to_str().unwrap()};
                 let rendered_tmpl = data.render()?;
