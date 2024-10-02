@@ -98,7 +98,12 @@ export class DIContainer implements IDIContainer {
 
 
 pub fn vue_tmpl() -> String {
-    String::from("<script>
+    String::from("<template>
+  <div>
+  </div>
+</template>
+
+<script>
 export default {
   data() {
     return {
@@ -106,11 +111,6 @@ export default {
   }
 }
 </script>
-
-<template>
-  <div>
-  </div>
-</template>
 
 <style scoped>
 </style>
