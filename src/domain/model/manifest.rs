@@ -69,7 +69,7 @@ impl Manifest {
                 self.root = lang_default_root.to_string();
             },
             _ => {
-                self.gen_root(lang_default_root);
+                self.gen_root(self.root_raw.as_str());
                 self.root = self.root_raw.clone();
             }
         }

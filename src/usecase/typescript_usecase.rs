@@ -11,6 +11,7 @@ use crate::utils::templates::typescript::{
     UseCaseTmpl,
     PresentationTmpl,
     DefaultTmpl,
+    vue_tmpl,
 };
 
 pub struct TypeScript<'a> {
@@ -19,7 +20,7 @@ pub struct TypeScript<'a> {
 
 impl<'a> TypeScript<'a> {
     pub fn new(manifest: &'a mut Manifest) -> anyhow::Result<Self> {
-        manifest.set_root("./src");
+        manifest.set_root(".");
         manifest.set_ext("ts");
 
         Ok(Self{ manifest })
@@ -70,12 +71,22 @@ impl<'a> CodefileAct<'a> for TypeScript<'a> {
                 let mut file = File::create(wd.to_str().unwrap())?;
                 file.write_all(rendered_tmpl.as_bytes())?;
             }
+            else if wd.extension().unwrap() == "vue" {
+                let data = vue_tmpl();
+                let mut file = File::create(wd.to_str().unwrap())?;
+                file.write_all(data.as_bytes())?;
+            }
             else {
                 let data = DefaultTmpl{fname};
                 let rendered_tmpl = data.render()?;
                 let mut file = File::create(wd.to_str().unwrap())?;
                 file.write_all(rendered_tmpl.as_bytes())?;
             }
+        }
+        else if wd.extension().unwrap() == "vue" {
+            let data = vue_tmpl();
+            let mut file = File::create(wd.to_str().unwrap())?;
+            file.write_all(data.as_bytes())?;
         }
         else {
             let data = DefaultTmpl{fname};

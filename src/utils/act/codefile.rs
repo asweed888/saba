@@ -134,7 +134,7 @@ pub trait Act<'a> {
                     Some(parent.to_string())
                 }
                 else {
-                    None
+                    Some(String::new())
                 }
             }
             _ => {
@@ -143,7 +143,7 @@ pub trait Act<'a> {
                     Some(parent.to_string())
                 }
                 else {
-                    None
+                    Some(String::new())
                 }
             }
         };

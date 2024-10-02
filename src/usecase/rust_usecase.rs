@@ -171,6 +171,8 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
     }
     fn gen_upstream_post(&self, wd: PathBuf) -> anyhow::Result<()> {
         let workdir = wd.to_str().unwrap().to_string();
+        if workdir.as_str() == "./src" { return Ok(()) }
+
         let mod_rs = rs_utils::mod_rs(wd.clone())?;
         let mod_rs_path = PathBuf::from(workdir.clone() + "/" + mod_rs.as_str());
 
