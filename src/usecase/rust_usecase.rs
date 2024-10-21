@@ -156,11 +156,13 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
             if file_name == main_rs.as_str() {
                 continue;
             }
-            else if file_stem != "" && main_rs.as_str() == "main.rs" {
+            else if file_stem != ""
+                && (
+                    main_rs.as_str() == "main.rs"
+                    || main_rs.as_str() == "lib.rs"
+                )
+            {
                 modblock = format!("{}mod {};\n", modblock, file_stem);
-            }
-            else if file_stem != "" && main_rs.as_str() == "lib.rs" {
-                modblock = format!("{}pub mod {};\n", modblock, file_stem);
             }
         }
         modblock = format!("{}{}", modblock, self.modblock_end());
