@@ -1,90 +1,83 @@
 use yaml_rust::Yaml;
 use yaml_rust::YamlLoader;
-use anyhow::Context;
 use std::default::Default;
 use std::path::PathBuf;
+use anyhow::bail;
 
 #[derive(Default, Clone)]
 pub struct Manifest {
-    pub lang: String,
-    pub ext: String,
-    pub arch: String,
+    pub lang: Lang,
+    pub arch: Arch,
     pub root: String,
-    root_raw: String,
-    pub main_file: String,
-    pub mod_file: String,
     pub spec: Vec<Yaml>,
 }
 
-impl Manifest {
-    pub fn new() -> anyhow::Result<Self> {
-        let file = std::fs::read_to_string("./saba.yml");
-        let s = file.unwrap().to_string();
-        let file_content = YamlLoader::load_from_str(&s).unwrap();
-        let manifest = file_content.get(0).clone()
-            .context("[ERROR] saba.yml is not found.")?;
+pub enum Lang {
+    Rust,
+    Golang,
+    Python,
+    TypeScript,
+    Bash,
+}
 
-        let lang = manifest["lang"]
-            .as_str()
-            .context("[ERROR] lang is a required field. lang is not set.")?
-            .to_string();
-        let ext = String::new();
-
-        let arch = manifest["arch"]
-            .as_str()
-            .unwrap_or("plain")
-            .to_string();
-        let root = String::new();
-        let root_raw = manifest["root"]
-            .as_str()
-            .unwrap_or("")
-            .to_string();
-        let spec = manifest["spec"]
-            .as_vec()
-            .context("[ERROR] spec is not set. spec is a required field.")?
-            .clone();
-
-        Ok(Self{
-            lang,
-            ext,
-            arch,
-            root,
-            root_raw,
-            main_file: String::new(),
-            mod_file: String::new(),
-            spec,
-        })
-    }
-    pub fn is_ddd(&self) -> bool {
-        self.arch.as_str() == "ddd"
-    }
-    pub fn set_ext(&mut self, ext: &str) {
-        self.ext = ext.to_string();
-    }
-    pub fn set_root(&mut self, lang_default_root: &str) {
-        // saba.ymlにrootの指定が無い場合は言語のデフォルトを設定する
-        match self.root_raw.as_str() {
-            "" =>  {
-                self.gen_root(lang_default_root);
-                self.root = lang_default_root.to_string();
-            },
-            _ => {
-                self.gen_root(self.root_raw.as_str());
-                self.root = self.root_raw.clone();
-            }
+impl Lang {
+    pub fn from_rawdata(lang: &str) -> anyhow::Result<Self> {
+        match lang {
+            "rust" => Ok(Lang::Rust),
+            "go" => Ok(Lang::Golang),
+            "python" => Ok(Lang::Python),
+            "typescript" => Ok(Lang::TypeScript),
+            "bash" => Ok(Lang::Bash),
+            _ => bail!("The programming language is not supported."),
         }
     }
-    fn gen_root(&self, root: &str) {
-        if root == ""
-            || root == "."
-            || PathBuf::from(root).exists()
-        { return; }
-        std::fs::create_dir_all(root).unwrap();
+    pub fn ext(&self) -> &str {
+        match self {
+            Lang::Rust => "rs",
+            Lang::Golang => "go",
+            Lang::Python => "py",
+            Lang::TypeScript => "ts",
+            Lang::Bash => "",
+        }
     }
-    pub fn set_main_file(&mut self, main_file_name: &str) {
-        self.main_file = main_file_name.to_string();
+    pub fn default_root(&self) -> &str {
+        match self {
+            Lang::Rust => "./src",
+            Lang::Golang => ".",
+            Lang::Python => ".",
+            Lang::TypeScript => ".",
+            Lang::Bash => ".",
+        }
     }
-    pub fn set_mod_file(&mut self, mod_file_name: &str) {
-        self.mod_file = mod_file_name.to_string();
+    pub fn is_generate_ignore(&self, filename: &str) -> bool {
+        match self {
+            Lang::Rust => {
+                vec!["main.rs", "mod.rs"].iter().any(|s| *s == filename)
+            },
+            Lang::Golang => {
+                vec!["main.go"].iter().any(|s| *s == filename)
+            },
+            Lang::Python => {
+                vec!["main.py", "__init__.py"].iter().any(|s| *s == filename)
+            },
+            Lang::TypeScript => {
+                vec!["main.ts"].iter().any(|s| *s == filename)
+            },
+            Lang::Bash => false,
+        }
+    }
+}
+
+pub enum Arch {
+    DDD,
+    Plain,
+}
+
+impl Arch {
+    pub fn from_rawdata(arch: &str) -> anyhow::Result<Self> {
+        match arch {
+            "ddd" => Ok(Arch::DDD),
+            _ => Ok(Arch::Plain),
+        }
     }
 }
