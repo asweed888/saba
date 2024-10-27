@@ -7,10 +7,8 @@ use anyhow::anyhow;
 
 pub trait CodefileAct<'a> {
     fn gen_location(&self, repo: &'a ManifestRepository) -> anyhow::Result<()> {
-        let root_path = repo.manifest.root.clone();
-
         for spec in repo.manifest.spec.clone() {
-            let mut workdir = PathBuf::from(&root_path);
+            let mut workdir = repo.manifest.root.clone();
             let location = spec["location"].as_str().ok_or_else(|| anyhow!("Failed to get location from spec"))?;
             let upstream = spec["upstream"].as_vec().unwrap_or(&vec![]);
             let codefile = spec["codefile"].as_vec().unwrap_or(&vec![]);
@@ -20,10 +18,11 @@ pub trait CodefileAct<'a> {
                 fs::create_dir_all(workdir.clone())?;
             }
 
+            if !codefile.is_empty() {
+                self.gen_codefile(workdir.clone(), codefile, &repo)?;
+            }
             if !upstream.is_empty() {
                 self.gen_upstream(workdir.clone(), upstream, &repo)?;
-            }
-            if !codefile.is_empty() {
             }
         }
 
@@ -31,8 +30,7 @@ pub trait CodefileAct<'a> {
     }
     fn gen_upstream(&self, wd: PathBuf, upstream: &Vec<Yaml>, repo: &'a ManifestRepository) -> anyhow::Result<()> {
         for u in upstream {
-            let wd_str = wd.to_str().ok_or_else(|| anyhow!("Failed to convert wd to str type"))?;
-            let mut workdir = PathBuf::from(wd_str);
+            let mut workdir = wd.clone();
             let dirname = u["name"].as_str().ok_or_else(|| anyhow!("Failed to get name from upstream"))?;
             let upstream = u["upstream"].as_vec().unwrap_or(&vec![]);
             let codefile = u["codefile"].as_vec().unwrap_or(&vec![]);
@@ -40,10 +38,11 @@ pub trait CodefileAct<'a> {
             workdir.push(dirname);
             fs::create_dir_all(workdir.clone())?;
 
+            if !codefile.is_empty() {
+                self.gen_codefile(workdir.clone(), codefile, &repo)?;
+            }
             if !upstream.is_empty() {
                 self.gen_upstream(workdir.clone(), upstream, &repo)?;
-            }
-            if !codefile.is_empty() {
             }
         }
 
@@ -52,8 +51,7 @@ pub trait CodefileAct<'a> {
     fn gen_codefile(&self, wd: PathBuf, codefile: &Vec<Yaml>, repo: &'a ManifestRepository) -> anyhow::Result<()> {
         let ext = repo.manifest.lang.ext();
         for f in codefile {
-            let wd_str = wd.to_str().ok_or_else(|| anyhow!("Failed to convert wd to str type"))?;
-            let mut workdir = PathBuf::from(wd_str);
+            let mut workdir = wd.clone();
             let filename = f["name"].as_str().ok_or_else(|| anyhow!("Failed to get name from codefile"))?;
 
             if repo.manifest.lang.is_generate_ignore(filename) {

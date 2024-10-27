@@ -2,6 +2,7 @@ use crate::domain::model::manifest::{Manifest, Lang, Arch};
 use yaml_rust::YamlLoader;
 use anyhow::anyhow;
 use std::fs::read_to_string;
+use std::path::PathBuf;
 
 
 
@@ -35,12 +36,16 @@ impl ManifestRepository {
             .ok_or_else(|| anyhow!("Failed to get spec from manifest"))?
             .clone();
 
-        let lang = Lang::from_rawdata(lang)?;
-        let arch = Arch::from_rawdata(arch)?;
+        let lang = Lang::from_raw(lang)?;
+        let arch = Arch::from_raw(arch)?;
 
         let root = match root {
-            "" => lang.default_root().to_string(),
-            _ => root.to_string(),
+            "" => {
+                PathBuf::from(lang.default_root())
+            },
+            _ => {
+                PathBuf::from(root)
+            },
         };
 
         Ok(Self{

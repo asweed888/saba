@@ -29,6 +29,7 @@ spec:
           codefile:
             - name: template
             - name: gen_file
+            - name: modblock
             - name: utils
         - name: golang
           codefile:

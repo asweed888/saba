@@ -8,7 +8,7 @@ use anyhow::bail;
 pub struct Manifest {
     pub lang: Lang,
     pub arch: Arch,
-    pub root: String,
+    pub root: PathBuf,
     pub spec: Vec<Yaml>,
 }
 
@@ -21,7 +21,7 @@ pub enum Lang {
 }
 
 impl Lang {
-    pub fn from_rawdata(lang: &str) -> anyhow::Result<Self> {
+    pub fn from_raw(lang: &str) -> anyhow::Result<Self> {
         match lang {
             "rust" => Ok(Lang::Rust),
             "go" => Ok(Lang::Golang),
@@ -74,7 +74,7 @@ pub enum Arch {
 }
 
 impl Arch {
-    pub fn from_rawdata(arch: &str) -> anyhow::Result<Self> {
+    pub fn from_raw(arch: &str) -> anyhow::Result<Self> {
         match arch {
             "ddd" => Ok(Arch::DDD),
             _ => Ok(Arch::Plain),
