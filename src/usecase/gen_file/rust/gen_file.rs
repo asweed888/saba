@@ -26,9 +26,6 @@ impl<'a> Rust<'a> {
             modblock: ModBlock::new(repo.manifest.root.clone(), &repo)?,
         })
     }
-}
-
-impl<'a> CodefileAct<'a> for Rust<'a> {
     fn gen_location(&self, repo: &'a ManifestRepository) -> anyhow::Result<()> {
         let mut modblock: ModBlock<'a>;
 
@@ -105,5 +102,5 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
 
         Ok(())
     }
-
 }
+
