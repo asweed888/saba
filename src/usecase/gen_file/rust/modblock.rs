@@ -90,6 +90,10 @@ impl<'a> ModBlock<'a> {
         );
         Ok(())
     }
+    pub fn update_workdir(&self, workdir: PathBuf) -> anyhow::Result<()> {
+        self.workdir = workdir;
+        Ok(())
+    }
     pub fn gen(&self) -> anyhow::Result<()> {
         let file_path = self.get_target_file_path()?;
         let mut file = File::open(file_path.clone())?;
