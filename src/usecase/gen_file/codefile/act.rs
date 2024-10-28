@@ -7,11 +7,13 @@ use anyhow::anyhow;
 
 pub trait CodefileAct<'a> {
     fn gen_location(&self, repo: &'a ManifestRepository) -> anyhow::Result<()> {
+        let vec_default: &Vec<Yaml> = &vec![];
+
         for spec in repo.manifest.spec.clone() {
             let mut workdir = repo.manifest.root.clone();
             let location = spec["location"].as_str().ok_or_else(|| anyhow!("Failed to get location from spec"))?;
-            let upstream = spec["upstream"].as_vec().unwrap_or(&vec![]);
-            let codefile = spec["codefile"].as_vec().unwrap_or(&vec![]);
+            let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
 
             if location != "src" {
                 workdir.push(location);
@@ -29,11 +31,13 @@ pub trait CodefileAct<'a> {
         Ok(())
     }
     fn gen_upstream(&self, wd: PathBuf, upstream: &Vec<Yaml>, repo: &'a ManifestRepository) -> anyhow::Result<()> {
+        let vec_default: &Vec<Yaml> = &vec![];
+
         for u in upstream {
             let mut workdir = wd.clone();
             let dirname = u["name"].as_str().ok_or_else(|| anyhow!("Failed to get name from upstream"))?;
-            let upstream = u["upstream"].as_vec().unwrap_or(&vec![]);
-            let codefile = u["codefile"].as_vec().unwrap_or(&vec![]);
+            let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
 
             workdir.push(dirname);
             fs::create_dir_all(workdir.clone())?;
@@ -90,10 +94,12 @@ pub trait CodefileAct<'a> {
     }
     fn workdir_info(&self, wd: PathBuf, repo: &'a ManifestRepository) -> anyhow::Result<(String, String)> {
         let root = repo.manifest.root.clone();
+        let root = root.to_str().ok_or_else(|| anyhow!("Failed to convert root to str type"))?;
+
         let fname = wd.file_stem()
             .ok_or_else(|| anyhow!("Failed to get file_stem"))?
             .to_str()
-            .unwrap_or(root.as_str())
+            .unwrap_or(root)
             .to_string();
 
         let parent = wd.parent()
@@ -105,7 +111,7 @@ pub trait CodefileAct<'a> {
 
 
 
-        let pkgname = match root.as_str() {
+        let pkgname = match root {
             "." => {
                 if parent != "." {
                     parent.to_string()

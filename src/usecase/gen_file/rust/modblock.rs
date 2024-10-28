@@ -1,6 +1,7 @@
 use regex::Regex;
 use std::path::PathBuf;
 use std::fs::{self, File};
+use std::io::prelude::*;
 use anyhow::anyhow;
 use crate::infrastructure::filesystem::manifest::ManifestRepository;
 
@@ -32,38 +33,40 @@ impl<'a> ModBlock<'a> {
     fn is_root(&self) -> bool {
         self.repo.manifest.root == self.workdir
     }
-    fn exists_main_rs(&self) -> bool {
-        PathBuf::from(self.workdir + "/" + "main.rs").exists()
+    fn exists_main_rs(&self) -> anyhow::Result<bool> {
+        let wd_str = self.workdir.to_str().ok_or_else(|| anyhow!("Failed to convert workdir to str"))?;
+        Ok(PathBuf::from(wd_str.to_string() + "/" + "main.rs").exists())
     }
-    fn exists_lib_rs(&self) -> bool {
-        PathBuf::from(self.workdir + "/" + "lib.rs").exists()
+    fn exists_lib_rs(&self) -> anyhow::Result<bool> {
+        let wd_str = self.workdir.to_str().ok_or_else(|| anyhow!("Failed to convert workdir to str"))?;
+        Ok(PathBuf::from(wd_str.to_string() + "/" + "lib.rs").exists())
     }
-    fn exists_mod_rs(&self) -> bool {
-        PathBuf::from(self.workdir + "/" + "mod.rs").exists()
+    fn exists_mod_rs(&self) -> anyhow::Result<bool> {
+        let wd_str = self.workdir.to_str().ok_or_else(|| anyhow!("Failed to convert workdir to str"))?;
+        Ok(PathBuf::from(wd_str.to_string() + "/" + "mod.rs").exists())
     }
     fn get_target_file_path(&self) -> anyhow::Result<PathBuf> {
+        let wd_str = self.workdir.to_str().ok_or_else(|| anyhow!("Failed to convert workdir to str"))?;
         if self.is_root() {
-            if self.exists_lib_rs() {
-                Ok(PathBuf::from(self.workdir + "/" + "lib.rs"))
+            if self.exists_lib_rs()? {
+                Ok(PathBuf::from(wd_str.to_string() + "/" + "lib.rs"))
             }
-            else if self.exists_main_rs() {
-                Ok(PathBuf::from(self.workdir + "/" + "main.rs"))
+            else if self.exists_main_rs()? {
+                Ok(PathBuf::from(wd_str.to_string() + "/" + "main.rs"))
             }
             else {
-                let path = PathBuf::from(self.workdir + "/" + "main.rs");
-                File::create(path)?;
+                let path = PathBuf::from(wd_str.to_string() + "/" + "main.rs");
+                File::create(path.clone())?;
                 Ok(path)
             }
         }
+        else if self.exists_mod_rs()? {
+            Ok(PathBuf::from(wd_str.to_string() + "/" + "mod.rs"))
+        }
         else {
-            if self.exists_mod_rs() {
-                Ok(PathBuf::from(self.workdir + "/" + "mod.rs"))
-            }
-            else {
-                let path = PathBuf::from(self.workdir + "/" + "mod.rs");
-                File::create(path)?;
-                Ok(path)
-            }
+            let path = PathBuf::from(wd_str.to_string() + "/" + "mod.rs");
+            File::create(path.clone())?;
+            Ok(path)
         }
     }
     fn modblock(&self) -> String {
@@ -74,7 +77,7 @@ impl<'a> ModBlock<'a> {
             self.footer,
         )
     }
-    pub fn update_body(&self, dirname: &str, visivity: &str) -> anyhow::Result<()> {
+    pub fn update_body(&mut self, dirname: &str, visivity: &str) -> anyhow::Result<()> {
         let visivity = if self.is_root() && visivity == "" {
             Visibility::Private
         }
@@ -90,15 +93,11 @@ impl<'a> ModBlock<'a> {
         );
         Ok(())
     }
-    pub fn update_workdir(&self, workdir: PathBuf) -> anyhow::Result<()> {
-        self.workdir = workdir;
-        Ok(())
-    }
     pub fn gen(&self) -> anyhow::Result<()> {
         let file_path = self.get_target_file_path()?;
         let mut file = File::open(file_path.clone())?;
         let mut file_contents = String::new();
-        let regx = self.pattern;
+        let regx = self.pattern.clone();
 
         // 今のファイルの内容を読み込み
         file.read_to_string(&mut file_contents);

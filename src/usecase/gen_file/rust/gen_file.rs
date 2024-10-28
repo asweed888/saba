@@ -57,13 +57,14 @@ impl<'a> Rust<'a> {
 
 impl<'a> CodefileAct<'a> for Rust<'a> {
     fn gen_location(&self, repo: &'a ManifestRepository) -> anyhow::Result<()> {
-        let mut modblock = ModBlock::new(repo.manifest.root.clone(), &repo)?;
+        let vec_default: &Vec<Yaml> = &vec![];
+        let mut modblock = ModBlock::new(repo.manifest.root.clone(), repo)?;
 
         for spec in repo.manifest.spec.clone() {
             let mut workdir = repo.manifest.root.clone();
             let location = spec["location"].as_str().ok_or_else(|| anyhow!("Failed to get location from spec"))?;
-            let upstream = spec["upstream"].as_vec().unwrap_or(&vec![]);
-            let codefile = spec["codefile"].as_vec().unwrap_or(&vec![]);
+            let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
             let visibility = spec["visibility"].as_str().unwrap_or("");
             modblock.update_body(location, visibility)?;
 
@@ -74,7 +75,7 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
 
             if !codefile.is_empty() {
                 let mut modblock = if location == "src" {
-                    modblock
+                    modblock.clone()
                 }
                 else {
                     ModBlock::new(workdir.clone(), &repo)?
@@ -90,13 +91,14 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
         Ok(())
     }
     fn gen_upstream(&self, wd: PathBuf, upstream: &Vec<Yaml>, repo: &'a ManifestRepository) -> anyhow::Result<()> {
+        let vec_default: &Vec<Yaml> = &vec![];
         let mut modblock = ModBlock::new(wd.clone(), &repo)?;
 
         for u in upstream {
             let mut workdir = wd.clone();
             let dirname = u["name"].as_str().ok_or_else(|| anyhow!("Failed to get name from upstream"))?;
-            let upstream = u["upstream"].as_vec().unwrap_or(&vec![]);
-            let codefile = u["codefile"].as_vec().unwrap_or(&vec![]);
+            let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
             let visibility = u["visibility"].as_str().unwrap_or("");
             modblock.update_body(dirname, visibility)?;
 

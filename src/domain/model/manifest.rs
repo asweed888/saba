@@ -1,10 +1,8 @@
 use yaml_rust::Yaml;
-use yaml_rust::YamlLoader;
-use std::default::Default;
 use std::path::PathBuf;
 use anyhow::bail;
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct Manifest {
     pub lang: Lang,
     pub arch: Arch,
@@ -12,6 +10,7 @@ pub struct Manifest {
     pub spec: Vec<Yaml>,
 }
 
+#[derive(Clone)]
 pub enum Lang {
     Rust,
     Golang,
@@ -68,6 +67,7 @@ impl Lang {
     }
 }
 
+#[derive(Clone)]
 pub enum Arch {
     DDD,
     Plain,
@@ -84,7 +84,6 @@ impl Arch {
         match self {
             Arch::DDD => true,
             Arch::Plain => false,
-            _ => false,
         }
     }
 }
