@@ -80,4 +80,11 @@ impl Arch {
             _ => Ok(Arch::Plain),
         }
     }
+    pub fn is_ddd(&self) -> bool {
+        match self {
+            Arch::DDD => true,
+            Arch::Plain => false,
+            _ => false,
+        }
+    }
 }

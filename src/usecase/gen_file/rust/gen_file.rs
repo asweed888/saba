@@ -1,12 +1,9 @@
-use crate::domain::model::manifest::Manifest;
 use crate::infrastructure::filesystem::manifest::ManifestRepository;
 use crate::usecase::gen_file::codefile::act::CodefileAct;
-use super::utils as rs_utils;
 use super::modblock::ModBlock;
 use std::path::PathBuf;
 use std::fs::{self, File};
 use std::io::prelude::*;
-use regex::Regex;
 use askama::Template;
 use super::template::*;
 use anyhow::anyhow;
@@ -19,81 +16,21 @@ pub struct Rust<'a> {
 }
 
 impl<'a> Rust<'a> {
-    pub fn new(repo: &'a mut ManifestRepository) -> anyhow::Result<Self> {
+    pub fn new(repo: &'a ManifestRepository) -> anyhow::Result<Self> {
         Ok(Self{
             repo,
         })
     }
-    fn gen_location(&self) -> anyhow::Result<()> {
-        let mut modblock = ModBlock::new(self.repo.manifest.root.clone(), &self.repo)?;
-
-        for spec in self.repo.manifest.spec.clone() {
-            let mut workdir = self.repo.manifest.root.clone();
-            let location = spec["location"].as_str().ok_or_else(|| anyhow!("Failed to get location from spec"))?;
-            let upstream = spec["upstream"].as_vec().unwrap_or(&vec![]);
-            let codefile = spec["codefile"].as_vec().unwrap_or(&vec![]);
-            let visibility = spec["visibility"].as_str().unwrap_or("");
-            modblock.update_body(location, visibility)?;
-
-            if location != "src" {
-                workdir.push(location);
-                fs::create_dir_all(workdir.clone())?;
-            }
-
-            if !codefile.is_empty() {
-                let mut modblock = if location == "src" {
-                    modblock
-                }
-                else {
-                    ModBlock::new(workdir, &self.repo)?
-                };
-                self.gen_codefile(workdir.clone(), codefile, &mut modblock, &self.repo)?;
-            }
-            if !upstream.is_empty() {
-                self.gen_upstream(workdir.clone(), upstream, &self.repo)?;
-            }
-        }
-        modblock.gen()?;
-
+    pub fn gen_file(&self) -> anyhow::Result<()> {
+        self.gen_location(&self.repo)?;
         Ok(())
     }
-    fn gen_upstream(
-        &self,
-        wd: PathBuf,
-        upstream: &Vec<Yaml>,
-        repo: &'a ManifestRepository
-    ) -> anyhow::Result<()> {
-        let mut modblock = ModBlock::new(wd.clone(), &self.repo)?;
-
-        for u in upstream {
-            let mut workdir = wd.clone();
-            let dirname = u["name"].as_str().ok_or_else(|| anyhow!("Failed to get name from upstream"))?;
-            let upstream = u["upstream"].as_vec().unwrap_or(&vec![]);
-            let codefile = u["codefile"].as_vec().unwrap_or(&vec![]);
-            let visibility = u["visibility"].as_str().unwrap_or("");
-            modblock.update_body(dirname, visibility)?;
-
-            workdir.push(dirname);
-            fs::create_dir_all(workdir.clone())?;
-
-            if !codefile.is_empty() {
-                self.gen_codefile(workdir.clone(), codefile, &mut modblock, &self.repo)?;
-            }
-            if !upstream.is_empty() {
-                let modblock = ModBlock::new(workdir, &self.repo);
-                self.gen_upstream(workdir.clone(), upstream, &self.repo)?;
-            }
-        }
-        modblock.gen()?;
-
-        Ok(())
-    }
-    fn gen_codefile(
+    fn gen_rustfile(
         &self,
         wd: PathBuf,
         codefile: &Vec<Yaml>,
         modblock: &mut ModBlock<'a>,
-        repo: &'a ManifestRepository
+        repo: &'a ManifestRepository,
     ) -> anyhow::Result<()> {
         let ext = repo.manifest.lang.ext();
         for f in codefile {
@@ -117,3 +54,110 @@ impl<'a> Rust<'a> {
     }
 }
 
+
+impl<'a> CodefileAct<'a> for Rust<'a> {
+    fn gen_location(&self, repo: &'a ManifestRepository) -> anyhow::Result<()> {
+        let mut modblock = ModBlock::new(repo.manifest.root.clone(), &repo)?;
+
+        for spec in repo.manifest.spec.clone() {
+            let mut workdir = repo.manifest.root.clone();
+            let location = spec["location"].as_str().ok_or_else(|| anyhow!("Failed to get location from spec"))?;
+            let upstream = spec["upstream"].as_vec().unwrap_or(&vec![]);
+            let codefile = spec["codefile"].as_vec().unwrap_or(&vec![]);
+            let visibility = spec["visibility"].as_str().unwrap_or("");
+            modblock.update_body(location, visibility)?;
+
+            if location != "src" {
+                workdir.push(location);
+                fs::create_dir_all(workdir.clone())?;
+            }
+
+            if !codefile.is_empty() {
+                let mut modblock = if location == "src" {
+                    modblock
+                }
+                else {
+                    ModBlock::new(workdir.clone(), &repo)?
+                };
+                self.gen_rustfile(workdir.clone(), codefile, &mut modblock, &repo)?;
+            }
+            if !upstream.is_empty() {
+                self.gen_upstream(workdir.clone(), upstream, &repo)?;
+            }
+        }
+        modblock.gen()?;
+
+        Ok(())
+    }
+    fn gen_upstream(&self, wd: PathBuf, upstream: &Vec<Yaml>, repo: &'a ManifestRepository) -> anyhow::Result<()> {
+        let mut modblock = ModBlock::new(wd.clone(), &repo)?;
+
+        for u in upstream {
+            let mut workdir = wd.clone();
+            let dirname = u["name"].as_str().ok_or_else(|| anyhow!("Failed to get name from upstream"))?;
+            let upstream = u["upstream"].as_vec().unwrap_or(&vec![]);
+            let codefile = u["codefile"].as_vec().unwrap_or(&vec![]);
+            let visibility = u["visibility"].as_str().unwrap_or("");
+            modblock.update_body(dirname, visibility)?;
+
+            workdir.push(dirname);
+            fs::create_dir_all(workdir.clone())?;
+
+            if !codefile.is_empty() {
+                self.gen_rustfile(workdir.clone(), codefile, &mut modblock, &repo)?;
+            }
+            if !upstream.is_empty() {
+                self.gen_upstream(workdir.clone(), upstream, &repo)?;
+            }
+        }
+
+        Ok(())
+    }
+    fn gen_codefile_main(&self, wd: PathBuf, repo: &'a ManifestRepository) -> anyhow::Result<()> {
+        let path = wd.to_str().ok_or_else(|| anyhow!("Failed to convert wd to str type"))?;
+
+        let is_ddd = repo.manifest.arch.is_ddd();
+        let (fname, pkgname) = self.workdir_info(wd.clone(), &repo)?;
+        let (fname, pkgname) = { (fname.as_str(), pkgname.as_str()) };
+
+        if is_ddd {
+            if path.contains("/domain/model/") {
+                let data = DomainModelTmpl{fname, pkgname};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(path)?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+            else if path.contains("/domain/repository/") {
+                let data = DomainRepositoryTmpl{fname};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(path)?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+            else if path.contains("/infrastructure/") {
+                let data = InfraTmpl{fname};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(path)?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+            else if path.contains("/usecase/") {
+                let data = UseCaseTmpl{fname, pkgname};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(path)?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+            else {
+                let data = DefaultTmpl{fname, pkgname, wd: path};
+                let rendered_tmpl = data.render()?;
+                let mut file = File::create(path)?;
+                file.write_all(rendered_tmpl.as_bytes())?;
+            }
+        }
+        else {
+            let data = DefaultTmpl{fname, pkgname, wd: path};
+            let rendered_tmpl = data.render()?;
+            let mut file = File::create(path)?;
+            file.write_all(rendered_tmpl.as_bytes())?;
+        }
+        Ok(())
+    }
+}
