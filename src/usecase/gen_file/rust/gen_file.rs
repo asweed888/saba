@@ -59,7 +59,30 @@ impl<'a> Rust<'a> {
         modblock: &mut ModBlock<'a>,
         repo: &'a ManifestRepository,
     ) -> anyhow::Result<()> {
+        let vec_default: &Vec<Yaml> = &vec![];
 
+        for u in upstream {
+            let mut workdir = wd.clone();
+            let dirname = u["name"].as_str().ok_or_else(|| anyhow!("Failed to get name from upstream"))?;
+            let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
+            let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
+            let visibility = u["visibility"].as_str().unwrap_or("");
+            modblock.update_body(dirname, visibility)?;
+
+            workdir.push(dirname);
+            fs::create_dir_all(workdir.clone())?;
+
+            let mut modblock2 = ModBlock::new(workdir.clone(), &repo)?;
+            if !codefile.is_empty() {
+                self.gen_rustfile(workdir.clone(), codefile, &mut modblock2, &repo)?;
+            }
+            if !upstream.is_empty() {
+                self.gen_rustdir(workdir.clone(), upstream, &mut modblock2, &repo)?;
+            }
+            modblock2.gen()?;
+        }
+
+        Ok(())
     }
 }
 
@@ -82,44 +105,14 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
                 fs::create_dir_all(workdir.clone())?;
             }
 
+            let mut modblock2 = ModBlock::new(workdir.clone(), &repo)?;
             if !codefile.is_empty() {
-                let mut modblock = if location == "src" {
-                    modblock.clone()
-                }
-                else {
-                    ModBlock::new(workdir.clone(), &repo)?
-                };
-                self.gen_rustfile(workdir.clone(), codefile, &mut modblock, &repo)?;
+                self.gen_rustfile(workdir.clone(), codefile, &mut modblock2, &repo)?;
             }
             if !upstream.is_empty() {
-                self.gen_upstream(workdir.clone(), upstream, &repo)?;
+                self.gen_rustdir(workdir.clone(), upstream, &mut modblock2, &repo)?;
             }
-        }
-        modblock.gen()?;
-
-        Ok(())
-    }
-    fn gen_upstream(&self, wd: PathBuf, upstream: &Vec<Yaml>, repo: &'a ManifestRepository) -> anyhow::Result<()> {
-        let vec_default: &Vec<Yaml> = &vec![];
-        let mut modblock = ModBlock::new(wd.clone(), &repo)?;
-
-        for u in upstream {
-            let mut workdir = wd.clone();
-            let dirname = u["name"].as_str().ok_or_else(|| anyhow!("Failed to get name from upstream"))?;
-            let upstream = u["upstream"].as_vec().unwrap_or(vec_default);
-            let codefile = u["codefile"].as_vec().unwrap_or(vec_default);
-            let visibility = u["visibility"].as_str().unwrap_or("");
-            modblock.update_body(dirname, visibility)?;
-
-            workdir.push(dirname);
-            fs::create_dir_all(workdir.clone())?;
-
-            if !codefile.is_empty() {
-                self.gen_rustfile(workdir.clone(), codefile, &mut modblock, &repo)?;
-            }
-            if !upstream.is_empty() {
-                self.gen_upstream(workdir.clone(), upstream, &repo)?;
-            }
+            modblock2.gen()?;
         }
         modblock.gen()?;
 
