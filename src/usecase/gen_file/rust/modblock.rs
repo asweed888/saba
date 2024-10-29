@@ -86,7 +86,7 @@ impl<'a> ModBlock<'a> {
         };
 
         self.body = format!(
-            "{}{} mod {};\n",
+            "{}{}mod {};\n",
             self.body,
             visivity.to_code(),
             dirname,
@@ -100,7 +100,7 @@ impl<'a> ModBlock<'a> {
         let regx = self.pattern.clone();
 
         // 今のファイルの内容を読み込み
-        file.read_to_string(&mut file_contents);
+        file.read_to_string(&mut file_contents)?;
 
         // ファイル内にパターンが見つかった場合は置換
         if regx.is_match(&file_contents) {
@@ -144,9 +144,9 @@ impl Visibility {
     }
     pub fn to_code(&self) -> &str {
         match self {
-            Visibility::Public => "pub",
-            Visibility::Crate => "pub(crate)",
-            Visibility::Super => "pub(super)",
+            Visibility::Public => "pub ",
+            Visibility::Crate => "pub(crate) ",
+            Visibility::Super => "pub(super) ",
             Visibility::Private => "",
         }
     }
