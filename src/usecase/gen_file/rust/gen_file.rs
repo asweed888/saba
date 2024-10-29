@@ -52,6 +52,15 @@ impl<'a> Rust<'a> {
 
         Ok(())
     }
+    fn gen_rustdir(
+        &self,
+        wd: PathBuf,
+        upstream: &Vec<Yaml>,
+        modblock: &mut ModBlock<'a>,
+        repo: &'a ManifestRepository,
+    ) -> anyhow::Result<()> {
+
+    }
 }
 
 
@@ -112,6 +121,7 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
                 self.gen_upstream(workdir.clone(), upstream, &repo)?;
             }
         }
+        modblock.gen()?;
 
         Ok(())
     }
