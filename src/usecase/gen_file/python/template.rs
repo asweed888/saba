@@ -1,5 +1,5 @@
 use askama::Template;
-use crate::utils::generic as u;
+use crate::usecase::gen_file::utils::template as u;
 
 #[derive(Template)]
 #[template(source = "class {{u::to_title(fname)}}:
@@ -77,19 +77,18 @@ pub struct DefaultTmpl<'a> {
     pub fname: &'a str,
 }
 
-
-pub fn di_tmpl() -> String {
-    String::from("from abc import ABC, abstractmethod
-from infrastructure.datasrore. import
-from usecase. import
-from presentation. import
-
-
-class IDIContainer(ABC):
-    @abstractmethod
-
-
-class DIContainer(IDIContainer):
-    def __init__(self):
-")
-}
+// pub fn di_tmpl() -> String {
+//     String::from("from abc import ABC, abstractmethod
+// from infrastructure.datasrore. import
+// from usecase. import
+// from presentation. import
+//
+//
+// class IDIContainer(ABC):
+//     @abstractmethod
+//
+//
+// class DIContainer(IDIContainer):
+//     def __init__(self):
+// ")
+// }

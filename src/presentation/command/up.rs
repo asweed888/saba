@@ -1,14 +1,12 @@
 use clap::Command;
-use anyhow::bail;
-use crate::domain::model::manifest::Manifest;
-use crate::usecase::rust_usecase::Rust;
-use crate::usecase::golang_usecase::Golang;
-use crate::usecase::python_usecase::Python;
-use crate::usecase::typescript_usecase::TypeScript;
-use crate::usecase::lua_usecase::Lua;
-use crate::usecase::bash_usecase::Bash;
-use crate::usecase::html_usecase::Html;
-use crate::usecase::tera_usecase::Tera;
+use crate::domain::model::manifest::Lang;
+use crate::infrastructure::filesystem::manifest::ManifestRepository;
+use crate::usecase::gen_file::rust::gen_file::Rust;
+use crate::usecase::gen_file::golang::gen_file::Golang;
+use crate::usecase::gen_file::python::gen_file::Python;
+use crate::usecase::gen_file::typescript::gen_file::TypeScript;
+use crate::usecase::gen_file::bash::gen_file::Bash;
+use crate::usecase::gen_file::lua::gen_file::Lua;
 
 pub fn spec() -> Command {
     Command::new("up")
@@ -16,43 +14,32 @@ pub fn spec() -> Command {
 }
 
 pub fn action() -> anyhow::Result<()> {
-    let mut manifest = Manifest::new()?;
+    let repo = ManifestRepository::new()?;
 
-    match manifest.lang.as_str() {
-        "rust" => {
-            let rust = Rust::new(&mut manifest)?;
+    match repo.manifest.lang {
+        Lang::Rust => {
+            let rust = Rust::new(&repo)?;
             rust.gen_file()?;
-        }
-        "go" => {
-            let golang = Golang::new(&mut manifest)?;
+        },
+        Lang::Golang => {
+            let golang = Golang::new(&repo)?;
             golang.gen_file()?;
-        }
-        "python" => {
-            let python = Python::new(&mut manifest)?;
+        },
+        Lang::Python => {
+            let python = Python::new(&repo)?;
             python.gen_file()?;
-        }
-        "typescript" => {
-            let typescript = TypeScript::new(&mut manifest)?;
+        },
+        Lang::TypeScript => {
+            let typescript = TypeScript::new(&repo)?;
             typescript.gen_file()?;
-        }
-        "lua" => {
-            let lua = Lua::new(&mut manifest)?;
-            lua.gen_file()?;
-        }
-        "bash" => {
-            let bash = Bash::new(&mut manifest)?;
+        },
+        Lang::Bash => {
+            let bash = Bash::new(&repo)?;
             bash.gen_file()?;
-        }
-        "html" => {
-            let html = Html::new(&mut manifest)?;
-            html.gen_file()?;
-        }
-        "tera" => {
-            let tera = Tera::new(&mut manifest)?;
-            tera.gen_file()?;
-        }
-        _ => {
-            bail!("[ERROR] The language is not supported.")
+        },
+        Lang::Lua => {
+            let lua = Lua::new(&repo)?;
+            lua.gen_file()?;
         }
     }
     println!("[Success] generate of saba has been completed.");

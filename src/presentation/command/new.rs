@@ -1,11 +1,11 @@
 use clap::Command;
-use anyhow::bail;
+use anyhow::{anyhow, bail};
 use inquire::{Select, Confirm};
 use askama::Template;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
-use crate::utils::templates::manifest::ManifestTemplate;
+use crate::usecase::gen_file::manifest::template::ManifestTemplate;
 
 pub fn spec() -> Command {
     Command::new("new")
@@ -21,9 +21,9 @@ pub fn action() -> anyhow::Result<()> {
         "python",
         "typescript",
         "bash",
-        "tera",
-        "html",
         "lua",
+        // "tera",
+        // "html",
     ];
 
     let lang_ans = Select::new("Please select a programming language.", options).prompt();
@@ -67,7 +67,8 @@ pub fn action() -> anyhow::Result<()> {
 
     let file_path = Path::new("./saba.yml");
     if !file_path.exists() {
-        let mut file = File::create(file_path.to_str().unwrap())?;
+        let file_path_str = file_path.to_str().ok_or_else(|| anyhow!("Failed to convert file_path to str type"))?;
+        let mut file = File::create(file_path_str)?;
         file.write_all(rendered_tmpl.as_bytes())?;
     }
 

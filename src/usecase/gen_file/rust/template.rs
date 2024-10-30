@@ -1,7 +1,6 @@
 use askama::Template;
-use crate::utils::generic as utils;
-use crate::utils::rust as rs_utils;
-
+use crate::usecase::gen_file::utils::template as utils;
+use super::utils as rs_utils;
 
 #[derive(Template)]
 #[template(source = "pub struct {{ utils::default_struct(pkgname, fname) }} {}", ext = "txt")]
@@ -65,7 +64,7 @@ where
 ", ext = "txt")]
 pub struct UseCaseTmpl<'a> {
     pub fname: &'a str,
-    pub pkgname: &'a str,
+    // pub pkgname: &'a str,
 }
 
 
@@ -75,7 +74,7 @@ use crate::usecase::{{ fname }};
 ", ext = "txt")]
 pub struct PresentationTmpl<'a> {
     pub fname: &'a str,
-    pub pkgname: &'a str,
+    // pub pkgname: &'a str,
 }
 
 

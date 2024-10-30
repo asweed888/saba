@@ -1,5 +1,4 @@
 // start auto exported by saba.
-pub mod new;
-pub mod up;
+pub mod manifest;
 // end auto exported by saba.
 

@@ -1,5 +1,5 @@
 use askama::Template;
-use crate::utils::generic as utils;
+use crate::usecase::gen_file::utils::template as utils;
 
 #[derive(Template)]
 #[template(source = "package {{ pkgname }}

@@ -1,7 +1,4 @@
 // start auto exported by saba.
-pub mod generic;
-pub mod templates;
-pub mod act;
-pub mod rust;
+pub mod gen_file;
 // end auto exported by saba.
 

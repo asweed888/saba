@@ -1,5 +1,5 @@
 use askama::Template;
-use crate::utils::generic as u;
+use crate::usecase::gen_file::utils::template as u;
 
 #[derive(Template)]
 #[template(source = "export class {{ u::to_title(fname) }} {
@@ -83,18 +83,18 @@ pub struct DefaultTmpl<'a> {
 }
 
 
-pub fn di_tmpl() -> String {
-    String::from("import {  } from '../domain/repository'
-import {  } from '../infrastructure/datastore'
-import {  } from '../presentation'
-
-interface IDIContainer {}
-
-export class DIContainer implements IDIContainer {
-  constructor() {}
-}
-")
-}
+// pub fn di_tmpl() -> String {
+//     String::from("import {  } from '../domain/repository'
+// import {  } from '../infrastructure/datastore'
+// import {  } from '../presentation'
+//
+// interface IDIContainer {}
+//
+// export class DIContainer implements IDIContainer {
+//   constructor() {}
+// }
+// ")
+// }
 
 
 pub fn vue_tmpl() -> String {
