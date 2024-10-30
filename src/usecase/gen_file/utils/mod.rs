@@ -1,4 +1,4 @@
 // start auto exported by saba.
-pub mod act;
+pub mod template;
 // end auto exported by saba.
 

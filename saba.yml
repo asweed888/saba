@@ -19,9 +19,9 @@ spec:
   upstream:
     - name: gen_file
       upstream:
-        # - name: utils
-        #   codefile:
-        #     - name: template
+        - name: utils
+          codefile:
+            - name: template
         - name: manifest
           codefile:
             - name: template
@@ -34,21 +34,24 @@ spec:
             - name: gen_file
             - name: modblock
             - name: utils
-        # - name: golang
-        #   codefile:
-        #     - name: template
-        #     - name: gen_file
-        # - name: bash
-        #   codefile:
-        #     - name: gen_file
-        # - name: python
-        #   codefile:
-        #     - name: template
-        #     - name: gen_file
-        # - name: typescript
-        #   codefile:
-        #     - name: template
-        #     - name: gen_file
+        - name: golang
+          codefile:
+            - name: template
+            - name: gen_file
+        - name: python
+          codefile:
+            - name: template
+            - name: gen_file
+        - name: typescript
+          codefile:
+            - name: template
+            - name: gen_file
+        - name: bash
+          codefile:
+            - name: gen_file
+        - name: lua
+          codefile:
+            - name: gen_file
 
 
 - location: presentation

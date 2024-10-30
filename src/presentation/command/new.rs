@@ -21,9 +21,9 @@ pub fn action() -> anyhow::Result<()> {
         "python",
         "typescript",
         "bash",
-        "tera",
-        "html",
         "lua",
+        // "tera",
+        // "html",
     ];
 
     let lang_ans = Select::new("Please select a programming language.", options).prompt();

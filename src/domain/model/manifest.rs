@@ -17,6 +17,7 @@ pub enum Lang {
     Python,
     TypeScript,
     Bash,
+    Lua,
 }
 
 impl Lang {
@@ -27,6 +28,7 @@ impl Lang {
             "python" => Ok(Lang::Python),
             "typescript" => Ok(Lang::TypeScript),
             "bash" => Ok(Lang::Bash),
+            "lua" => Ok(Lang::Lua),
             _ => bail!("The programming language is not supported."),
         }
     }
@@ -37,6 +39,7 @@ impl Lang {
             Lang::Python => "py",
             Lang::TypeScript => "ts",
             Lang::Bash => "",
+            Lang::Lua => "lua",
         }
     }
     pub fn default_root(&self) -> &str {
@@ -46,6 +49,7 @@ impl Lang {
             Lang::Python => ".",
             Lang::TypeScript => ".",
             Lang::Bash => ".",
+            Lang::Lua => ".",
         }
     }
     pub fn is_generate_ignore(&self, filename: &str) -> bool {
@@ -63,6 +67,9 @@ impl Lang {
                 vec!["main.ts"].iter().any(|s| *s == filename)
             },
             Lang::Bash => false,
+            Lang::Lua => {
+                vec!["main.lua"].iter().any(|s| *s == filename)
+            },
         }
     }
 }

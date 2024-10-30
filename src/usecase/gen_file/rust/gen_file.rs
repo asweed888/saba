@@ -17,9 +17,7 @@ pub struct Rust<'a> {
 
 impl<'a> Rust<'a> {
     pub fn new(repo: &'a ManifestRepository) -> anyhow::Result<Self> {
-        Ok(Self{
-            repo,
-        })
+        Ok(Self{ repo })
     }
     pub fn gen_file(&self) -> anyhow::Result<()> {
         self.gen_location(&self.repo)?;
@@ -145,7 +143,7 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
                 file.write_all(rendered_tmpl.as_bytes())?;
             }
             else if path.contains("/usecase/") {
-                let data = UseCaseTmpl{fname, pkgname};
+                let data = UseCaseTmpl{fname};
                 let rendered_tmpl = data.render()?;
                 let mut file = File::create(path)?;
                 file.write_all(rendered_tmpl.as_bytes())?;
