@@ -96,21 +96,26 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
             let upstream = spec["upstream"].as_vec().unwrap_or(vec_default);
             let codefile = spec["codefile"].as_vec().unwrap_or(vec_default);
             let visibility = spec["visibility"].as_str().unwrap_or("");
-            modblock.update_body(location, visibility)?;
 
-            if location != "src" {
+            if location == "src" {
+                if !codefile.is_empty() {
+                    self.gen_rustfile(workdir.clone(), codefile, &mut modblock, &repo)?;
+                }
+            }
+            else {
+                modblock.update_body(location, visibility)?;
                 workdir.push(location);
                 fs::create_dir_all(workdir.clone())?;
-            }
 
-            let mut modblock2 = ModBlock::new(workdir.clone(), &repo)?;
-            if !codefile.is_empty() {
-                self.gen_rustfile(workdir.clone(), codefile, &mut modblock2, &repo)?;
+                let mut modblock2 = ModBlock::new(workdir.clone(), &repo)?;
+                if !codefile.is_empty() {
+                    self.gen_rustfile(workdir.clone(), codefile, &mut modblock2, &repo)?;
+                }
+                if !upstream.is_empty() {
+                    self.gen_rustdir(workdir.clone(), upstream, &mut modblock2, &repo)?;
+                }
+                modblock2.gen()?;
             }
-            if !upstream.is_empty() {
-                self.gen_rustdir(workdir.clone(), upstream, &mut modblock2, &repo)?;
-            }
-            modblock2.gen()?;
         }
         modblock.gen()?;
 
