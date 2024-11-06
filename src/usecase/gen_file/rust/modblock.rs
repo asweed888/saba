@@ -78,6 +78,9 @@ impl<'a> ModBlock<'a> {
         )
     }
     pub fn update_body(&mut self, dirname: &str, visivity: &str) -> anyhow::Result<()> {
+        if self.repo.manifest.lang.is_generate_ignore(dirname) {
+            return Ok(());
+        }
         let visivity = if self.is_root() && visivity == "" {
             Visibility::Private
         }
