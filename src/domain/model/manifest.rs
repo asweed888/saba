@@ -55,20 +55,20 @@ impl Lang {
     pub fn is_generate_ignore(&self, filename: &str) -> bool {
         match self {
             Lang::Rust => {
-                vec!["main.rs", "mod.rs"].iter().any(|s| *s == filename)
+                vec!["main", "mod"].iter().any(|s| *s == filename)
             },
             Lang::Golang => {
-                vec!["main.go"].iter().any(|s| *s == filename)
+                vec!["main"].iter().any(|s| *s == filename)
             },
             Lang::Python => {
-                vec!["main.py", "__init__.py"].iter().any(|s| *s == filename)
+                vec!["main", "__init__"].iter().any(|s| *s == filename)
             },
             Lang::TypeScript => {
-                vec!["main.ts"].iter().any(|s| *s == filename)
+                vec!["main"].iter().any(|s| *s == filename)
             },
             Lang::Bash => false,
             Lang::Lua => {
-                vec!["main.lua"].iter().any(|s| *s == filename)
+                vec!["main"].iter().any(|s| *s == filename)
             },
         }
     }
