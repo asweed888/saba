@@ -80,7 +80,8 @@ pub struct PresentationTmpl<'a> {
 
 
 #[derive(Template)]
-#[template(source = "{%- if rs_utils::is_ability_file(fname) -%}
+#[template(source = "{%- if rs_utils::is_traits_file(fname) -%}
+{%- else if rs_utils::contains_traits_str(wd) -%}
 {%- else -%}
 pub struct {{ utils::default_struct(pkgname, fname) }} {}
 {%- endif -%}
