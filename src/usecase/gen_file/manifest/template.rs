@@ -10,7 +10,7 @@ spec:
 {% if !is_ddd -%}
 - location: greeter
   codefile:
-    - name: ability
+    - name: abils
 {% else -%}
 - location: domain
   upstream:
