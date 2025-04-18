@@ -121,51 +121,12 @@ impl<'a> CodefileAct<'a> for Rust<'a> {
 
         Ok(())
     }
-    fn gen_codefile_main(&self, wd: PathBuf, repo: &'a ManifestRepository) -> anyhow::Result<()> {
+    fn gen_codefile_main(&self, wd: PathBuf, _repo: &'a ManifestRepository) -> anyhow::Result<()> {
         let path = wd.to_str().ok_or_else(|| anyhow!("Failed to convert wd to str type"))?;
 
-        let is_ddd = repo.manifest.arch.is_ddd();
-        let (fname, pkgname) = self.workdir_info(wd.clone(), &repo)?;
-        let (fname, pkgname) = { (fname.as_str(), pkgname.as_str()) };
+        let mut file = File::create(path)?;
+        file.write_all("".as_bytes())?;
 
-        if is_ddd {
-            if path.contains("/domain/model/") {
-                let data = DomainModelTmpl{fname, pkgname};
-                let rendered_tmpl = data.render()?;
-                let mut file = File::create(path)?;
-                file.write_all(rendered_tmpl.as_bytes())?;
-            }
-            else if path.contains("/domain/repository/") {
-                let data = DomainRepositoryTmpl{fname};
-                let rendered_tmpl = data.render()?;
-                let mut file = File::create(path)?;
-                file.write_all(rendered_tmpl.as_bytes())?;
-            }
-            else if path.contains("/infrastructure/") {
-                let data = InfraTmpl{fname};
-                let rendered_tmpl = data.render()?;
-                let mut file = File::create(path)?;
-                file.write_all(rendered_tmpl.as_bytes())?;
-            }
-            else if path.contains("/usecase/") {
-                let data = UseCaseTmpl{fname};
-                let rendered_tmpl = data.render()?;
-                let mut file = File::create(path)?;
-                file.write_all(rendered_tmpl.as_bytes())?;
-            }
-            else {
-                let data = DefaultTmpl{fname, pkgname, wd: path};
-                let rendered_tmpl = data.render()?;
-                let mut file = File::create(path)?;
-                file.write_all(rendered_tmpl.as_bytes())?;
-            }
-        }
-        else {
-            let data = DefaultTmpl{fname, pkgname, wd: path};
-            let rendered_tmpl = data.render()?;
-            let mut file = File::create(path)?;
-            file.write_all(rendered_tmpl.as_bytes())?;
-        }
         Ok(())
     }
 }
