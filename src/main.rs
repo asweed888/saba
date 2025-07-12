@@ -1,12 +1,13 @@
 // start auto exported by saba.
-mod domain;
-mod infrastructure;
-mod presentation;
-mod usecase;
+mod project_management;
+mod code_generation;
+mod claude_code_integration;
+mod shared;
+mod cli;
 // end auto exported by saba.
 
 use clap::Command;
-use crate::presentation::command;
+use crate::cli::command;
 
 fn main() -> anyhow::Result<()> {
 

@@ -1,63 +1,85 @@
 lang: rust
-arch: ddd
 spec:
-- location: domain
+- location: project_management
   upstream:
-    - name: model
+    - name: config
       codefile:
-        - name: manifest
-
-
-- location: infrastructure
-  upstream:
-    - name: filesystem
+        - name: parser
+        - name: validator
+        - name: models
+    - name: repository
       codefile:
-        - name: manifest
+        - name: config_repository
+    - name: service
+      codefile:
+        - name: project_service
 
-
-- location: usecase
+- location: code_generation
   upstream:
-    - name: gen_file
+    - name: core
+      codefile:
+        - name: generator
+        - name: file_builder
+        - name: directory_builder
+    - name: language
       upstream:
-        - name: utils
-          codefile:
-            - name: template
-        - name: manifest
-          codefile:
-            - name: template
-        - name: codefile
-          codefile:
-            - name: act
         - name: rust
           codefile:
-            - name: template
-            - name: gen_file
-            - name: modblock
-            - name: utils
-        - name: golang
+            - name: module_generator
+            - name: cargo_handler
+        - name: go
           codefile:
-            - name: template
-            - name: gen_file
+            - name: package_generator
+            - name: mod_handler
         - name: python
           codefile:
-            - name: template
-            - name: gen_file
+            - name: package_generator
+            - name: init_handler
+        - name: javascript
+          codefile:
+            - name: module_generator
+            - name: package_handler
         - name: typescript
           codefile:
-            - name: template
-            - name: gen_file
-        - name: bash
-          codefile:
-            - name: gen_file
-        - name: lua
-          codefile:
-            - name: gen_file
+            - name: module_generator
+            - name: declaration_handler
+    - name: service
+      codefile:
+        - name: generation_service
 
+- location: claude_code_integration
+  upstream:
+    - name: api
+      codefile:
+        - name: tool_interface
+        - name: response_formatter
+    - name: analysis
+      codefile:
+        - name: project_analyzer
+        - name: suggestion_engine
+        - name: dependency_resolver
+    - name: service
+      codefile:
+        - name: claude_code_service
 
-- location: presentation
+- location: shared
+  upstream:
+    - name: error
+      codefile:
+        - name: error_types
+        - name: result_ext
+    - name: utils
+      codefile:
+        - name: file_utils
+        - name: path_utils
+
+- location: cli
   upstream:
     - name: command
       codefile:
         - name: new
         - name: up
-
+        - name: analyze
+    - name: args
+      codefile:
+        - name: parser
