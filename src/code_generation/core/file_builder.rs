@@ -37,7 +37,7 @@ impl FileBuilder {
 
         // Generate main.rs or lib.rs for src modules
         if let Some(src_module) = project.modules().iter().find(|m| m.name() == "src") {
-            if RustModuleGenerator::should_generate_main_rs(&[src_module.clone()]) {
+            if RustModuleGenerator::should_generate_main_rs(project) {
                 RustModuleGenerator::generate_main_rs(&project_path, &[src_module.clone()])?;
             } else {
                 RustModuleGenerator::generate_lib_rs(&project_path, &[src_module.clone()])?;
@@ -171,8 +171,8 @@ impl FileBuilder {
             files.push(module_path.join(filename));
         }
 
-        // Add mod.rs for Rust modules that have submodules or files
-        if language == "rust" && (!module.submodules().is_empty() || !module.files().is_empty()) {
+        // Add mod.rs for Rust modules that have submodules or files (except src module)
+        if language == "rust" && module.name() != "src" && (!module.submodules().is_empty() || !module.files().is_empty()) {
             files.push(module_path.join("mod.rs"));
         }
 
@@ -238,7 +238,7 @@ mod tests {
 
         // Check files exist
         assert!(base_path.join("src/main.rs").exists());
-        assert!(base_path.join("src/mod.rs").exists());
+        assert!(!base_path.join("src/mod.rs").exists()); // src should not have mod.rs
         assert!(base_path.join("src/domain/mod.rs").exists());
         assert!(base_path.join("src/domain/model.rs").exists());
         assert!(base_path.join("src/domain/repository.rs").exists());
@@ -248,11 +248,9 @@ mod tests {
         assert!(domain_mod.contains("pub mod model;"));
         assert!(domain_mod.contains("pub mod repository;"));
 
-        let src_mod = fs::read_to_string(base_path.join("src/mod.rs")).unwrap();
-        assert!(src_mod.contains("pub mod domain;"));
-
+        // Check main.rs content includes module declarations
         let main_rs = fs::read_to_string(base_path.join("src/main.rs")).unwrap();
-        assert!(main_rs.contains("mod src;"));
+        assert!(main_rs.contains("mod domain;"));
         assert!(main_rs.contains("fn main()"));
     }
 
@@ -320,7 +318,7 @@ mod tests {
         let files = FileBuilder::get_project_files(&project);
         
         assert!(files.contains(&PathBuf::from("src/main.rs")));
-        assert!(files.contains(&PathBuf::from("src/mod.rs")));
+        assert!(!files.contains(&PathBuf::from("src/mod.rs"))); // src should not have mod.rs
         assert!(files.contains(&PathBuf::from("src/domain/mod.rs")));
         assert!(files.contains(&PathBuf::from("src/domain/model.rs")));
     }

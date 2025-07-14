@@ -15,6 +15,8 @@ pub struct Project {
     pub root: bool,
     pub lang: String,
     #[serde(default)]
+    pub codefile: Vec<CodeFile>,
+    #[serde(default)]
     pub upstream: Vec<Module>,
 }
 
@@ -22,6 +24,8 @@ pub struct Project {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Module {
     pub name: String,
+    #[serde(default)]
+    pub r#pub: Option<String>,
     #[serde(default)]
     pub upstream: Vec<Module>,
     #[serde(default)]
@@ -32,6 +36,8 @@ pub struct Module {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CodeFile {
     pub name: String,
+    #[serde(default)]
+    pub r#pub: Option<String>,
 }
 
 impl SabaConfig {
@@ -76,6 +82,11 @@ impl Project {
     pub fn modules(&self) -> &[Module] {
         &self.upstream
     }
+
+    /// Get all code files at project level
+    pub fn files(&self) -> &[CodeFile] {
+        &self.codefile
+    }
 }
 
 impl Module {
@@ -103,6 +114,11 @@ impl Module {
     pub fn has_files(&self) -> bool {
         !self.codefile.is_empty()
     }
+
+    /// Get pub visibility setting for the module
+    pub fn pub_setting(&self) -> Option<&str> {
+        self.r#pub.as_deref()
+    }
 }
 
 impl CodeFile {
@@ -128,5 +144,10 @@ impl CodeFile {
             };
             format!("{}.{}", self.name, extension)
         }
+    }
+
+    /// Get pub visibility setting
+    pub fn pub_setting(&self) -> Option<&str> {
+        self.r#pub.as_deref()
     }
 }

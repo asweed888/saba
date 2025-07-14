@@ -10,7 +10,9 @@
             - name: domain
               codefile:
                 - name: model
+                  pub: yes
                 - name: repository
+                  pub: crate
 
 
 # マルチプロジェクトの例
@@ -24,7 +26,9 @@
             - name: domain
               codefile:
                 - name: model
+                  pub: yes
                 - name: repository
+                  pub: super
 
 
 - name: frontend

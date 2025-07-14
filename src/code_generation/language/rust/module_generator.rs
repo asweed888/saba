@@ -1,12 +1,31 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
-use crate::project_management::config::models::{Module, CodeFile};
+use crate::project_management::config::models::{Module, CodeFile, Project};
 
 /// Rust-specific module generator
 pub struct RustModuleGenerator;
 
 impl RustModuleGenerator {
+    /// Convert pub setting to Rust visibility prefix
+    /// target_type: "main", "lib", or "mod"
+    fn get_visibility_prefix(pub_setting: Option<&str>, target_type: &str) -> &'static str {
+        match pub_setting {
+            Some("yes") => "pub ",
+            Some("no") => "",
+            Some("crate") => "pub(crate) ",
+            Some("super") => "pub(super) ",
+            None => {
+                // Use defaults based on target type
+                match target_type {
+                    "main" => "", // main.rs defaults to private
+                    "lib" | "mod" => "pub ", // lib.rs and mod.rs default to public
+                    _ => "pub ",
+                }
+            }
+            _ => "pub ", // fallback to public for unknown values
+        }
+    }
     /// Generate Rust module structure recursively
     pub fn generate_module<P: AsRef<Path>>(
         base_path: P,
@@ -34,7 +53,8 @@ impl RustModuleGenerator {
             // Add to module declarations if it's not mod.rs
             if filename != "mod.rs" {
                 let module_name = codefile.name();
-                module_declarations.push(format!("pub mod {};", module_name));
+                let visibility = Self::get_visibility_prefix(codefile.pub_setting(), "mod");
+                module_declarations.push(format!("{}mod {};", visibility, module_name));
             }
         }
 
@@ -45,12 +65,14 @@ impl RustModuleGenerator {
             
             Self::generate_module(&module_path, submodule, &new_parent_modules)?;
             
-            // Add submodule declaration
-            module_declarations.push(format!("pub mod {};", submodule.name()));
+            // Add submodule declaration using the submodule's pub setting
+            let visibility = Self::get_visibility_prefix(submodule.pub_setting(), "mod");
+            module_declarations.push(format!("{}mod {};", visibility, submodule.name()));
         }
 
-        // Generate mod.rs if there are module declarations
-        if !module_declarations.is_empty() {
+        // Generate mod.rs if there are module declarations and this is not a src module
+        // (src modules use main.rs or lib.rs instead of mod.rs)
+        if !module_declarations.is_empty() && module.name() != "src" {
             let mod_rs_path = module_path.join("mod.rs");
             let mod_content = Self::generate_mod_rs_content(&module_declarations);
             
@@ -64,15 +86,29 @@ impl RustModuleGenerator {
     /// Generate main.rs content for root project
     pub fn generate_main_rs<P: AsRef<Path>>(
         project_path: P,
-        root_modules: &[Module],
+        src_modules: &[Module],
     ) -> Result<()> {
         let main_rs_path = project_path.as_ref().join("src").join("main.rs");
         
-        // Collect top-level module declarations
+        // Collect module declarations from src module contents
         let mut module_declarations = Vec::new();
         
-        for module in root_modules {
-            module_declarations.push(format!("mod {};", module.name()));
+        for src_module in src_modules {
+            if src_module.name() == "src" {
+                // Add declarations for submodules and code files within src
+                for codefile in src_module.files() {
+                    let filename = codefile.filename_with_extension("rust");
+                    if filename != "mod.rs" && filename != "main.rs" && filename != "lib.rs" {
+                        let visibility = Self::get_visibility_prefix(codefile.pub_setting(), "main");
+                        module_declarations.push(format!("{}mod {};", visibility, codefile.name()));
+                    }
+                }
+                
+                for submodule in src_module.submodules() {
+                    let visibility = Self::get_visibility_prefix(submodule.pub_setting(), "main");
+                    module_declarations.push(format!("{}mod {};", visibility, submodule.name()));
+                }
+            }
         }
 
         let main_content = Self::generate_main_rs_content(&module_declarations);
@@ -86,15 +122,29 @@ impl RustModuleGenerator {
     /// Generate lib.rs content for library project
     pub fn generate_lib_rs<P: AsRef<Path>>(
         project_path: P,
-        root_modules: &[Module],
+        src_modules: &[Module],
     ) -> Result<()> {
         let lib_rs_path = project_path.as_ref().join("src").join("lib.rs");
         
-        // Collect top-level module declarations
+        // Collect module declarations from src module contents
         let mut module_declarations = Vec::new();
         
-        for module in root_modules {
-            module_declarations.push(format!("pub mod {};", module.name()));
+        for src_module in src_modules {
+            if src_module.name() == "src" {
+                // Add declarations for submodules and code files within src
+                for codefile in src_module.files() {
+                    let filename = codefile.filename_with_extension("rust");
+                    if filename != "mod.rs" && filename != "main.rs" && filename != "lib.rs" {
+                        let visibility = Self::get_visibility_prefix(codefile.pub_setting(), "lib");
+                        module_declarations.push(format!("{}mod {};", visibility, codefile.name()));
+                    }
+                }
+                
+                for submodule in src_module.submodules() {
+                    let visibility = Self::get_visibility_prefix(submodule.pub_setting(), "lib");
+                    module_declarations.push(format!("{}mod {};", visibility, submodule.name()));
+                }
+            }
         }
 
         let lib_content = Self::generate_lib_rs_content(&module_declarations);
@@ -143,11 +193,17 @@ impl RustModuleGenerator {
     }
 
     /// Determine if project should have main.rs or lib.rs
-    pub fn should_generate_main_rs(modules: &[Module]) -> bool {
-        // Generate main.rs if there's no explicit lib.rs file defined
-        !modules.iter()
+    pub fn should_generate_main_rs(project: &Project) -> bool {
+        // Generate main.rs if there's no explicit lib.rs file defined in the project
+        let has_lib_in_project = project.files().iter()
+            .any(|f| f.name() == "lib" || f.filename_with_extension("rust") == "lib.rs");
+        
+        let has_lib_in_src = project.modules().iter()
+            .filter(|m| m.name() == "src")
             .flat_map(|m| m.files())
-            .any(|f| f.name() == "lib" || f.filename_with_extension("rust") == "lib.rs")
+            .any(|f| f.name() == "lib" || f.filename_with_extension("rust") == "lib.rs");
+        
+        !has_lib_in_project && !has_lib_in_src
     }
 }
 
@@ -211,11 +267,11 @@ mod tests {
         assert!(base_path.join("src/domain").exists());
         assert!(base_path.join("src/domain/model.rs").exists());
         assert!(base_path.join("src/domain/mod.rs").exists());
-        assert!(base_path.join("src/mod.rs").exists());
+        assert!(!base_path.join("src/mod.rs").exists()); // src should not have mod.rs
 
-        // Check parent mod.rs includes child module
-        let src_mod_content = fs::read_to_string(base_path.join("src/mod.rs")).unwrap();
-        assert!(src_mod_content.contains("pub mod domain;"));
+        // Check domain mod.rs content
+        let domain_mod_content = fs::read_to_string(base_path.join("src/domain/mod.rs")).unwrap();
+        assert!(domain_mod_content.contains("pub mod model;"));
     }
 
     #[test]
@@ -228,8 +284,14 @@ mod tests {
 
         let modules = vec![
             Module {
-                name: "domain".to_string(),
-                upstream: vec![],
+                name: "src".to_string(),
+                upstream: vec![
+                    Module {
+                        name: "domain".to_string(),
+                        upstream: vec![],
+                        codefile: vec![],
+                    },
+                ],
                 codefile: vec![],
             },
         ];
