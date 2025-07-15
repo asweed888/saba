@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 use crate::project_management::config::models::{Project, Module, CodeFile};
 use crate::code_generation::language::rust::module_generator::RustModuleGenerator;
+use crate::code_generation::language::typescript::module_generator::TypeScriptModuleGenerator;
 
 /// File builder that handles language-specific file generation
 pub struct FileBuilder;
@@ -21,6 +22,7 @@ impl FileBuilder {
 
         match project.language() {
             "rust" => Self::build_rust_project_files(&project_path, project),
+            "typescript" => Self::build_typescript_project_files(&project_path, project),
             _ => Self::build_generic_project_files(&project_path, project),
         }
     }
@@ -45,6 +47,32 @@ impl FileBuilder {
         }
 
         Ok(())
+    }
+
+    /// Build TypeScript-specific project files
+    fn build_typescript_project_files<P: AsRef<Path>>(
+        project_path: P,
+        project: &Project,
+    ) -> Result<()> {
+        // Generate package.json and tsconfig.json
+        TypeScriptModuleGenerator::generate_package_json(&project_path, project.name())?;
+        TypeScriptModuleGenerator::generate_tsconfig_json(&project_path)?;
+
+        // Generate files in all modules
+        for module in project.modules() {
+            Self::build_typescript_module_files(&project_path, module, &[])?;
+        }
+
+        Ok(())
+    }
+
+    /// Build TypeScript module files recursively
+    fn build_typescript_module_files<P: AsRef<Path>>(
+        base_path: P,
+        module: &Module,
+        parent_modules: &[String],
+    ) -> Result<()> {
+        TypeScriptModuleGenerator::generate_module(base_path, module, parent_modules)
     }
 
     /// Build Rust module files recursively
@@ -146,11 +174,18 @@ impl FileBuilder {
             Self::collect_module_files(&base_path, module, project.language(), &mut files);
         }
 
-        // Add main.rs/lib.rs for Rust projects
-        if project.language() == "rust" {
-            if let Some(_) = project.modules().iter().find(|m| m.name() == "src") {
-                files.push(base_path.join("src/main.rs"));
+        // Add language-specific files
+        match project.language() {
+            "rust" => {
+                if let Some(_) = project.modules().iter().find(|m| m.name() == "src") {
+                    files.push(base_path.join("src/main.rs"));
+                }
             }
+            "typescript" => {
+                files.push(base_path.join("package.json"));
+                files.push(base_path.join("tsconfig.json"));
+            }
+            _ => {}
         }
 
         files
@@ -171,9 +206,21 @@ impl FileBuilder {
             files.push(module_path.join(filename));
         }
 
-        // Add mod.rs for Rust modules that have submodules or files (except src module)
-        if language == "rust" && module.name() != "src" && (!module.submodules().is_empty() || !module.files().is_empty()) {
-            files.push(module_path.join("mod.rs"));
+        // Add special files for language-specific modules
+        match language {
+            "rust" => {
+                // Add mod.rs for Rust modules that have submodules or files (except src module)
+                if module.name() != "src" && (!module.submodules().is_empty() || !module.files().is_empty()) {
+                    files.push(module_path.join("mod.rs"));
+                }
+            }
+            "typescript" => {
+                // Add index.ts for TypeScript modules that have submodules or files
+                if !module.submodules().is_empty() || !module.files().is_empty() {
+                    files.push(module_path.join("index.ts"));
+                }
+            }
+            _ => {}
         }
 
         // Process submodules
