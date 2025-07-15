@@ -1,7 +1,7 @@
 use clap::Command;
 use anyhow::{bail, Context};
 use crate::project_management::config::{ConfigParser, ConfigValidator};
-use crate::code_generation::core::{DirectoryBuilder, FileBuilder};
+use crate::code_generation::core::generator::CodeGenerator;
 
 pub fn spec() -> Command {
     Command::new("up")
@@ -22,18 +22,17 @@ pub fn action() -> anyhow::Result<()> {
     ConfigValidator::validate(&config)
         .context("Configuration validation failed")?;
 
-    // Generate structure for each project
+    // Print generating message for each project
     for project in config.projects() {
         println!("Generating project: {}", project.name());
-        
-        // Build directory structure
-        DirectoryBuilder::build_project_structure(".", project)
-            .with_context(|| format!("Failed to build directory structure for project: {}", project.name()))?;
+    }
 
-        // Build files
-        FileBuilder::build_project_files(".", project)
-            .with_context(|| format!("Failed to build files for project: {}", project.name()))?;
+    // Generate structure using the new CodeGenerator
+    CodeGenerator::generate_from_config(".", &config)
+        .context("Failed to generate project structure")?;
 
+    // Print success message for each project
+    for project in config.projects() {
         println!("  ✓ Generated {} ({}) structure", project.name(), project.language());
     }
 

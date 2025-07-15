@@ -1,5 +1,5 @@
 // start auto exported by saba.
 pub mod module_generator;
-pub mod cargo_handler;
+pub mod workspace_handler;
 // end auto exported by saba.
 
