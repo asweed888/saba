@@ -1,7 +1,6 @@
 // start auto exported by saba.
 mod project_management;
 mod code_generation;
-mod claude_code_integration;
 mod shared;
 mod cli;
 // end auto exported by saba.

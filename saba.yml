@@ -1,85 +1,56 @@
-lang: rust
-spec:
-- location: project_management
+- name: saba
+  root: true
+  lang: rust
+  codefile:
+    - name: main
   upstream:
-    - name: config
-      codefile:
-        - name: parser
-        - name: validator
-        - name: models
-    - name: repository
-      codefile:
-        - name: config_repository
-    - name: service
-      codefile:
-        - name: project_service
-
-- location: code_generation
-  upstream:
-    - name: core
-      codefile:
-        - name: generator
-        - name: file_builder
-        - name: directory_builder
-    - name: language
+    - name: src
       upstream:
-        - name: rust
-          codefile:
-            - name: module_generator
-            - name: cargo_handler
-        - name: go
-          codefile:
-            - name: package_generator
-            - name: mod_handler
-        - name: python
-          codefile:
-            - name: package_generator
-            - name: init_handler
-        - name: javascript
-          codefile:
-            - name: module_generator
-            - name: package_handler
-        - name: typescript
-          codefile:
-            - name: module_generator
-            - name: declaration_handler
-    - name: service
-      codefile:
-        - name: generation_service
-
-- location: claude_code_integration
-  upstream:
-    - name: api
-      codefile:
-        - name: tool_interface
-        - name: response_formatter
-    - name: analysis
-      codefile:
-        - name: project_analyzer
-        - name: suggestion_engine
-        - name: dependency_resolver
-    - name: service
-      codefile:
-        - name: claude_code_service
-
-- location: shared
-  upstream:
-    - name: error
-      codefile:
-        - name: error_types
-        - name: result_ext
-    - name: utils
-      codefile:
-        - name: file_utils
-        - name: path_utils
-
-- location: cli
-  upstream:
-    - name: command
-      codefile:
-        - name: new
-        - name: up
-        - name: analyze
-    - name: args
-      codefile:
-        - name: parser
+        - name: project_management
+          upstream:
+            - name: config
+              codefile:
+                - name: parser
+                - name: validator
+                - name: models
+        - name: code_generation
+          upstream:
+            - name: core
+              codefile:
+                - name: generator
+                - name: file_builder
+                - name: directory_builder
+            - name: language
+              upstream:
+                - name: rust
+                  codefile:
+                    - name: module_generator
+                    - name: cargo_handler
+                - name: go
+                  codefile:
+                    - name: package_generator
+                    - name: mod_handler
+                - name: python
+                  codefile:
+                    - name: package_generator
+                    - name: init_handler
+                - name: javascript
+                  codefile:
+                    - name: module_generator
+                    - name: package_handler
+                - name: typescript
+                  codefile:
+                    - name: module_generator
+        - name: shared
+          upstream:
+            - name: utils
+              codefile:
+                - name: content_updater
+            - name: error
+        - name: cli
+          upstream:
+            - name: command
+              codefile:
+                - name: new
+                - name: up
+                - name: guide
