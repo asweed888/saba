@@ -5,6 +5,7 @@ use crate::project_management::config::models::Project;
 use crate::code_generation::language::{
     rust::module_generator::RustModuleGenerator,
     rust::workspace_handler::WorkspaceHandler,
+    rust::cargo_handler::CargoHandler,
     typescript::module_generator::TypeScriptModuleGenerator,
     go::mod_handler::GoModuleHandler,
     python::init_handler::PythonInitHandler,
@@ -104,6 +105,9 @@ impl CodeGenerator {
         project: &Project,
     ) -> Result<()> {
         let project_path = project_path.as_ref();
+
+        // Generate Cargo.toml
+        CargoHandler::generate_cargo_toml(project_path, project)?;
 
         // Create src directory
         let src_path = project_path.join("src");
