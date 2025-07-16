@@ -27,8 +27,8 @@
                 - name: rust
                   codefile:
                     - name: module_generator
-                    - name: cargo_handler
                     - name: workspace_handler
+                    - name: cargo_handler
                 - name: go
                   codefile:
                     - name: package_generator
