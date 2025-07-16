@@ -73,9 +73,8 @@ impl RustModuleGenerator {
             module_declarations.push(format!("{}mod {};", visibility, submodule.name()));
         }
 
-        // Generate mod.rs if there are module declarations and this is not a src module
-        // (src modules use main.rs or lib.rs instead of mod.rs)
-        if !module_declarations.is_empty() && module.name() != "src" {
+        // Generate mod.rs for all modules except src (src modules use main.rs or lib.rs instead)
+        if module.name() != "src" {
             let mod_rs_path = module_path.join("mod.rs");
             ContentUpdater::update_rust_module_file(&mod_rs_path, &module_declarations, None)?;
         }

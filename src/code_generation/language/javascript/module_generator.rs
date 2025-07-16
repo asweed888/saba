@@ -68,11 +68,9 @@ impl JavaScriptModuleGenerator {
             export_declarations.push(format!("export * from './{}/index.js';", submodule.name()));
         }
 
-        // Generate index.js if there are export declarations
-        if !export_declarations.is_empty() {
-            let index_js_path = module_path.join("index.js");
-            ContentUpdater::update_js_index_file(&index_js_path, &export_declarations)?;
-        }
+        // Generate index.js for all modules
+        let index_js_path = module_path.join("index.js");
+        ContentUpdater::update_js_index_file(&index_js_path, &export_declarations)?;
 
         Ok(())
     }

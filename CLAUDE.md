@@ -219,6 +219,90 @@ The `filename_with_extension()` method in `CodeFile` implements extension priori
   - **Rust projects**: Generate with `src/` directory structure
   - **All other languages**: Generate with root-level file structure
 
+## File Protection System
+
+**CRITICAL**: The saba framework implements a three-tier file protection system to prevent code loss:
+
+### 1. Code Files (Complete Protection)
+- **Files**: `.rs`, `.go`, `.py`, `.js`, `.ts`, `.jsx`, `.tsx`, `.vue`, etc.
+- **Behavior**: Once created, these files are **never overwritten**
+- **Implementation**: Uses `if !file_path.exists()` checks before writing
+- **Purpose**: Protects developer's implementation code
+
+### 2. Management Files (Partial Updates)
+- **Files**: `mod.rs`, `lib.rs`, `main.rs`, `__init__.py`, `index.js`, `index.ts`
+- **Behavior**: Updates only the saba-managed sections between header/footer markers
+- **Implementation**: Uses `ContentUpdater` with regex pattern matching
+- **Headers/Footers**:
+  - Rust: `// start auto exported by saba.` ... `// end auto exported by saba.`
+  - Python: `# start auto exported by saba.` ... `# end auto exported by saba.`
+  - JS/TS: `// start auto exported by saba.` ... `// end auto exported by saba.`
+- **Purpose**: Allows saba to manage imports/exports while preserving custom code
+
+### 3. Project Configuration Files (Initial Creation Only)
+- **Files**: `package.json`, `tsconfig.json`, `Cargo.toml`, `go.mod`, `go.sum`, `requirements.txt`, `setup.py`
+- **Behavior**: Created only if they don't exist
+- **Implementation**: Uses `if !file_path.exists()` checks
+- **Purpose**: Prevents overwriting user's project configuration changes
+
+### Module Management Files Always Generate
+- **mod.rs** (Rust): Generated for all modules except `src`
+- **index.js/index.ts** (JS/TS): Generated for all modules
+- **__init__.py** (Python): Generated for all modules
+- **Purpose**: Ensures proper module structure even for empty directories
+
+## Git Commit Guidelines
+
+**IMPORTANT**: All commit messages must be written in Japanese.
+
+### Commit Message Format
+```
+<動作の概要>
+
+<詳細な説明>
+- 実装した機能や修正内容
+- 変更の理由や背景
+- 影響範囲
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>
+```
+
+### Examples
+```bash
+# 新機能追加
+git commit -m "ファイル保護システムの実装
+
+- 3層ファイル保護システムを追加
+- ContentUpdaterユーティリティで部分更新を実装
+- 既存コードの上書きを防ぐ仕組みを構築
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+# バグ修正
+git commit -m "mod.rsの空モジュール対応を修正
+
+- 空のモジュールでもmod.rsが生成されるように修正
+- v1仕様との互換性を確保
+- 全言語で管理ファイルが常に生成されるよう統一
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+```
+
+### Commit Types (Japanese)
+- `実装`: 新機能の実装
+- `修正`: バグ修正
+- `改善`: 既存機能の改良
+- `リファクタリング`: コード構造の改善
+- `テスト`: テストの追加・修正
+- `ドキュメント`: ドキュメントの更新
+- `設定`: 設定ファイルの変更
+
 ## Dependencies
 
 Key dependencies include:
@@ -226,5 +310,5 @@ Key dependencies include:
 - `anyhow`: Error handling
 - `askama`: Template engine
 - `inquire`: Interactive prompts
-- `regex`: Pattern matching
+- `regex`: Pattern matching (for ContentUpdater)
 - `yaml-rust`: YAML parsing

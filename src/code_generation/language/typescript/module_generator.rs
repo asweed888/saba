@@ -53,11 +53,9 @@ impl TypeScriptModuleGenerator {
             export_declarations.push(format!("export * from './{}';", submodule.name()));
         }
 
-        // Generate index.ts if there are export declarations
-        if !export_declarations.is_empty() {
-            let index_ts_path = module_path.join("index.ts");
-            ContentUpdater::update_js_index_file(&index_ts_path, &export_declarations)?;
-        }
+        // Generate index.ts for all modules
+        let index_ts_path = module_path.join("index.ts");
+        ContentUpdater::update_js_index_file(&index_ts_path, &export_declarations)?;
 
         Ok(())
     }
