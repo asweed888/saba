@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 The v2 implementation follows a clean architecture pattern:
 
 - **CLI Layer** (`src/cli/`): Command-line interface
-  - `command/new.rs`: Interactive project initialization
+  - `command/new.rs`: Project initialization with dual modes (interactive/AI)
   - `command/up.rs`: Code generation execution using CodeGenerator
   - `command/analyze.rs`: Project analysis features
 - **Code Generation Layer** (`src/code_generation/`): Core generation logic
@@ -46,8 +46,15 @@ cargo run -- <subcommand>
 
 ### Application Usage
 ```bash
-# Initialize new project with interactive prompts
+# Initialize new project with interactive language selection (Human mode)
 saba new
+
+# Initialize new project with specified language (AI mode)
+saba new --lang rust
+saba new --lang typescript
+saba new --lang go
+saba new --lang python
+saba new --lang javascript
 
 # Generate code from saba.yml specification
 saba up
@@ -129,7 +136,11 @@ Example:
 
 ## Code Generation Flow (v2)
 
-1. `saba new` creates a `saba.yml` specification file through interactive prompts
+1. `saba new` creates a `saba.yml` specification file:
+   - **Human Mode**: Interactive language selection prompts when no `--lang` option provided
+   - **AI Mode**: Direct language specification via `--lang` option
+   - **Project Naming**: Auto-generates sequential project names (`app_1`, `app_2`, etc.)
+   - **Multi-Project Support**: Automatically appends to existing `saba.yml` and removes `root: true` from previous projects
 2. `saba up` uses the unified `CodeGenerator` to process the specification:
    - **Single Project Mode**: `root: true` generates directly in the current directory
    - **Multi-Project Mode**: Creates separate directories for each project
@@ -195,6 +206,18 @@ The `filename_with_extension()` method in `CodeFile` implements extension priori
 - **Single Project** (`root: true`): Generates directly in current directory
 - **Multi-Project**: Creates separate subdirectories for each project
 - **Workspace Detection**: Automatically generates Rust workspace files when multiple Rust projects exist
+
+### saba new Command Features
+- **Dual Mode Operation**:
+  - `saba new` (no args): Interactive language selection for human users
+  - `saba new --lang <language>`: Direct language specification for AI automation
+- **Sequential Project Names**: Auto-generates `app_1`, `app_2`, `app_3`, etc.
+- **Smart Multi-Project Handling**:
+  - First project: Creates new `saba.yml` with `root: true`
+  - Subsequent projects: Appends to existing `saba.yml` and removes `root: true` from all projects
+- **Language Directory Structure**:
+  - **Rust projects**: Generate with `src/` directory structure
+  - **All other languages**: Generate with root-level file structure
 
 ## Dependencies
 

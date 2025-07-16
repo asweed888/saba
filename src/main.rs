@@ -30,8 +30,8 @@ fn main() -> anyhow::Result<()> {
         Some(("up", _)) => {
             command::up::action()
         }
-        Some(("new", _)) => {
-            command::new::action()
+        Some(("new", sub_matches)) => {
+            command::new::action(sub_matches)
         }
         _ => unreachable!()
     }
