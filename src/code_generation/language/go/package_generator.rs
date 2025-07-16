@@ -27,10 +27,12 @@ impl GoPackageGenerator {
             // Determine package name based on Go conventions
             let package_name = Self::get_package_name_for_module(&module.name, codefile.name());
             
-            // Create Go file with package declaration
-            let package_content = Self::generate_go_file_content(&package_name);
-            fs::write(&file_path, package_content)
-                .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            // Create Go file with package declaration (only if it doesn't exist)
+            if !file_path.exists() {
+                let package_content = Self::generate_go_file_content(&package_name);
+                fs::write(&file_path, package_content)
+                    .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            }
         }
 
         // Process submodules recursively
@@ -52,8 +54,11 @@ impl GoPackageGenerator {
         let go_mod_path = project_path.as_ref().join("go.mod");
         let go_mod_content = Self::generate_go_mod_content(project_name);
         
-        fs::write(&go_mod_path, go_mod_content)
-            .with_context(|| format!("Failed to create go.mod: {}", go_mod_path.display()))?;
+        // Only create go.mod if it doesn't already exist
+        if !go_mod_path.exists() {
+            fs::write(&go_mod_path, go_mod_content)
+                .with_context(|| format!("Failed to create go.mod: {}", go_mod_path.display()))?;
+        }
 
         Ok(())
     }
@@ -64,9 +69,11 @@ impl GoPackageGenerator {
     ) -> Result<()> {
         let go_sum_path = project_path.as_ref().join("go.sum");
         
-        // Create empty go.sum file
-        fs::write(&go_sum_path, "")
-            .with_context(|| format!("Failed to create go.sum: {}", go_sum_path.display()))?;
+        // Create empty go.sum file (only if it doesn't exist)
+        if !go_sum_path.exists() {
+            fs::write(&go_sum_path, "")
+                .with_context(|| format!("Failed to create go.sum: {}", go_sum_path.display()))?;
+        }
 
         Ok(())
     }
@@ -78,8 +85,11 @@ impl GoPackageGenerator {
         let main_go_path = project_path.as_ref().join("main.go");
         let main_content = Self::generate_main_go_content();
         
-        fs::write(&main_go_path, main_content)
-            .with_context(|| format!("Failed to create main.go: {}", main_go_path.display()))?;
+        // Only create main.go if it doesn't already exist
+        if !main_go_path.exists() {
+            fs::write(&main_go_path, main_content)
+                .with_context(|| format!("Failed to create main.go: {}", main_go_path.display()))?;
+        }
 
         Ok(())
     }

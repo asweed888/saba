@@ -114,13 +114,16 @@ impl CodeGenerator {
         fs::create_dir_all(&src_path)
             .with_context(|| format!("Failed to create src directory: {}", src_path.display()))?;
 
-        // Generate project-level code files
+        // Generate project-level code files (only if they don't exist)
         for codefile in project.files() {
             let filename = codefile.filename_with_extension("rust");
             let file_path = project_path.join(&filename);
             
-            fs::write(&file_path, "")
-                .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            // Only create file if it doesn't already exist
+            if !file_path.exists() {
+                fs::write(&file_path, "")
+                    .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            }
         }
 
         // Generate module structure
@@ -154,13 +157,16 @@ impl CodeGenerator {
         TypeScriptModuleGenerator::generate_package_json(project_path, project.name())?;
         TypeScriptModuleGenerator::generate_tsconfig_json(project_path)?;
 
-        // Generate project-level code files
+        // Generate project-level code files (only if they don't exist)
         for codefile in project.files() {
             let filename = codefile.filename_with_extension("typescript");
             let file_path = project_path.join(&filename);
             
-            fs::write(&file_path, "")
-                .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            // Only create file if it doesn't already exist
+            if !file_path.exists() {
+                fs::write(&file_path, "")
+                    .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            }
         }
 
         // Generate module structure

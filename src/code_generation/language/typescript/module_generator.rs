@@ -2,6 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 use crate::project_management::config::models::{Module, CodeFile, Project};
+use crate::shared::utils::content_updater::ContentUpdater;
 
 /// TypeScript-specific module generator
 pub struct TypeScriptModuleGenerator;
@@ -27,9 +28,11 @@ impl TypeScriptModuleGenerator {
             let filename = codefile.filename_with_extension("typescript");
             let file_path = module_path.join(&filename);
             
-            // Create empty TypeScript file
-            fs::write(&file_path, "")
-                .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            // Create empty TypeScript file (only if it doesn't exist)
+            if !file_path.exists() {
+                fs::write(&file_path, "")
+                    .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            }
 
             // Add to export declarations if it's not index.ts
             if filename != "index.ts" {
@@ -53,10 +56,7 @@ impl TypeScriptModuleGenerator {
         // Generate index.ts if there are export declarations
         if !export_declarations.is_empty() {
             let index_ts_path = module_path.join("index.ts");
-            let index_content = Self::generate_index_ts_content(&export_declarations);
-            
-            fs::write(&index_ts_path, index_content)
-                .with_context(|| format!("Failed to create index.ts: {}", index_ts_path.display()))?;
+            ContentUpdater::update_js_index_file(&index_ts_path, &export_declarations)?;
         }
 
         Ok(())
@@ -82,8 +82,11 @@ impl TypeScriptModuleGenerator {
         let package_json_path = project_path.as_ref().join("package.json");
         let package_content = Self::generate_package_json_content(project_name);
         
-        fs::write(&package_json_path, package_content)
-            .with_context(|| format!("Failed to create package.json: {}", package_json_path.display()))?;
+        // Only create package.json if it doesn't already exist
+        if !package_json_path.exists() {
+            fs::write(&package_json_path, package_content)
+                .with_context(|| format!("Failed to create package.json: {}", package_json_path.display()))?;
+        }
 
         Ok(())
     }
@@ -95,8 +98,11 @@ impl TypeScriptModuleGenerator {
         let tsconfig_path = project_path.as_ref().join("tsconfig.json");
         let tsconfig_content = Self::generate_tsconfig_content();
         
-        fs::write(&tsconfig_path, tsconfig_content)
-            .with_context(|| format!("Failed to create tsconfig.json: {}", tsconfig_path.display()))?;
+        // Only create tsconfig.json if it doesn't already exist
+        if !tsconfig_path.exists() {
+            fs::write(&tsconfig_path, tsconfig_content)
+                .with_context(|| format!("Failed to create tsconfig.json: {}", tsconfig_path.display()))?;
+        }
 
         Ok(())
     }

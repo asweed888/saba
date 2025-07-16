@@ -2,6 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 use crate::project_management::config::models::{Module, CodeFile, Project};
+use crate::shared::utils::content_updater::ContentUpdater;
 
 /// JavaScript-specific module generator
 pub struct JavaScriptModuleGenerator;
@@ -27,9 +28,11 @@ impl JavaScriptModuleGenerator {
             let filename = codefile.filename_with_extension("javascript");
             let file_path = module_path.join(&filename);
             
-            // Create empty JavaScript file
-            fs::write(&file_path, "")
-                .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            // Create empty JavaScript file (only if it doesn't exist)
+            if !file_path.exists() {
+                fs::write(&file_path, "")
+                    .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            }
 
             // Add to export declarations if it's not index.js
             if filename != "index.js" {
@@ -68,10 +71,7 @@ impl JavaScriptModuleGenerator {
         // Generate index.js if there are export declarations
         if !export_declarations.is_empty() {
             let index_js_path = module_path.join("index.js");
-            let index_content = Self::generate_index_js_content(&export_declarations);
-            
-            fs::write(&index_js_path, index_content)
-                .with_context(|| format!("Failed to create index.js: {}", index_js_path.display()))?;
+            ContentUpdater::update_js_index_file(&index_js_path, &export_declarations)?;
         }
 
         Ok(())
@@ -97,8 +97,11 @@ impl JavaScriptModuleGenerator {
         let package_json_path = project_path.as_ref().join("package.json");
         let package_content = Self::generate_package_json_content(project_name);
         
-        fs::write(&package_json_path, package_content)
-            .with_context(|| format!("Failed to create package.json: {}", package_json_path.display()))?;
+        // Only create package.json if it doesn't already exist
+        if !package_json_path.exists() {
+            fs::write(&package_json_path, package_content)
+                .with_context(|| format!("Failed to create package.json: {}", package_json_path.display()))?;
+        }
 
         Ok(())
     }
@@ -141,8 +144,11 @@ impl JavaScriptModuleGenerator {
         let index_js_path = project_path.as_ref().join("index.js");
         let index_content = Self::generate_main_index_js_content();
         
-        fs::write(&index_js_path, index_content)
-            .with_context(|| format!("Failed to create index.js: {}", index_js_path.display()))?;
+        // Create main index.js with simple content
+        if !index_js_path.exists() {
+            fs::write(&index_js_path, index_content)
+                .with_context(|| format!("Failed to create index.js: {}", index_js_path.display()))?;
+        }
 
         Ok(())
     }

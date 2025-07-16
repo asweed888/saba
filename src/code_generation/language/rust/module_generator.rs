@@ -2,6 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 use crate::project_management::config::models::{Module, CodeFile, Project};
+use crate::shared::utils::content_updater::ContentUpdater;
 
 /// Rust-specific module generator
 pub struct RustModuleGenerator;
@@ -46,9 +47,11 @@ impl RustModuleGenerator {
             let filename = codefile.filename_with_extension("rust");
             let file_path = module_path.join(&filename);
             
-            // Create empty Rust file
-            fs::write(&file_path, "")
-                .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            // Create empty Rust file (only if it doesn't exist)
+            if !file_path.exists() {
+                fs::write(&file_path, "")
+                    .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            }
 
             // Add to module declarations if it's not mod.rs
             if filename != "mod.rs" {
@@ -74,10 +77,7 @@ impl RustModuleGenerator {
         // (src modules use main.rs or lib.rs instead of mod.rs)
         if !module_declarations.is_empty() && module.name() != "src" {
             let mod_rs_path = module_path.join("mod.rs");
-            let mod_content = Self::generate_mod_rs_content(&module_declarations);
-            
-            fs::write(&mod_rs_path, mod_content)
-                .with_context(|| format!("Failed to create mod.rs: {}", mod_rs_path.display()))?;
+            ContentUpdater::update_rust_module_file(&mod_rs_path, &module_declarations, None)?;
         }
 
         Ok(())
@@ -111,10 +111,8 @@ impl RustModuleGenerator {
             }
         }
 
-        let main_content = Self::generate_main_rs_content(&module_declarations);
-        
-        fs::write(&main_rs_path, main_content)
-            .with_context(|| format!("Failed to create main.rs: {}", main_rs_path.display()))?;
+        let main_function = "fn main() {\n    println!(\"Hello, world!\");\n}";
+        ContentUpdater::update_rust_module_file(&main_rs_path, &module_declarations, Some(main_function))?;
 
         Ok(())
     }
@@ -147,10 +145,8 @@ impl RustModuleGenerator {
             }
         }
 
-        let lib_content = Self::generate_lib_rs_content(&module_declarations);
-        
-        fs::write(&lib_rs_path, lib_content)
-            .with_context(|| format!("Failed to create lib.rs: {}", lib_rs_path.display()))?;
+        let lib_comment = if module_declarations.is_empty() { Some("// Library root") } else { None };
+        ContentUpdater::update_rust_module_file(&lib_rs_path, &module_declarations, lib_comment)?;
 
         Ok(())
     }

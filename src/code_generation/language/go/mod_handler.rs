@@ -42,9 +42,12 @@ impl GoModuleHandler {
                 "main".to_string() // Most Go projects use main package for root level files
             };
             
-            let package_content = format!("package {}\n\n", package_name);
-            fs::write(&file_path, package_content)
-                .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            // Only create file if it doesn't already exist
+            if !file_path.exists() {
+                let package_content = format!("package {}\n\n", package_name);
+                fs::write(&file_path, package_content)
+                    .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            }
         }
         
         // Generate module structure

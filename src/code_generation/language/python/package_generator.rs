@@ -2,6 +2,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use anyhow::{Context, Result};
 use crate::project_management::config::models::{Module, CodeFile, Project};
+use crate::shared::utils::content_updater::ContentUpdater;
 
 /// Python-specific package generator
 pub struct PythonPackageGenerator;
@@ -27,9 +28,11 @@ impl PythonPackageGenerator {
             let filename = codefile.filename_with_extension("python");
             let file_path = module_path.join(&filename);
             
-            // Create empty Python file
-            fs::write(&file_path, "")
-                .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            // Create empty Python file (only if it doesn't exist)
+            if !file_path.exists() {
+                fs::write(&file_path, "")
+                    .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            }
 
             // Add to import statements if it's not __init__.py
             if filename != "__init__.py" {
@@ -49,19 +52,9 @@ impl PythonPackageGenerator {
             import_statements.push(format!("from .{} import *", submodule.name()));
         }
 
-        // Generate __init__.py if there are import statements
-        if !import_statements.is_empty() {
-            let init_py_path = module_path.join("__init__.py");
-            let init_content = Self::generate_init_py_content(&import_statements);
-            
-            fs::write(&init_py_path, init_content)
-                .with_context(|| format!("Failed to create __init__.py: {}", init_py_path.display()))?;
-        } else {
-            // Create empty __init__.py to mark as Python package
-            let init_py_path = module_path.join("__init__.py");
-            fs::write(&init_py_path, "")
-                .with_context(|| format!("Failed to create __init__.py: {}", init_py_path.display()))?;
-        }
+        // Generate __init__.py (always create to mark as Python package)
+        let init_py_path = module_path.join("__init__.py");
+        ContentUpdater::update_python_init_file(&init_py_path, &import_statements)?;
 
         Ok(())
     }
@@ -84,8 +77,11 @@ impl PythonPackageGenerator {
         let requirements_path = project_path.as_ref().join("requirements.txt");
         let requirements_content = Self::generate_requirements_content();
         
-        fs::write(&requirements_path, requirements_content)
-            .with_context(|| format!("Failed to create requirements.txt: {}", requirements_path.display()))?;
+        // Only create requirements.txt if it doesn't already exist
+        if !requirements_path.exists() {
+            fs::write(&requirements_path, requirements_content)
+                .with_context(|| format!("Failed to create requirements.txt: {}", requirements_path.display()))?;
+        }
 
         Ok(())
     }
@@ -98,8 +94,11 @@ impl PythonPackageGenerator {
         let setup_py_path = project_path.as_ref().join("setup.py");
         let setup_content = Self::generate_setup_py_content(project_name);
         
-        fs::write(&setup_py_path, setup_content)
-            .with_context(|| format!("Failed to create setup.py: {}", setup_py_path.display()))?;
+        // Only create setup.py if it doesn't already exist
+        if !setup_py_path.exists() {
+            fs::write(&setup_py_path, setup_content)
+                .with_context(|| format!("Failed to create setup.py: {}", setup_py_path.display()))?;
+        }
 
         Ok(())
     }
@@ -111,8 +110,11 @@ impl PythonPackageGenerator {
         let main_py_path = project_path.as_ref().join("main.py");
         let main_content = Self::generate_main_py_content();
         
-        fs::write(&main_py_path, main_content)
-            .with_context(|| format!("Failed to create main.py: {}", main_py_path.display()))?;
+        // Only create main.py if it doesn't already exist
+        if !main_py_path.exists() {
+            fs::write(&main_py_path, main_content)
+                .with_context(|| format!("Failed to create main.py: {}", main_py_path.display()))?;
+        }
 
         Ok(())
     }
