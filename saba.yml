@@ -13,6 +13,7 @@
                 - name: parser
                 - name: validator
                 - name: models
+
         - name: code_generation
           upstream:
             - name: core
@@ -20,12 +21,14 @@
                 - name: generator
                 - name: file_builder
                 - name: directory_builder
+
             - name: language
               upstream:
                 - name: rust
                   codefile:
                     - name: module_generator
                     - name: cargo_handler
+                    - name: workspace_handler
                 - name: go
                   codefile:
                     - name: package_generator
@@ -41,12 +44,13 @@
                 - name: typescript
                   codefile:
                     - name: module_generator
+
         - name: shared
           upstream:
             - name: utils
               codefile:
                 - name: content_updater
-            - name: error
+
         - name: cli
           upstream:
             - name: command
