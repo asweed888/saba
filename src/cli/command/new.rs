@@ -79,30 +79,61 @@ pub fn action(matches: &ArgMatches) -> Result<()> {
 fn generate_new_saba_yml(project_name: &str, language: &str) -> Result<String> {
     let main_file = get_main_file_name(language);
     
-    if language == "rust" {
-        // Rust uses src/ structure
-        Ok(format!(
-            r#"- name: {}
+    match language {
+        "rust" => {
+            // Rust standard: src/main.rs or src/lib.rs
+            Ok(format!(
+                r#"- name: {}
   root: true
   lang: {}
-  codefile:
-    - name: {}
   upstream:
     - name: src
+      codefile:
+        - name: {}
 "#,
-            project_name, language, main_file
-        ))
-    } else {
-        // Other languages use root-level structure
-        Ok(format!(
-            r#"- name: {}
+                project_name, language, main_file
+            ))
+        },
+        "go" => {
+            // Go standard: main.go at project root for simple projects
+            Ok(format!(
+                r#"- name: {}
   root: true
   lang: {}
   codefile:
     - name: {}
 "#,
-            project_name, language, main_file
-        ))
+                project_name, language, main_file
+            ))
+        },
+        "python" | "typescript" | "javascript" => {
+            // Modern standard: src/ directory structure
+            Ok(format!(
+                r#"- name: {}
+  root: true
+  lang: {}
+  upstream:
+    - name: src
+      codefile:
+        - name: {}
+"#,
+                project_name, language, main_file
+            ))
+        },
+        _ => {
+            // Default: src/ directory structure
+            Ok(format!(
+                r#"- name: {}
+  root: true
+  lang: {}
+  upstream:
+    - name: src
+      codefile:
+        - name: {}
+"#,
+                project_name, language, main_file
+            ))
+        }
     }
 }
 
@@ -116,30 +147,65 @@ fn append_to_existing_saba_yml(project_name: &str, language: &str) -> Result<()>
     
     // Generate new project YAML
     let main_file = get_main_file_name(language);
-    let new_project_yaml = if language == "rust" {
-        format!(
-            r#"
+    let new_project_yaml = match language {
+        "rust" => {
+            // Rust standard: src/main.rs or src/lib.rs
+            format!(
+                r#"
 
 - name: {}
   lang: {}
-  codefile:
-    - name: {}
   upstream:
     - name: src
+      codefile:
+        - name: {}
 "#,
-            project_name, language, main_file
-        )
-    } else {
-        format!(
-            r#"
+                project_name, language, main_file
+            )
+        },
+        "go" => {
+            // Go standard: main.go at project root for simple projects
+            format!(
+                r#"
 
 - name: {}
   lang: {}
   codefile:
     - name: {}
 "#,
-            project_name, language, main_file
-        )
+                project_name, language, main_file
+            )
+        },
+        "python" | "typescript" | "javascript" => {
+            // Modern standard: src/ directory structure
+            format!(
+                r#"
+
+- name: {}
+  lang: {}
+  upstream:
+    - name: src
+      codefile:
+        - name: {}
+"#,
+                project_name, language, main_file
+            )
+        },
+        _ => {
+            // Default: src/ directory structure
+            format!(
+                r#"
+
+- name: {}
+  lang: {}
+  upstream:
+    - name: src
+      codefile:
+        - name: {}
+"#,
+                project_name, language, main_file
+            )
+        }
     };
     
     // Combine and write back
