@@ -1,10 +1,10 @@
 - name: saba
   root: true
   lang: rust
-  codefile:
-    - name: main
   upstream:
     - name: src
+      codefile:
+        - name: main
       upstream:
         - name: project_management
           upstream:
