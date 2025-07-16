@@ -73,14 +73,22 @@ impl ContentUpdater {
             "// end auto exported by saba.",
         )?;
 
-        // Add additional content (like main function) if this is a new file
+        // Add additional content (like main function) only if this is a new file that didn't exist before
         if let Some(extra) = additional_content {
             let file_path = file_path.as_ref();
             let current_content = fs::read_to_string(file_path)
                 .with_context(|| format!("Failed to read file: {}", file_path.display()))?;
             
-            // Only add additional content if it's not already present
-            if !current_content.contains(extra.trim()) {
+            // Only add additional content if:
+            // 1. The file is essentially empty (only contains managed section)
+            // 2. The additional content is not already present
+            let is_essentially_empty = current_content.trim().lines()
+                .filter(|line| !line.trim().is_empty())
+                .all(|line| line.contains("start auto exported by saba") 
+                    || line.contains("end auto exported by saba")
+                    || line.trim().starts_with("mod "));
+            
+            if is_essentially_empty && !current_content.contains(extra.trim()) {
                 let updated_content = format!("{}{}\n", current_content, extra);
                 fs::write(file_path, updated_content)
                     .with_context(|| format!("Failed to write file: {}", file_path.display()))?;

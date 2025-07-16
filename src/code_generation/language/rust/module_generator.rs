@@ -110,8 +110,7 @@ impl RustModuleGenerator {
             }
         }
 
-        let main_function = "fn main() {\n    println!(\"Hello, world!\");\n}";
-        ContentUpdater::update_rust_module_file(&main_rs_path, &module_declarations, Some(main_function))?;
+        ContentUpdater::update_rust_module_file(&main_rs_path, &module_declarations, None)?;
 
         Ok(())
     }
@@ -144,8 +143,7 @@ impl RustModuleGenerator {
             }
         }
 
-        let lib_comment = if module_declarations.is_empty() { Some("// Library root") } else { None };
-        ContentUpdater::update_rust_module_file(&lib_rs_path, &module_declarations, lib_comment)?;
+        ContentUpdater::update_rust_module_file(&lib_rs_path, &module_declarations, None)?;
 
         Ok(())
     }
