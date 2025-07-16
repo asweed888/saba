@@ -85,10 +85,10 @@ fn generate_new_saba_yml(project_name: &str, language: &str) -> Result<String> {
             r#"- name: {}
   root: true
   lang: {}
-  upstream:
-    - name: src
   codefile:
     - name: {}
+  upstream:
+    - name: src
 "#,
             project_name, language, main_file
         ))
@@ -122,10 +122,10 @@ fn append_to_existing_saba_yml(project_name: &str, language: &str) -> Result<()>
 
 - name: {}
   lang: {}
-  upstream:
-    - name: src
   codefile:
     - name: {}
+  upstream:
+    - name: src
 "#,
             project_name, language, main_file
         )
