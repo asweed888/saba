@@ -5,7 +5,28 @@ use crate::code_generation::core::generator::CodeGenerator;
 
 pub fn spec() -> Command {
     Command::new("up")
-        .about("Generate code structure from saba.yml")
+        .about("Generate project structure from saba.yml configuration")
+        .long_about(
+            "Generate complete project structures from saba.yml specification. \
+            Supports both single-project and multi-project configurations.\n\
+            \n\
+            Single Project Mode:\n  \
+            Projects with 'root: true' generate directly in the current directory\n\
+            \n\
+            Multi-Project Mode:\n  \
+            Creates separate directories for each project with workspace support\n\
+            \n\
+            Features:\n\
+            • Multi-language support: Rust, Go, Python, TypeScript, JavaScript\n\
+            • Language-specific project files (Cargo.toml, package.json, go.mod, etc.)\n\
+            • Intelligent module structure with barrel exports/imports\n\
+            • Workspace management for Rust multi-project setups\n\
+            • File extension preservation (.tsx, .jsx, .vue, etc.)\n\
+            \n\
+            Prerequisites:\n\
+            • saba.yml must exist (create with 'saba new')\n\
+            • Valid YAML configuration with supported languages"
+        )
 }
 
 pub fn action() -> anyhow::Result<()> {

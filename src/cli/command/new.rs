@@ -5,12 +5,33 @@ use std::fs;
 
 pub fn spec() -> Command {
     Command::new("new")
-        .about("Initialize a new project with saba.yml")
+        .about("Initialize a new project with saba.yml configuration")
+        .long_about(
+            "Initialize a new project by creating or updating saba.yml. \
+            Supports two modes:\n\
+            \n\
+            Human Mode (Interactive):\n  \
+            saba new  # Prompts for language selection\n\
+            \n\
+            AI Mode (Direct):\n  \
+            saba new --lang rust  # Direct language specification\n\
+            \n\
+            Features:\n\
+            • Auto-generates sequential project names (app_1, app_2, etc.)\n\
+            • Smart multi-project handling (removes root: true from existing projects)\n\
+            • Language-specific directory structures (Rust uses src/, others use root-level)\n\
+            • Supports: rust, go, python, typescript, javascript"
+        )
         .arg(
             Arg::new("lang")
                 .short('l')
                 .long("lang")
-                .help("Programming language (rust, go, python, typescript, javascript) - AI feature")
+                .help("Programming language for direct specification (AI mode)")
+                .long_help(
+                    "Specify the programming language directly without interactive prompts. \
+                    Supported languages: rust, go, python, typescript, javascript. \
+                    When omitted, enters interactive mode for human users."
+                )
                 .value_name("LANGUAGE")
                 .required(false)
         )
