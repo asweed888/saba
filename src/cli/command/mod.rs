@@ -2,5 +2,6 @@
 pub mod new;
 pub mod up;
 pub mod analyze;
+pub mod guide;
 // end auto exported by saba.
 

@@ -29,6 +29,9 @@ fn main() -> anyhow::Result<()> {
         .subcommand(
             command::new::spec()
         )
+        .subcommand(
+            command::guide::spec()
+        )
         .version(version)
         .get_matches();
 
@@ -38,6 +41,9 @@ fn main() -> anyhow::Result<()> {
         }
         Some(("new", sub_matches)) => {
             command::new::action(sub_matches)
+        }
+        Some(("guide", _)) => {
+            command::guide::action()
         }
         _ => unreachable!()
     }
