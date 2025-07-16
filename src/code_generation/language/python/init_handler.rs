@@ -35,9 +35,11 @@ impl PythonInitHandler {
             let filename = codefile.filename_with_extension("python");
             let file_path = project_path.join(&filename);
             
-            // Create empty Python file
-            fs::write(&file_path, "")
-                .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            // Create empty Python file (only if it doesn't exist)
+            if !file_path.exists() {
+                fs::write(&file_path, "")
+                    .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            }
         }
         
         // Generate module structure

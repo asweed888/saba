@@ -32,9 +32,11 @@ impl JavaScriptPackageHandler {
             let filename = codefile.filename_with_extension("javascript");
             let file_path = project_path.join(&filename);
             
-            // Create empty JavaScript file
-            fs::write(&file_path, "")
-                .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            // Create empty JavaScript file (only if it doesn't exist)
+            if !file_path.exists() {
+                fs::write(&file_path, "")
+                    .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
+            }
         }
         
         // Generate module structure

@@ -15,8 +15,11 @@ impl CargoHandler {
         let cargo_toml_path = project_path.as_ref().join("Cargo.toml");
         let cargo_content = Self::generate_cargo_toml_content(project);
         
-        fs::write(&cargo_toml_path, cargo_content)
-            .with_context(|| format!("Failed to create Cargo.toml: {}", cargo_toml_path.display()))?;
+        // Only create Cargo.toml if it doesn't already exist
+        if !cargo_toml_path.exists() {
+            fs::write(&cargo_toml_path, cargo_content)
+                .with_context(|| format!("Failed to create Cargo.toml: {}", cargo_toml_path.display()))?;
+        }
 
         Ok(())
     }
