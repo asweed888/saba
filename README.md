@@ -1,14 +1,14 @@
 # saba
 
-`saba`は、YAML仕様からコードを生成する宣言的開発フレームワークです。複数のプログラミング言語をサポートし、オニオンアーキテクチャによるドメイン駆動設計（DDD）の原則に従います。
+`saba`は、YAML仕様からコードを生成する宣言的開発フレームワークです。複数のプログラミング言語をサポートし、シンプルなYAML設定で効率的なプロジェクト構造を生成します。
 
 ## 特徴
 
 - **宣言的開発**: シンプルなYAMLファイルでプロジェクト構造を定義
-- **マルチ言語サポート**: Rust、Go、Python、TypeScript、Bash、Lua
-- **DDDアーキテクチャ**: オニオンアーキテクチャによるオプションのドメイン駆動設計
-- **対話的セットアップ**: ガイド付きプロジェクト初期化
-- **テンプレートベース生成**: テンプレートを使用した柔軟なコード生成
+- **マルチ言語サポート**: Rust、Go、Python、TypeScript、JavaScript
+- **デュアルモード**: インタラクティブな手動選択とAI向け自動化の両方に対応
+- **マルチプロジェクト**: 単一設定ファイルで複数のプロジェクトを管理
+- **ファイル保護**: 既存コードを保護しながら構造管理を実現
 
 ## インストール
 
@@ -27,12 +27,21 @@ saba_install
 ## クイックスタート
 
 1. **新しいプロジェクトの初期化**:
+   
+   **人間向けモード（インタラクティブ）**:
    ```bash
    saba new
    ```
-   以下の選択肢が表示されます:
-   - プログラミング言語 (rust, go, python, typescript, bash, lua)
-   - DDDアーキテクチャを使用するかどうか（対応言語の場合）
+   対話的な言語選択プロンプトが表示されます
+   
+   **AI向けモード（自動化）**:
+   ```bash
+   saba new --lang rust
+   saba new --lang typescript
+   saba new --lang go
+   saba new --lang python
+   saba new --lang javascript
+   ```
 
 2. **仕様からコードを生成**:
    ```bash
@@ -44,98 +53,123 @@ saba_install
 `saba.yml`ファイルでプロジェクト構造を定義します:
 
 ```yaml
-lang: rust
-arch: ddd
-spec:
-- location: domain
+- name: my-app
+  root: true
+  lang: typescript
   upstream:
-    - name: model
+    - name: src
       upstream:
-        - name: fish
+        - name: components
           codefile:
-            - name: entity
-    - name: repository
+            - name: Button.tsx
+            - name: Modal.vue
+            - name: utils
       codefile:
-        - name: fish
-
-- location: infrastructure
-  upstream:
-    - name: repository
-      codefile:
-        - name: fish
-
-- location: usecase
-  codefile:
-    - name: fish
-
-- location: presentation
-  upstream:
-    - name: http
-      upstream:
-        - name: handler
-          codefile:
-            - name: aquarium
+        - name: index
 ```
 
 ### 設定オプション
 
-- **`lang`**: 対象プログラミング言語 (`rust`, `go`, `python`, `typescript`, `bash`, `lua`)
-- **`arch`**: アーキテクチャタイプ (`ddd` はドメイン駆動設計用)
-- **`spec`**: プロジェクト構造定義
-  - **`location`**: トップレベルディレクトリ/モジュール
-  - **`upstream`**: サブモジュールやネストした構造
-  - **`codefile`**: 生成する個別ファイル
+- **`name`**: プロジェクト名
+- **`root`**: ルートプロジェクトかどうか（`true`の場合、現在のディレクトリに直接生成）
+- **`lang`**: 対象プログラミング言語 (`rust`, `go`, `python`, `typescript`, `javascript`)
+- **`upstream`**: サブモジュールやネストした構造
+- **`codefile`**: 生成する個別ファイル（拡張子があれば保持、なければ言語に応じて付与）
 
-### アーキテクチャタイプ
+### マルチプロジェクト構成
 
-#### DDD（ドメイン駆動設計）
-レイヤーを分離したクリーンアーキテクチャを生成:
-- `domain`: コアビジネスロジックとエンティティ
-- `infrastructure`: 外部関心事（データベース、API）
-- `usecase`: アプリケーションビジネスロジック
-- `presentation`: ユーザーインターフェースとコントローラー
+複数のプロジェクトを1つの`saba.yml`で管理できます:
 
-#### シンプル（非DDD）
-基本構造を生成:
-- `greeter`: アビリティトレイトファイルを含むシンプルなモジュール
+```yaml
+- name: frontend
+  lang: typescript
+  upstream:
+    - name: src
+      upstream:
+        - name: components
+          codefile:
+            - name: App.tsx
+
+- name: backend  
+  lang: rust
+  upstream:
+    - name: src
+      codefile:
+        - name: main
+      upstream:
+        - name: handlers
+          codefile:
+            - name: user
+```
+
+- 最初のプロジェクトには`root: true`が自動設定
+- 2つ目以降のプロジェクトは個別ディレクトリに生成
+- Rustの場合、複数プロジェクトでワークスペース構成を自動生成
 
 ## コマンド
 
 - `saba new`: 対話的プロンプトで新しいプロジェクトを初期化
+- `saba new --lang <言語>`: 指定言語で新しいプロジェクトを初期化（AI向け）
 - `saba up`: 現在の`saba.yml`仕様に基づいてコードを生成
+- `saba guide`: Claude Code向けの包括的使用ガイドを表示
 - `saba --help`: ヘルプ情報を表示
 - `saba --version`: バージョン情報を表示
 
 ## 例
 
-### Rust DDDプロジェクト
+### Rustプロジェクト
 ```yaml
-lang: rust
-arch: ddd
-spec:
-- location: domain
+- name: my-rust-app
+  root: true
+  lang: rust
   upstream:
-    - name: model
-      upstream:
-        - name: user
-          codefile:
-            - name: entity
-        - name: order
-          codefile:
-            - name: entity
-    - name: repository
+    - name: src
       codefile:
-        - name: user
-        - name: order
+        - name: main
+      upstream:
+        - name: handlers
+          codefile:
+            - name: user
+            - name: order
+        - name: models
+          codefile:
+            - name: user
+            - name: order
 ```
 
-### シンプルなPythonプロジェクト
+### TypeScriptプロジェクト
 ```yaml
-lang: python
-spec:
-- location: greeter
+- name: my-web-app
+  root: true
+  lang: typescript
+  upstream:
+    - name: src
+      upstream:
+        - name: components
+          codefile:
+            - name: Button.tsx
+            - name: Modal.vue
+            - name: utils.ts
+      codefile:
+        - name: index
+```
+
+### Goプロジェクト
+```yaml
+- name: my-go-app
+  root: true
+  lang: go
+  upstream:
+    - name: pkg
+      upstream:
+        - name: models
+          codefile:
+            - name: user
+        - name: handlers
+          codefile:
+            - name: api
   codefile:
-    - name: abils
+    - name: main
 ```
 
 ## 開発
@@ -155,6 +189,29 @@ cargo run -- new
 cargo run -- up
 ```
 
+## ファイル保護システム
+
+sabaは3層のファイル保護システムを実装しています:
+
+1. **コードファイル（完全保護）**: `.rs`, `.go`, `.py`, `.js`, `.ts`, `.tsx`, `.vue`等
+   - 一度作成されたら決して上書きされません
+   
+2. **管理ファイル（部分更新）**: `mod.rs`, `__init__.py`, `index.ts`等
+   - sabaマーカー間のコンテンツのみ更新、カスタムコードは保護
+   
+3. **設定ファイル（初回のみ）**: `package.json`, `Cargo.toml`, `go.mod`等
+   - 存在しない場合のみ作成
+
+## バージョン
+
+現在のバージョン: **v2.0.2**
+
+v2.0では以下の重要な変更が行われました:
+- シンプルで直感的なYAML構造に変更
+- マルチプロジェクト対応
+- ファイル保護システムの実装
+- AI向け自動化機能の追加
+
 ## ライセンス
 
-このプロジェクトは現在活発に開発中で、まだv1.0に達していません。フレームワークの進化に伴い、APIや機能が変更される可能性があります。
+このプロジェクトはv2.0に達し、安定したAPIを提供しています。
