@@ -61,9 +61,9 @@ impl ContentUpdater {
         additional_content: Option<&str>,
     ) -> Result<()> {
         let managed_content = if module_declarations.is_empty() {
-            "\n".to_string()
+            "".to_string()
         } else {
-            format!("\n{}\n", module_declarations.join("\n"))
+            module_declarations.join("\n")
         };
 
         Self::update_managed_section(
@@ -104,9 +104,9 @@ impl ContentUpdater {
         import_statements: &[String],
     ) -> Result<()> {
         let managed_content = if import_statements.is_empty() {
-            "\n".to_string()
+            "".to_string()
         } else {
-            format!("\n{}\n", import_statements.join("\n"))
+            import_statements.join("\n")
         };
 
         Self::update_managed_section(
@@ -123,9 +123,9 @@ impl ContentUpdater {
         export_statements: &[String],
     ) -> Result<()> {
         let managed_content = if export_statements.is_empty() {
-            "\n".to_string()
+            "".to_string()
         } else {
-            format!("\n{}\n", export_statements.join("\n"))
+            export_statements.join("\n")
         };
 
         Self::update_managed_section(
