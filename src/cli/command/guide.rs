@@ -17,8 +17,9 @@ pub fn action() -> Result<()> {
 }
 
 fn print_saba_guide() {
+    let version = env!("CARGO_PKG_VERSION");
     println!(r#"
-# Saba v2.0 Guide for Claude Code
+# Saba v{} Guide for Claude Code
 
 ## Overview
 Saba is a declarative development framework that generates multi-language project structures from YAML specifications.
@@ -456,5 +457,5 @@ saba up                     # Generates all projects with workspace
 ```
 
 This guide covers all essential aspects of using saba effectively for multi-language project generation.
-"#);
+"#, version);
 }

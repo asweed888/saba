@@ -15,7 +15,7 @@ fn main() -> anyhow::Result<()> {
     let version = env!("CARGO_PKG_VERSION");
 
     let matches = Command::new("saba")
-        .about("Saba v2.0 - A declarative development framework for multi-language project generation")
+        .about(&format!("Saba v{} - A declarative development framework for multi-language project generation", version))
         .long_about(
             "Saba is a declarative development framework that generates project structures \
             from YAML specifications. It supports Rust, Go, Python, TypeScript, and JavaScript \
