@@ -39,11 +39,11 @@ impl ContentUpdater {
             // Replace existing managed section
             regex.replace(&existing_content, new_section.as_str()).to_string()
         } else {
-            // Append new managed section (file doesn't have managed section yet)
+            // Prepend new managed section (file doesn't have managed section yet)
             if existing_content.is_empty() {
                 format!("{}\n\n", new_section)
             } else {
-                format!("{}\n{}\n\n", existing_content.trim(), new_section)
+                format!("{}\n\n{}", new_section, existing_content.trim())
             }
         };
 
