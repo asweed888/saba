@@ -135,4 +135,52 @@ impl ContentUpdater {
             "// end auto exported by saba.",
         )
     }
+
+    /// Update content between header and footer markers, appending managed section at the end
+    /// This is specifically designed for markdown files where table of contents should come after content
+    pub fn append_managed_section<P: AsRef<Path>>(
+        file_path: P,
+        new_managed_content: &str,
+        header: &str,
+        footer: &str,
+    ) -> Result<()> {
+        let file_path = file_path.as_ref();
+        
+        // Read existing content if file exists
+        let existing_content = if file_path.exists() {
+            fs::read_to_string(file_path)
+                .with_context(|| format!("Failed to read file: {}", file_path.display()))?
+        } else {
+            String::new()
+        };
+
+        // Create regex pattern to match header...footer section
+        let escaped_header = regex::escape(header);
+        let escaped_footer = regex::escape(footer);
+        let pattern = format!(r"{}[\s\S]*{}", escaped_header, escaped_footer);
+        let regex = Regex::new(&pattern)
+            .with_context(|| "Failed to create regex pattern")?;
+
+        // Create new managed section
+        let new_section = format!("{}{}\n{}", header, new_managed_content, footer);
+
+        // Replace or append the managed section
+        let updated_content = if regex.is_match(&existing_content) {
+            // Replace existing managed section
+            regex.replace(&existing_content, new_section.as_str()).to_string()
+        } else {
+            // Append new managed section at the end (for markdown files)
+            if existing_content.is_empty() {
+                format!("{}\n\n", new_section)
+            } else {
+                format!("{}\n{}", existing_content.trim(), new_section)
+            }
+        };
+
+        // Write updated content
+        fs::write(file_path, updated_content)
+            .with_context(|| format!("Failed to write file: {}", file_path.display()))?;
+
+        Ok(())
+    }
 }

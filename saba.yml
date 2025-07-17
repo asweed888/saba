@@ -44,6 +44,10 @@
                 - name: typescript
                   codefile:
                     - name: module_generator
+                - name: markdown
+                  codefile:
+                    - name: document_generator
+                    - name: template_handler
 
         - name: shared
           upstream:

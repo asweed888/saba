@@ -10,6 +10,7 @@ use crate::code_generation::language::{
     go::mod_handler::GoModuleHandler,
     python::init_handler::PythonInitHandler,
     javascript::package_handler::JavaScriptPackageHandler,
+    markdown::template_handler::MarkdownTemplateHandler,
 };
 use crate::project_management::config::models::SabaConfig;
 
@@ -56,6 +57,7 @@ impl CodeGenerator {
             "go" => Self::generate_go_project(output_path, project),
             "python" => Self::generate_python_project(output_path, project),
             "javascript" => Self::generate_javascript_project(output_path, project),
+            "markdown" => Self::generate_markdown_project(output_path, project),
             lang => Err(anyhow!("Unsupported language: {}", lang)),
         }
     }
@@ -92,6 +94,7 @@ impl CodeGenerator {
                 "go" => Self::generate_go_project(&project_path, project),
                 "python" => Self::generate_python_project(&project_path, project),
                 "javascript" => Self::generate_javascript_project(&project_path, project),
+                "markdown" => Self::generate_markdown_project(&project_path, project),
                 lang => Err(anyhow!("Unsupported language: {}", lang)),
             }?;
         }
@@ -199,5 +202,13 @@ impl CodeGenerator {
         project: &Project,
     ) -> Result<()> {
         JavaScriptPackageHandler::generate_project(project_path, project)
+    }
+
+    /// Generate Markdown project
+    fn generate_markdown_project<P: AsRef<Path>>(
+        project_path: P,
+        project: &Project,
+    ) -> Result<()> {
+        MarkdownTemplateHandler::generate_project(project_path, project)
     }
 }

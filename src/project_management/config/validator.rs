@@ -164,7 +164,7 @@ impl ConfigValidator {
 
     /// Check if language is supported
     fn is_supported_language(lang: &str) -> bool {
-        matches!(lang, "rust" | "go" | "python" | "javascript" | "typescript" | "bash" | "lua")
+        matches!(lang, "rust" | "go" | "python" | "javascript" | "typescript" | "markdown" | "bash" | "lua")
     }
 }
 
