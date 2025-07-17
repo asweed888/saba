@@ -140,6 +140,7 @@ impl CodeFile {
                 "python" => "py",
                 "javascript" => "js",
                 "typescript" => "ts",
+                "markdown" => "md",
                 _ => "txt", // fallback
             };
             format!("{}.{}", self.name, extension)

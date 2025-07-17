@@ -20,7 +20,7 @@ pub fn spec() -> Command {
             • Auto-generates sequential project names (app_1, app_2, etc.)\n\
             • Smart multi-project handling (removes root: true from existing projects)\n\
             • Language-specific directory structures (Rust uses src/, others use root-level)\n\
-            • Supports: rust, go, python, typescript, javascript"
+            • Supports: rust, go, python, typescript, javascript, markdown"
         )
         .arg(
             Arg::new("lang")
@@ -29,7 +29,7 @@ pub fn spec() -> Command {
                 .help("Programming language for direct specification (AI mode)")
                 .long_help(
                     "Specify the programming language directly without interactive prompts. \
-                    Supported languages: rust, go, python, typescript, javascript. \
+                    Supported languages: rust, go, python, typescript, javascript, markdown. \
                     When omitted, enters interactive mode for human users."
                 )
                 .value_name("LANGUAGE")
@@ -40,14 +40,14 @@ pub fn spec() -> Command {
 pub fn action(matches: &ArgMatches) -> Result<()> {
     let language = if let Some(lang) = matches.get_one::<String>("lang") {
         // AI mode - language specified via --lang option
-        let supported_languages = ["rust", "go", "python", "typescript", "javascript"];
+        let supported_languages = ["rust", "go", "python", "typescript", "javascript", "markdown"];
         if !supported_languages.contains(&lang.as_str()) {
             bail!("Unsupported language: {}. Supported languages: {}", lang, supported_languages.join(", "));
         }
         lang.clone()
     } else {
         // Human mode - interactive language selection
-        let languages = vec!["rust", "go", "python", "typescript", "javascript"];
+        let languages = vec!["rust", "go", "python", "typescript", "javascript", "markdown"];
         Select::new("Programming language:", languages)
             .prompt()
             .context("Failed to get programming language")?.
@@ -116,6 +116,18 @@ fn generate_new_saba_yml(project_name: &str, language: &str) -> Result<String> {
     - name: src
       codefile:
         - name: {}
+"#,
+                project_name, language, main_file
+            ))
+        },
+        "markdown" => {
+            // Markdown standard: root-level files
+            Ok(format!(
+                r#"- name: {}
+  root: true
+  lang: {}
+  codefile:
+    - name: {}
 "#,
                 project_name, language, main_file
             ))
@@ -191,6 +203,19 @@ fn append_to_existing_saba_yml(project_name: &str, language: &str) -> Result<()>
                 project_name, language, main_file
             )
         },
+        "markdown" => {
+            // Markdown standard: root-level files
+            format!(
+                r#"
+
+- name: {}
+  lang: {}
+  codefile:
+    - name: {}
+"#,
+                project_name, language, main_file
+            )
+        },
         _ => {
             // Default: src/ directory structure
             format!(
@@ -246,6 +271,7 @@ fn get_main_file_name(language: &str) -> &str {
         "python" => "main",
         "typescript" => "index",
         "javascript" => "index",
+        "markdown" => "README",
         _ => "main",
     }
 }
