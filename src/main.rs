@@ -1,19 +1,27 @@
 // start auto exported by saba.
-mod domain;
-mod infrastructure;
-mod presentation;
-mod usecase;
+
+mod project_management;
+mod code_generation;
+mod shared;
+mod cli;
+
 // end auto exported by saba.
 
 use clap::Command;
-use crate::presentation::command;
+use crate::cli::command;
 
 fn main() -> anyhow::Result<()> {
 
     let version = env!("CARGO_PKG_VERSION");
 
     let matches = Command::new("saba")
-        .about("This is a very simple declarative development framework.")
+        .about(&format!("Saba v{} - A declarative development framework for multi-language project generation", version))
+        .long_about(
+            "Saba is a declarative development framework that generates project structures \
+            from YAML specifications. It supports Rust, Go, Python, TypeScript, and JavaScript \
+            with intelligent project structure generation, workspace management, and \
+            language-specific configurations."
+        )
         .subcommand_required(true)
         .arg_required_else_help(true)
         .subcommand(
@@ -22,6 +30,9 @@ fn main() -> anyhow::Result<()> {
         .subcommand(
             command::new::spec()
         )
+        .subcommand(
+            command::guide::spec()
+        )
         .version(version)
         .get_matches();
 
@@ -29,8 +40,11 @@ fn main() -> anyhow::Result<()> {
         Some(("up", _)) => {
             command::up::action()
         }
-        Some(("new", _)) => {
-            command::new::action()
+        Some(("new", sub_matches)) => {
+            command::new::action(sub_matches)
+        }
+        Some(("guide", _)) => {
+            command::guide::action()
         }
         _ => unreachable!()
     }

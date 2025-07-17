@@ -1,63 +1,60 @@
-lang: rust
-arch: ddd
-spec:
-- location: domain
+- name: saba
+  root: true
+  lang: rust
   upstream:
-    - name: model
+    - name: src
       codefile:
-        - name: manifest
-
-
-- location: infrastructure
-  upstream:
-    - name: filesystem
-      codefile:
-        - name: manifest
-
-
-- location: usecase
-  upstream:
-    - name: gen_file
+        - name: main
       upstream:
-        - name: utils
-          codefile:
-            - name: template
-        - name: manifest
-          codefile:
-            - name: template
-        - name: codefile
-          codefile:
-            - name: act
-        - name: rust
-          codefile:
-            - name: template
-            - name: gen_file
-            - name: modblock
+        - name: project_management
+          upstream:
+            - name: config
+              codefile:
+                - name: parser
+                - name: validator
+                - name: models
+
+        - name: code_generation
+          upstream:
+            - name: core
+              codefile:
+                - name: generator
+                - name: file_builder
+                - name: directory_builder
+
+            - name: language
+              upstream:
+                - name: rust
+                  codefile:
+                    - name: module_generator
+                    - name: workspace_handler
+                    - name: cargo_handler
+                - name: go
+                  codefile:
+                    - name: package_generator
+                    - name: mod_handler
+                - name: python
+                  codefile:
+                    - name: package_generator
+                    - name: init_handler
+                - name: javascript
+                  codefile:
+                    - name: module_generator
+                    - name: package_handler
+                - name: typescript
+                  codefile:
+                    - name: module_generator
+
+        - name: shared
+          upstream:
             - name: utils
-        - name: golang
-          codefile:
-            - name: template
-            - name: gen_file
-        - name: python
-          codefile:
-            - name: template
-            - name: gen_file
-        - name: typescript
-          codefile:
-            - name: template
-            - name: gen_file
-        - name: bash
-          codefile:
-            - name: gen_file
-        - name: lua
-          codefile:
-            - name: gen_file
+              codefile:
+                - name: content_updater
 
-
-- location: presentation
-  upstream:
-    - name: command
-      codefile:
-        - name: new
-        - name: up
-
+        - name: cli
+          upstream:
+            - name: command
+              codefile:
+                - name: new
+                - name: up
+                - name: guide

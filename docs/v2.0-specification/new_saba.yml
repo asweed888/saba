@@ -1,0 +1,42 @@
+# シングルプロジェクトの例
+- name: app
+  root: true
+  lang: rust
+  upstream:
+    - name: src
+      upstream:
+        - name: users
+          upstream:
+            - name: domain
+              codefile:
+                - name: model
+                  pub: yes
+                - name: repository
+                  pub: crate
+
+
+# マルチプロジェクトの例
+- name: backend
+  lang: rust
+  upstream:
+    - name: src
+      upstream:
+        - name: users
+          upstream:
+            - name: domain
+              codefile:
+                - name: model
+                  pub: yes
+                - name: repository
+                  pub: super
+
+
+- name: frontend
+  lang: javascript
+  upstream:
+    - name: src
+      upstream:
+        - name: components
+          codefile:
+            - name: button.vue
+
