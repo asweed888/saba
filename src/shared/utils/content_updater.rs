@@ -183,4 +183,60 @@ impl ContentUpdater {
 
         Ok(())
     }
+
+    /// Update workspace Cargo.toml members section while preserving other settings
+    pub fn update_workspace_cargo_toml<P: AsRef<Path>>(
+        file_path: P,
+        members: &[String],
+    ) -> Result<()> {
+        let file_path = file_path.as_ref();
+        
+        // Read existing content if file exists
+        let existing_content = if file_path.exists() {
+            fs::read_to_string(file_path)
+                .with_context(|| format!("Failed to read file: {}", file_path.display()))?
+        } else {
+            // Create initial content with basic workspace structure
+            format!(
+                r#"[workspace]
+resolver = "2"
+members = []
+
+[workspace.dependencies]
+"#
+            )
+        };
+
+        // Create members list content
+        let members_content = if members.is_empty() {
+            "members = []".to_string()
+        } else {
+            format!(
+                "members = [\n    {}\n]",
+                members.iter()
+                    .map(|m| format!("\"{}\"", m))
+                    .collect::<Vec<_>>()
+                    .join(",\n    ")
+            )
+        };
+
+        // Update members section using regex
+        let members_pattern = r"members\s*=\s*\[[^\]]*\]";
+        let members_regex = Regex::new(members_pattern)
+            .with_context(|| "Failed to create members regex pattern")?;
+
+        let updated_content = if members_regex.is_match(&existing_content) {
+            // Replace existing members section
+            members_regex.replace(&existing_content, members_content.as_str()).to_string()
+        } else {
+            // This shouldn't happen if we initialize with basic structure above
+            existing_content
+        };
+
+        // Write updated content
+        fs::write(file_path, updated_content)
+            .with_context(|| format!("Failed to write file: {}", file_path.display()))?;
+
+        Ok(())
+    }
 }
