@@ -30,6 +30,7 @@ Saba is a declarative development framework that generates multi-language projec
 - **Python**: With setup.py, requirements.txt, and __init__.py barrel imports
 - **TypeScript**: With package.json, tsconfig.json, and barrel exports
 - **JavaScript**: With package.json and ES module support
+- **Markdown**: For documentation files (.md)
 
 ## Core Commands
 
@@ -45,6 +46,7 @@ saba new --lang typescript
 saba new --lang go
 saba new --lang python
 saba new --lang javascript
+saba new --lang markdown
 ```
 
 **Features:**
@@ -86,14 +88,6 @@ After creating saba.yml, run:
 saba up
 ```
 
-### 3. Testing Workflow
-**CRITICAL**: Always use build.sh for testing:
-```bash
-./build.sh    # Builds and copies to _test directory
-cd _test      # Change to test directory
-# Run saba commands here
-```
-
 ## saba.yml Configuration Guide
 
 ### Configuration Structure
@@ -109,7 +103,7 @@ saba.yml is a YAML array where each item represents a project:
 
 ### Required Fields
 - **name**: Project identifier (string)
-- **lang**: Programming language (rust|go|python|typescript|javascript)
+- **lang**: Programming language (rust|go|python|typescript|javascript|markdown)
 
 ### Optional Fields
 - **root**: Boolean flag for single-project mode (only one project should have this)
@@ -119,7 +113,7 @@ saba.yml is a YAML array where each item represents a project:
 ### File Specification
 ```yaml
 codefile:
-  - name: simple-file      # Gets language extension (.rs, .go, .py, .ts, .js)
+  - name: simple-file      # Gets language extension (.rs, .go, .py, .ts, .js, .md)
   - name: Component.tsx    # Extension preserved
   - name: styles.css       # Extension preserved
   - name: config.json      # Extension preserved
@@ -261,6 +255,38 @@ upstream:
     - name: index                  # Becomes index.js (root level)
 ```
 
+#### Markdown Documentation Projects
+```yaml
+- name: project-docs
+  root: true
+  lang: markdown
+  upstream:
+    - name: api
+      codefile:
+        - name: authentication      # Becomes authentication.md
+        - name: endpoints           # Becomes endpoints.md
+    - name: guides
+      upstream:
+        - name: getting-started
+          codefile:
+            - name: installation    # Becomes installation.md
+            - name: configuration   # Becomes configuration.md
+        - name: advanced
+          codefile:
+            - name: deployment      # Becomes deployment.md
+            - name: security        # Becomes security.md
+      codefile:
+        - name: overview            # Becomes overview.md
+    - name: reference
+      codefile:
+        - name: cli                 # Becomes cli.md
+        - name: config-schema       # Becomes config-schema.md
+  codefile:
+    - name: README                  # Becomes README.md (main project README)
+    - name: CONTRIBUTING            # Becomes CONTRIBUTING.md
+    - name: changelog               # Becomes changelog.md
+```
+
 ### Multi-Project Configuration
 ```yaml
 # Backend service (Rust)
@@ -301,6 +327,22 @@ upstream:
             - name: password
   codefile:
     - name: main
+
+# Documentation (Markdown)
+- name: project-documentation
+  lang: markdown
+  upstream:
+    - name: architecture
+      codefile:
+        - name: overview
+        - name: database-design
+    - name: api
+      codefile:
+        - name: endpoints
+        - name: authentication
+  codefile:
+    - name: README
+    - name: getting-started
 ```
 
 ### Advanced Patterns
@@ -402,6 +444,7 @@ upstream:
   - Python: .py
   - TypeScript: .ts
   - JavaScript: .js
+  - Markdown: .md
 
 ## Key Features
 
@@ -415,24 +458,56 @@ upstream:
 - **Go**: Package naming (main for root, directory-based for modules)
 - **Python**: __init__.py with barrel imports
 - **TypeScript/JavaScript**: index files with barrel exports
+- **Markdown**: README.md files with auto-generated navigation and .docs.yml configuration
 
 ### Intelligent Defaults
-- Main files: main (Rust/Go/Python), index (TypeScript/JavaScript)
+- Main files: main (Rust/Go/Python), index (TypeScript/JavaScript), README (Markdown)
 - Project structure: src/ for Rust, root-level for others
 - Configuration files automatically generated per language
 
+## saba.yml Management Scope
+
+### Files and Directories Recommended for saba.yml Management
+The following are recommended to be defined and managed through saba.yml:
+- **Code files**: .rs, .go, .py, .ts, .js and other programming language files
+- **Documentation files**: .md (Markdown files)
+- **Code-related directories**: src/, pkg/, components/, models/, handlers/, etc.
+- **Module directories**: Any directory containing code or documentation files
+
+### Files and Directories NOT Recommended for saba.yml Management
+The following are recommended to be created and managed manually, outside of saba.yml:
+- **Asset files**: .png, .jpg, .gif, .pdf, .mp3, .mp4, .svg and other media files
+- **Configuration files**: .env, .gitignore, .dockerignore, config.toml, etc.
+- **Build artifacts**: target/, dist/, build/, node_modules/, __pycache__/, etc.
+- **Binary files**: Executables, compiled libraries, and other binary assets
+- **IDE/Editor files**: .vscode/, .idea/, *.swp, etc.
+
 ## Best Practices for Claude Code
 
-1. **Always use build.sh** before testing changes
-2. **Use AI mode** (`--lang` option) for automated project creation
-3. **Check existing saba.yml** before running commands
-4. **Understand single vs multi-project** modes
-5. **Verify language support** before using
+1. **Use AI mode** (`--lang` option) for automated project creation
+2. **Check existing saba.yml** before running commands
+3. **Understand single vs multi-project** modes
+4. **Verify language support** before using
+
+## Development Rules for AI
+
+### File and Directory Generation
+When generating files or directories recommended for saba.yml management (see above scope):
+1. **Always modify saba.yml first** to define the desired structure
+2. **Then run `saba up`** to generate the actual files and directories
+3. **Never manually create** files/directories that should be managed through saba.yml
+
+### File and Directory Removal/Renaming
+When removing or renaming files/directories managed through saba.yml:
+1. **Perform the removal/rename operation** on the actual files/directories first
+2. **Immediately update saba.yml** to reflect the changes (remove entries or update names)
+3. **Run `saba up`** to ensure the project structure is consistent
+
+**Note**: These rules apply only to files and directories recommended for saba.yml management. Files not recommended for saba.yml management can be created, modified, or removed independently.
 
 ## Error Handling
 - Missing saba.yml: Run `saba new` first
 - Invalid language: Check supported languages list
-- Build issues: Use `./build.sh` workflow
 
 ## Examples
 
@@ -448,11 +523,18 @@ saba new --lang typescript  # Adds app_2, removes root: true from app_1
 saba up                      # Generates workspace with both projects
 ```
 
+### Create Documentation Project
+```bash
+saba new --lang markdown    # Creates app_1 with README.md structure
+saba up                     # Generates .md files, .docs.yml, and navigation
+```
+
 ### Multi-Language Workspace
 ```bash
 saba new --lang rust        # app_1 (Rust)
 saba new --lang go          # app_2 (Go)  
 saba new --lang typescript  # app_3 (TypeScript)
+saba new --lang markdown    # app_4 (Documentation)
 saba up                     # Generates all projects with workspace
 ```
 
