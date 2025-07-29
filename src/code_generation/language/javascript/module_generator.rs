@@ -68,9 +68,14 @@ impl JavaScriptModuleGenerator {
             export_declarations.push(format!("export * from './{}/index.js';", submodule.name()));
         }
 
-        // Generate index.js for all modules
-        let index_js_path = module_path.join("index.js");
-        ContentUpdater::update_js_index_file(&index_js_path, &export_declarations)?;
+        // Generate index.js only if explicitly defined in codefile
+        let has_explicit_index = module.files().iter()
+            .any(|f| f.name() == "index" || f.filename_with_extension("javascript") == "index.js");
+
+        if has_explicit_index {
+            let index_js_path = module_path.join("index.js");
+            ContentUpdater::update_js_index_file(&index_js_path, &export_declarations)?;
+        }
 
         Ok(())
     }

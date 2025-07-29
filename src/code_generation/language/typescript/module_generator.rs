@@ -53,9 +53,14 @@ impl TypeScriptModuleGenerator {
             export_declarations.push(format!("export * from './{}';", submodule.name()));
         }
 
-        // Generate index.ts for all modules
-        let index_ts_path = module_path.join("index.ts");
-        ContentUpdater::update_js_index_file(&index_ts_path, &export_declarations)?;
+        // Generate index.ts only if explicitly defined in codefile
+        let has_explicit_index = module.files().iter()
+            .any(|f| f.name() == "index" || f.filename_with_extension("typescript") == "index.ts");
+
+        if has_explicit_index {
+            let index_ts_path = module_path.join("index.ts");
+            ContentUpdater::update_js_index_file(&index_ts_path, &export_declarations)?;
+        }
 
         Ok(())
     }
