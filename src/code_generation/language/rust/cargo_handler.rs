@@ -26,6 +26,7 @@ impl CargoHandler {
 
     /// Generate Cargo.toml content
     fn generate_cargo_toml_content(project: &Project) -> String {
+        let package_name = Self::extract_package_name(project.name());
         format!(
             r#"[package]
 name = "{}"
@@ -35,8 +36,17 @@ edition = "2024"
 [dependencies]
 
 "#,
-            project.name()
+            package_name
         )
+    }
+
+    /// Extract package name from project name (get part after last '/')
+    fn extract_package_name(project_name: &str) -> String {
+        project_name
+            .rfind('/')
+            .map(|index| &project_name[index + 1..])
+            .unwrap_or(project_name)
+            .to_string()
     }
 
     /// Determine if project should be a library based on presence of lib.rs
