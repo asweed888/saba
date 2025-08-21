@@ -77,7 +77,7 @@ pub fn action(matches: &ArgMatches) -> Result<()> {
 }
 
 fn generate_new_saba_yml(project_name: &str, language: &str) -> Result<String> {
-    let main_file = get_main_file_name(language);
+    let main_file = get_main_file_name(language, true); // root: true
     
     match language {
         "rust" => {
@@ -158,7 +158,7 @@ fn append_to_existing_saba_yml(project_name: &str, language: &str) -> Result<()>
     let updated_content = existing_content.replace("  root: true\n", "");
     
     // Generate new project YAML
-    let main_file = get_main_file_name(language);
+    let main_file = get_main_file_name(language, false); // not root: true
     let new_project_yaml = match language {
         "rust" => {
             // Rust standard: src/main.rs or src/lib.rs
@@ -264,9 +264,9 @@ fn generate_sequential_project_name() -> Result<String> {
     Ok(format!("app_{}", counter))
 }
 
-fn get_main_file_name(language: &str) -> &str {
+fn get_main_file_name(language: &str, is_root: bool) -> &str {
     match language {
-        "rust" => "main",
+        "rust" => if is_root { "main" } else { "lib" },
         "go" => "main", 
         "python" => "main",
         "typescript" => "index",
