@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
@@ -32,7 +32,20 @@ esac
 
 INSTALL_TARGET="saba-${VERSION}-${TARGET}.tar.gz"
 INSTALL_TARGET_URL="https://github.com/asweed888/saba/releases/download/${VERSION}/${INSTALL_TARGET}"
-BASHRC="$HOME/.bashrc"
+
+# 現在のシェルを検出して適切な設定ファイルを選択
+CURRENT_SHELL=$(basename "$SHELL")
+case "$CURRENT_SHELL" in
+    "zsh")
+        SHELL_RC="$HOME/.zshrc"
+    ;;
+    "bash")
+        SHELL_RC="$HOME/.bashrc"
+    ;;
+    *)
+        SHELL_RC="$HOME/.profile"
+    ;;
+esac
 
 HOME_BIN="$HOME/.bin"
 if [ ! -e "$HOME_BIN" ]; then
@@ -40,15 +53,26 @@ if [ ! -e "$HOME_BIN" ]; then
     echo "[info] Created directory because $HOME_BIN was not found."
 fi
 
-if [[ ":$PATH:" != *":$HOME_BIN:"* ]]; then
-    echo 'export PATH="$PATH:$HOME/.bin"' >> "$BASHRC"
-    echo "[info] Added $HOME_BIN to PATH."
-fi
-
 curl -L $INSTALL_TARGET_URL -o - | tar -xzvf - && mv ./saba $HOME_BIN
 
+# 表示用のメッセージを蓄積
+MESSAGES=""
+
+# PATH チェック - 含まれていない場合のみコマンド出力
+if [ "${PATH#*$HOME_BIN}" = "$PATH" ]; then
+    MESSAGES="${MESSAGES}echo 'export PATH=\"\$PATH:\$HOME/.bin\"' >> $SHELL_RC\n"
+fi
+
+# エイリアスチェック - 含まれていない場合のみコマンド出力
 alias_name="saba_install"
-if ! grep -q "$alias_name" "$BASHRC"; then
-    echo "alias $alias_name='curl -sSL https://raw.githubusercontent.com/asweed888/saba/main/install.sh | bash && exec \$SHELL -l'" >> "$BASHRC"
-    echo "[info] An alias for saba updates has been registered."
+if ! grep -q "$alias_name" "$SHELL_RC" 2>/dev/null; then
+    MESSAGES="${MESSAGES}echo 'alias $alias_name=\"curl -sSL https://raw.githubusercontent.com/asweed888/saba/main/install.sh | sh && exec \\\$SHELL -l\"' >> $SHELL_RC\n"
+fi
+
+# メッセージがある場合のみ表示
+if [ -n "$MESSAGES" ]; then
+    echo ""
+    echo "[info] Please run the following commands to complete the setup:"
+    echo ""
+    printf "$MESSAGES"
 fi
