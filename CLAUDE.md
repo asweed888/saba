@@ -14,6 +14,7 @@ v2実装はクリーンアーキテクチャパターンに従います:
   - `command/new.rs`: デュアルモード（対話型/AI）によるプロジェクト初期化
   - `command/up.rs`: CodeGeneratorを使用したコード生成実行
   - `command/analyze.rs`: プロジェクト分析機能
+  - `command/describe.rs`: Claude CodeへのCLAUDE.md更新指示（saba.ymlの書き方セクション追加）
 - **コード生成レイヤー** (`src/code_generation/`): コア生成ロジック
   - `core/generator.rs`: 全言語対応の統一CodeGenerator
   - `language/`: 言語固有のジェネレーター (rust, go, python, typescript, javascript)
@@ -58,6 +59,9 @@ saba new --lang javascript
 
 # saba.yml仕様からコードを生成
 saba up
+
+# Claude CodeへCLAUDE.md更新を指示（saba.ymlの書き方セクション追加）
+saba describe
 ```
 
 ### テスト
@@ -302,6 +306,36 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 - `テスト`: テストの追加・修正
 - `ドキュメント`: ドキュメントの更新
 - `設定`: 設定ファイルの変更
+
+## describeコマンド
+
+**最終更新**: 2025-11-18
+
+`saba describe`コマンドは、Claude Code (claude.ai/code) に対して、プロジェクトのCLAUDE.mdファイルに「saba.ymlの書き方」セクションを追加するよう指示します。
+
+### 目的
+- 他のプロジェクトでsabaを使用する際、そのプロジェクトのClaude Codeがsabaとsaba.ymlを理解できるようにする
+- sabaの概要、機能、メリット、saba.ymlの詳細な仕様をCLAUDE.mdに記録
+
+### 使い方
+```bash
+saba describe
+```
+
+このコマンドを実行すると、Claude Codeに対する詳細な指示が出力されます。指示には以下が含まれます：
+- sabaフレームワークの概要説明
+- saba.ymlの基本構造とフィールド
+- サポート言語と各言語の特徴
+- 言語別のプロジェクト例
+- マルチプロジェクト構成
+- ベストプラクティス
+
+### 実装の変遷
+- **v2.1.4以前**: `guide`コマンドとして包括的なガイドコンテンツを直接出力
+- **v2.1.4**: `describe`コマンドに改名し、Claude Codeへの指示形式に変更。CLAUDE.mdに「saba.ymlの書き方」セクションを追加/更新するよう指示するメタコマンドとして再設計
+
+### Rustの生文字列リテラルの注意点
+`describe.rs`の実装では、`r#"..."#`の中に`"#`という文字列が含まれるため、`r##"..."##`のように`#`を増やして対応しています。これは、パーサーが途中で文字列が終わったと誤認識するのを防ぐためです。
 
 ## 依存関係
 
