@@ -15,6 +15,7 @@ v2実装はクリーンアーキテクチャパターンに従います:
   - `command/up.rs`: CodeGeneratorを使用したコード生成実行
   - `command/analyze.rs`: プロジェクト分析機能
   - `command/describe.rs`: Claude CodeへのCLAUDE.md更新指示（saba.ymlの書き方セクション追加）
+  - `command/completion.rs`: シェル補完スクリプト生成（Bash、Zsh、Fish、PowerShell、Elvish対応）
 - **コード生成レイヤー** (`src/code_generation/`): コア生成ロジック
   - `core/generator.rs`: 全言語対応の統一CodeGenerator
   - `language/`: 言語固有のジェネレーター (rust, go, python, typescript, javascript)
@@ -62,6 +63,13 @@ saba up
 
 # Claude CodeへCLAUDE.md更新を指示（saba.ymlの書き方セクション追加）
 saba describe
+
+# シェル補完スクリプトを生成
+saba completion bash
+saba completion zsh
+saba completion fish
+saba completion powershell
+saba completion elvish
 ```
 
 ### テスト
@@ -337,10 +345,73 @@ saba describe
 ### Rustの生文字列リテラルの注意点
 `describe.rs`の実装では、`r#"..."#`の中に`"#`という文字列が含まれるため、`r##"..."##`のように`#`を増やして対応しています。これは、パーサーが途中で文字列が終わったと誤認識するのを防ぐためです。
 
+## completionコマンド
+
+**最終更新**: 2025-11-20
+
+`saba completion`コマンドは、各種シェルの補完スクリプトを生成します。これにより、sabaコマンドのサブコマンドやオプションをタブ補完できるようになります。
+
+### サポートシェル
+- **Bash**: Linuxで広く使用される標準シェル
+- **Zsh**: macOSデフォルトシェル（macOS Catalina以降）
+- **Fish**: ユーザーフレンドリーな対話型シェル
+- **PowerShell**: Windows標準シェル
+- **Elvish**: モダンなクロスプラットフォームシェル
+
+### 使い方
+
+#### 補完スクリプトの生成
+```bash
+# Bash用
+saba completion bash > /usr/local/etc/bash_completion.d/saba
+
+# Zsh用
+saba completion zsh > ~/.zsh/completion/_saba
+
+# Fish用
+saba completion fish > ~/.config/fish/completions/saba.fish
+
+# PowerShell用
+saba completion powershell > saba.ps1
+# その後、PowerShellプロファイルに以下を追加:
+# . /path/to/saba.ps1
+
+# Elvish用
+saba completion elvish > ~/.elvish/lib/completions/saba.elv
+```
+
+#### インストール後の確認
+補完スクリプトをインストールした後、新しいシェルセッションを開始するか、設定を再読み込みしてください：
+
+```bash
+# Bash
+source ~/.bashrc
+
+# Zsh
+source ~/.zshrc
+
+# Fish
+# 自動的に読み込まれる
+```
+
+### 実装の詳細
+- **実装**: `clap_complete`クレートを使用した自動補完スクリプト生成
+- **カスタムEnum**: `CompletionShell`で各シェルタイプを定義し、`clap_complete::Shell`に変換
+- **CLI構造再現**: `build_cli()`関数でmain.rsと同じCLI構造を再現し、補完スクリプト生成に使用
+- **標準出力**: 補完スクリプトは標準出力に出力されるため、リダイレクトしてファイルに保存
+
+### 技術的な課題と解決
+1. **ValueEnum derive macro**: `clap`の`derive`機能を有効化する必要があった
+   - 解決: `Cargo.toml`で`clap = { version = "4.4.6", features = ["derive"] }`に変更
+
+2. **型推論エラー**: Generator traitのジェネリック型`G`が推論できなかった
+   - 解決: `let shell_type: Shell = shell.clone().into();`で明示的な型注釈を追加
+
 ## 依存関係
 
 主な依存関係:
-- `clap`: CLIの引数パース
+- `clap`: CLIの引数パース（`derive`機能有効化）
+- `clap_complete`: シェル補完スクリプト生成
 - `anyhow`: エラー処理
 - `askama`: テンプレートエンジン
 - `inquire`: 対話型プロンプト

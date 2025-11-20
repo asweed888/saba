@@ -31,6 +31,9 @@ fn main() -> anyhow::Result<()> {
         .subcommand(
             command::describe::spec()
         )
+        .subcommand(
+            command::completion::spec()
+        )
         .version(version)
         .get_matches();
 
@@ -43,6 +46,9 @@ fn main() -> anyhow::Result<()> {
         }
         Some(("describe", _)) => {
             command::describe::action()
+        }
+        Some(("completion", sub_matches)) => {
+            command::completion::action(sub_matches)
         }
         _ => unreachable!()
     }
