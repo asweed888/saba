@@ -1,24 +1,46 @@
 use clap::Command;
 use anyhow::Result;
+use std::fs;
+use std::path::Path;
 
 pub fn spec() -> Command {
-    Command::new("describe")
-        .about("Instructs Claude Code to document saba.yml specification in CLAUDE.md")
+    Command::new("ai-init")
+        .about("Generate Claude Code custom command for saba initialization")
         .long_about(
-            "Instructs Claude Code (claude.ai/code) to add or update the 'saba.ymlの書き方' section \
-            in CLAUDE.md with the latest saba.yml specification and usage patterns."
+            "Creates .claude/commands/saba_init.md file that provides a custom command \
+            for Claude Code to automatically document saba.yml specification in CLAUDE.md"
         )
 }
 
 pub fn action() -> Result<()> {
-    print_claude_code_instruction();
+    // .claude/commandsディレクトリを作成
+    let commands_dir = Path::new(".claude/commands");
+    fs::create_dir_all(commands_dir)?;
+
+    // saba_init.mdファイルのパスを作成
+    let file_path = commands_dir.join("saba_init.md");
+
+    // カスタムコマンドの内容を生成
+    let content = generate_custom_command_content();
+
+    // ファイルに書き込み
+    fs::write(&file_path, content)?;
+
+    println!("✓ Created Claude Code custom command: .claude/commands/saba_init.md");
+    println!();
+    println!("Usage:");
+    println!("  Run '/saba_init' in Claude Code to update CLAUDE.md with saba.yml documentation");
+
     Ok(())
 }
 
-fn print_claude_code_instruction() {
+fn generate_custom_command_content() -> String {
     let version = env!("CARGO_PKG_VERSION");
-    println!(r#"
-# Instruction for Claude Code
+    format!(r##"# saba_init - saba.yml Documentation Generator
+
+このカスタムコマンドは、プロジェクトのCLAUDE.mdファイルに「## saba.ymlの書き方」セクションを追加します。
+
+## 指示
 
 Claude Code (claude.ai/code) へ:
 
@@ -57,7 +79,7 @@ saba up
 
 1. **既存セクションの確認**
    - CLAUDE.mdに既に「saba.ymlの書き方」セクションが存在するか確認
-   - 存在する場合は、内容が最新の仕様（v{}）と一致するか確認
+   - 存在する場合は、内容が最新の仕様（v{version}）と一致するか確認
 
 2. **セクションの追加/更新**
    - セクションが存在しない場合：新規に追加
@@ -102,6 +124,28 @@ saba up
    - ワークスペース自動生成の仕組み
    - root: trueフラグの管理
 
+   ### ファイル保護システム
+   sabaは3段階のファイル保護システムを実装しています：
+
+   #### 1. コードファイル（完全保護）
+   - **ファイル**: .rs, .go, .py, .js, .ts, .jsx, .tsx, .vue, など
+   - **動作**: 一度作成されると、これらのファイルは決して上書きされない
+   - **目的**: 開発者の実装コードを保護
+
+   #### 2. 管理ファイル（部分更新）
+   - **ファイル**: mod.rs, lib.rs, main.rs, __init__.py, index.js, index.ts
+   - **動作**: ヘッダー/フッターマーカー間のsaba管理セクションのみを更新
+   - **マーカー例**:
+     - Rust: `// start auto exported by saba.` ... `// end auto exported by saba.`
+     - Python: `# start auto exported by saba.` ... `# end auto exported by saba.`
+     - JS/TS: `// start auto exported by saba.` ... `// end auto exported by saba.`
+   - **目的**: sabaがインポート/エクスポートを管理しながらカスタムコードを保持
+
+   #### 3. プロジェクト設定ファイル（初回作成のみ）
+   - **ファイル**: package.json, tsconfig.json, Cargo.toml, go.mod, go.sum, requirements.txt, setup.py
+   - **動作**: 存在しない場合のみ作成
+   - **目的**: ユーザーのプロジェクト設定変更の上書きを防ぐ
+
    ### ベストプラクティス
    - プロジェクト命名規則
    - モジュール構成の推奨パターン
@@ -113,10 +157,7 @@ saba up
 
 ## 参考情報
 
-現在のsabaバージョン: v{}
-
-既存のguideコマンド出力内容も参考にしてください。
-特に「saba.yml Configuration Guide」セクション以降の内容が有用です。
+現在のsabaバージョン: v{version}
 
 ## 実行後の確認
 
@@ -127,5 +168,5 @@ saba up
 ---
 
 上記の指示に従って、CLAUDE.mdを更新してください。
-"#, version, version);
+"##, version = version)
 }
