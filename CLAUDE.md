@@ -14,7 +14,7 @@ v2実装はクリーンアーキテクチャパターンに従います:
   - `command/new.rs`: デュアルモード（対話型/AI）によるプロジェクト初期化
   - `command/up.rs`: CodeGeneratorを使用したコード生成実行
   - `command/analyze.rs`: プロジェクト分析機能
-  - `command/describe.rs`: Claude CodeへのCLAUDE.md更新指示（saba.ymlの書き方セクション追加）
+  - `command/ai_init.rs`: Claude Codeカスタムコマンド生成（.claude/commands/saba_init.mdを出力）
   - `command/completion.rs`: シェル補完スクリプト生成（Bash、Zsh、Fish、PowerShell、Elvish対応）
 - **コード生成レイヤー** (`src/code_generation/`): コア生成ロジック
   - `core/generator.rs`: 全言語対応の統一CodeGenerator
@@ -61,8 +61,8 @@ saba new --lang javascript
 # saba.yml仕様からコードを生成
 saba up
 
-# Claude CodeへCLAUDE.md更新を指示（saba.ymlの書き方セクション追加）
-saba describe
+# Claude Codeカスタムコマンドを生成（.claude/commands/saba_init.mdを出力）
+saba ai-init
 
 # シェル補完スクリプトを生成
 saba completion bash
@@ -315,35 +315,69 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 - `ドキュメント`: ドキュメントの更新
 - `設定`: 設定ファイルの変更
 
-## describeコマンド
+## ai-initコマンド
 
-**最終更新**: 2025-11-18
+**最終更新**: 2025-11-23
 
-`saba describe`コマンドは、Claude Code (claude.ai/code) に対して、プロジェクトのCLAUDE.mdファイルに「saba.ymlの書き方」セクションを追加するよう指示します。
+`saba ai-init`コマンドは、Claude Codeのカスタムコマンド（`.claude/commands/saba_init.md`）を生成します。これにより、Claude Code上で`/saba_init`コマンドを実行することで、自動的にプロジェクトのCLAUDE.mdにsaba.ymlの書き方を追記できるようになります。
 
 ### 目的
-- 他のプロジェクトでsabaを使用する際、そのプロジェクトのClaude Codeがsabaとsaba.ymlを理解できるようにする
-- sabaの概要、機能、メリット、saba.ymlの詳細な仕様をCLAUDE.mdに記録
+- 他のプロジェクトでsabaを使用する際、Claude Codeカスタムコマンド経由で自動的にCLAUDE.mdを更新できるようにする
+- 手動でのコピペを不要にし、チーム全体で統一されたsabaガイドラインを共有できるようにする
 
 ### 使い方
+
+#### 1. カスタムコマンドの生成
 ```bash
-saba describe
+# プロジェクトディレクトリで実行
+saba ai-init
 ```
 
-このコマンドを実行すると、Claude Codeに対する詳細な指示が出力されます。指示には以下が含まれます：
+このコマンドにより、`.claude/commands/saba_init.md`ファイルが生成されます。
+
+#### 2. Claude Codeでカスタムコマンドを実行
+```bash
+# Claude Codeで実行
+/saba_init
+```
+
+Claude Codeが自動的に以下を実行します：
+- プロジェクトルートのCLAUDE.mdにsaba.ymlの書き方セクションを追記
+- sabaフレームワークの概要説明を追加
+- saba.ymlの基本構造とフィールド説明を追加
+- サポート言語と各言語の特徴を追加
+- 言語別のプロジェクト例を追加
+- マルチプロジェクト構成の説明を追加
+- ベストプラクティスを追加
+
+### 出力されるカスタムコマンドの内容
+
+`.claude/commands/saba_init.md`には、Claude Codeに対する詳細な指示が記載されます：
 - sabaフレームワークの概要説明
-- saba.ymlの基本構造とフィールド
-- サポート言語と各言語の特徴
-- 言語別のプロジェクト例
-- マルチプロジェクト構成
+- saba.ymlの構造と各フィールドの詳細
+- サポートされている言語（Rust、Go、Python、TypeScript、JavaScript）
+- 各言語の特徴とプロジェクト例
+- マルチプロジェクト構成の方法
+- ファイル保護システムの仕組み
 - ベストプラクティス
+
+### メリット
+
+- **自動化**: `/saba_init`を実行するだけで、CLAUDE.mdが自動更新される
+- **一貫性**: チーム全体で同じカスタムコマンドを使用できる
+- **再利用性**: 一度`saba ai-init`を実行すれば、何度でも`/saba_init`を使用可能
+- **メンテナンス性**: sabaのバージョンアップ時も、`saba ai-init`を再実行するだけで最新のガイドが提供される
 
 ### 実装の変遷
 - **v2.1.4以前**: `guide`コマンドとして包括的なガイドコンテンツを直接出力
-- **v2.1.4**: `describe`コマンドに改名し、Claude Codeへの指示形式に変更。CLAUDE.mdに「saba.ymlの書き方」セクションを追加/更新するよう指示するメタコマンドとして再設計
+- **v2.1.4**: `describe`コマンドに改名し、標準出力にClaude Codeへの指示を出力
+- **v2.2.1**: `ai-init`コマンドに改名し、`.claude/commands/saba_init.md`を生成するように変更。Claude Codeのカスタムコマンド機能を活用した、より洗練されたUXを実現
 
 ### Rustの生文字列リテラルの注意点
-`describe.rs`の実装では、`r#"..."#`の中に`"#`という文字列が含まれるため、`r##"..."##`のように`#`を増やして対応しています。これは、パーサーが途中で文字列が終わったと誤認識するのを防ぐためです。
+`ai_init.rs`の実装では、`r#"..."#`の中に`"#`という文字列が含まれるため、`r##"..."##`のように`#`を増やして対応しています。これは、パーサーが途中で文字列が終わったと誤認識するのを防ぐためです。
+
+### 関連issue
+- #183: saba describeコマンドをai-initコマンドに変更し、Claude Codeカスタムコマンドを生成
 
 ## completionコマンド
 

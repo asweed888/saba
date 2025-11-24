@@ -29,7 +29,7 @@ fn main() -> anyhow::Result<()> {
             command::new::spec()
         )
         .subcommand(
-            command::describe::spec()
+            command::ai_init::spec()
         )
         .subcommand(
             command::completion::spec()
@@ -44,8 +44,8 @@ fn main() -> anyhow::Result<()> {
         Some(("new", sub_matches)) => {
             command::new::action(sub_matches)
         }
-        Some(("describe", _)) => {
-            command::describe::action()
+        Some(("ai-init", _)) => {
+            command::ai_init::action()
         }
         Some(("completion", sub_matches)) => {
             command::completion::action(sub_matches)
