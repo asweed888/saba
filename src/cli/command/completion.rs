@@ -89,8 +89,8 @@ fn build_cli() -> Command {
                 )
         )
         .subcommand(
-            Command::new("describe")
-                .about("Instructs Claude Code to document saba.yml specification in CLAUDE.md")
+            Command::new("ai-init")
+                .about("Generate Claude Code custom command for saba initialization")
         )
         .subcommand(spec())
         .version(version)
