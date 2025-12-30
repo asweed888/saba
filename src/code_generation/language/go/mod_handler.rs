@@ -8,6 +8,11 @@ use super::package_generator::GoPackageGenerator;
 pub struct GoModuleHandler;
 
 impl GoModuleHandler {
+    /// Check if a file is a Go code file (ends with .go)
+    fn is_go_code_file(filename: &str) -> bool {
+        filename.ends_with(".go")
+    }
+
     /// Generate complete Go project structure
     pub fn generate_project<P: AsRef<Path>>(
         project_path: P,
@@ -34,18 +39,23 @@ impl GoModuleHandler {
         for codefile in project.files() {
             let filename = codefile.filename_with_extension("go");
             let file_path = project_path.join(&filename);
-            
-            // Use main package for root level files (Go convention)
-            let package_name = if codefile.name() == "main" || filename == "main.go" {
-                "main".to_string()
-            } else {
-                "main".to_string() // Most Go projects use main package for root level files
-            };
-            
+
             // Only create file if it doesn't already exist
             if !file_path.exists() {
-                let package_content = format!("package {}\n\n", package_name);
-                fs::write(&file_path, package_content)
+                // Only add package declaration for Go code files
+                let content = if Self::is_go_code_file(&filename) {
+                    // Use main package for root level files (Go convention)
+                    let package_name = if codefile.name() == "main" || filename == "main.go" {
+                        "main".to_string()
+                    } else {
+                        "main".to_string() // Most Go projects use main package for root level files
+                    };
+                    format!("package {}\n\n", package_name)
+                } else {
+                    String::new() // Non-Go files get no content
+                };
+
+                fs::write(&file_path, content)
                     .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
             }
         }

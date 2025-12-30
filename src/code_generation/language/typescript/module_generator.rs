@@ -8,6 +8,11 @@ use crate::shared::utils::content_updater::ContentUpdater;
 pub struct TypeScriptModuleGenerator;
 
 impl TypeScriptModuleGenerator {
+    /// Check if a file is a TypeScript code file (ends with .ts or .tsx)
+    fn is_typescript_code_file(filename: &str) -> bool {
+        filename.ends_with(".ts") || filename.ends_with(".tsx")
+    }
+
     /// Generate TypeScript module structure recursively
     pub fn generate_module<P: AsRef<Path>>(
         base_path: P,
@@ -27,15 +32,15 @@ impl TypeScriptModuleGenerator {
         for codefile in module.files() {
             let filename = codefile.filename_with_extension("typescript");
             let file_path = module_path.join(&filename);
-            
-            // Create empty TypeScript file (only if it doesn't exist)
+
+            // Create empty file (only if it doesn't exist)
             if !file_path.exists() {
                 fs::write(&file_path, "")
                     .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
             }
 
-            // Add to export declarations if it's not index.ts
-            if filename != "index.ts" {
+            // Add to export declarations only if it's a TypeScript code file and not index.ts
+            if Self::is_typescript_code_file(&filename) && filename != "index.ts" {
                 // Use name without extension for TypeScript module resolution
                 let module_name = Self::get_module_name_for_export(codefile);
                 export_declarations.push(format!("export * from './{}';", module_name));
