@@ -7,6 +7,11 @@ use crate::project_management::config::models::{Module, CodeFile, Project};
 pub struct GoPackageGenerator;
 
 impl GoPackageGenerator {
+    /// Check if a file is a Go code file (ends with .go)
+    fn is_go_code_file(filename: &str) -> bool {
+        filename.ends_with(".go")
+    }
+
     /// Generate Go module structure recursively
     pub fn generate_module<P: AsRef<Path>>(
         base_path: P,
@@ -23,14 +28,18 @@ impl GoPackageGenerator {
         for codefile in module.files() {
             let filename = codefile.filename_with_extension("go");
             let file_path = module_path.join(&filename);
-            
-            // Determine package name based on Go conventions
-            let package_name = Self::get_package_name_for_module(&module.name, codefile.name());
-            
-            // Create Go file with package declaration (only if it doesn't exist)
+
+            // Create file (only if it doesn't exist)
             if !file_path.exists() {
-                let package_content = Self::generate_go_file_content(&package_name);
-                fs::write(&file_path, package_content)
+                // Only add package declaration for Go code files
+                let content = if Self::is_go_code_file(&filename) {
+                    let package_name = Self::get_package_name_for_module(&module.name, codefile.name());
+                    Self::generate_go_file_content(&package_name)
+                } else {
+                    String::new() // Non-Go files get no content
+                };
+
+                fs::write(&file_path, content)
                     .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
             }
         }

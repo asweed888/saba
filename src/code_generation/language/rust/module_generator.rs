@@ -8,6 +8,11 @@ use crate::shared::utils::content_updater::ContentUpdater;
 pub struct RustModuleGenerator;
 
 impl RustModuleGenerator {
+    /// Check if a file is a Rust code file (ends with .rs)
+    fn is_rust_code_file(filename: &str) -> bool {
+        filename.ends_with(".rs")
+    }
+
     /// Convert pub setting to Rust visibility prefix
     /// target_type: "main", "lib", or "mod"
     fn get_visibility_prefix(pub_setting: Option<&str>, target_type: &str) -> &'static str {
@@ -46,15 +51,15 @@ impl RustModuleGenerator {
         for codefile in module.files() {
             let filename = codefile.filename_with_extension("rust");
             let file_path = module_path.join(&filename);
-            
-            // Create empty Rust file (only if it doesn't exist)
+
+            // Create empty file (only if it doesn't exist)
             if !file_path.exists() {
                 fs::write(&file_path, "")
                     .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
             }
 
-            // Add to module declarations if it's not mod.rs
-            if filename != "mod.rs" {
+            // Add to module declarations only if it's a Rust code file and not mod.rs
+            if Self::is_rust_code_file(&filename) && filename != "mod.rs" {
                 let module_name = codefile.name();
                 let visibility = Self::get_visibility_prefix(codefile.pub_setting(), "mod");
                 module_declarations.push(format!("{}mod {};", visibility, module_name));
@@ -97,7 +102,10 @@ impl RustModuleGenerator {
                 // Add declarations for submodules and code files within src
                 for codefile in src_module.files() {
                     let filename = codefile.filename_with_extension("rust");
-                    if filename != "mod.rs" && filename != "main.rs" && filename != "lib.rs" {
+                    if Self::is_rust_code_file(&filename)
+                        && filename != "mod.rs"
+                        && filename != "main.rs"
+                        && filename != "lib.rs" {
                         let visibility = Self::get_visibility_prefix(codefile.pub_setting(), "main");
                         module_declarations.push(format!("{}mod {};", visibility, codefile.name()));
                     }
@@ -130,7 +138,10 @@ impl RustModuleGenerator {
                 // Add declarations for submodules and code files within src
                 for codefile in src_module.files() {
                     let filename = codefile.filename_with_extension("rust");
-                    if filename != "mod.rs" && filename != "main.rs" && filename != "lib.rs" {
+                    if Self::is_rust_code_file(&filename)
+                        && filename != "mod.rs"
+                        && filename != "main.rs"
+                        && filename != "lib.rs" {
                         let visibility = Self::get_visibility_prefix(codefile.pub_setting(), "lib");
                         module_declarations.push(format!("{}mod {};", visibility, codefile.name()));
                     }

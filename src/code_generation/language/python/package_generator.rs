@@ -8,6 +8,11 @@ use crate::shared::utils::content_updater::ContentUpdater;
 pub struct PythonPackageGenerator;
 
 impl PythonPackageGenerator {
+    /// Check if a file is a Python code file (ends with .py)
+    fn is_python_code_file(filename: &str) -> bool {
+        filename.ends_with(".py")
+    }
+
     /// Generate Python module structure recursively
     pub fn generate_module<P: AsRef<Path>>(
         base_path: P,
@@ -34,8 +39,8 @@ impl PythonPackageGenerator {
                     .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
             }
 
-            // Add to import statements if it's not __init__.py
-            if filename != "__init__.py" {
+            // Add to import statements if it's a Python code file and not __init__.py
+            if Self::is_python_code_file(&filename) && filename != "__init__.py" {
                 let module_name = Self::get_module_name_for_import(codefile);
                 import_statements.push(format!("from .{} import *", module_name));
             }

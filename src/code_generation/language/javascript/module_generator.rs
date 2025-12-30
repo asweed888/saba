@@ -8,6 +8,11 @@ use crate::shared::utils::content_updater::ContentUpdater;
 pub struct JavaScriptModuleGenerator;
 
 impl JavaScriptModuleGenerator {
+    /// Check if a file is a JavaScript code file (ends with .js, .jsx, or .mjs)
+    fn is_javascript_code_file(filename: &str) -> bool {
+        filename.ends_with(".js") || filename.ends_with(".jsx") || filename.ends_with(".mjs")
+    }
+
     /// Generate JavaScript module structure recursively
     pub fn generate_module<P: AsRef<Path>>(
         base_path: P,
@@ -34,8 +39,8 @@ impl JavaScriptModuleGenerator {
                     .with_context(|| format!("Failed to create file: {}", file_path.display()))?;
             }
 
-            // Add to export declarations if it's not index.js
-            if filename != "index.js" {
+            // Add to export declarations if it's a JavaScript code file and not index.js
+            if Self::is_javascript_code_file(&filename) && filename != "index.js" {
                 // Use actual filename for ES module resolution (preserve extensions like .jsx)
                 let module_name = if codefile.name().contains('.') {
                     // If the codefile name already has an extension, use the full filename
@@ -45,14 +50,14 @@ impl JavaScriptModuleGenerator {
                     // If no extension in codefile name, remove the added .js extension for import
                     codefile.name().to_string()
                 };
-                
+
                 // Use the actual generated filename for the import
                 let import_path = if codefile.name().contains('.') {
                     format!("./{}", filename)
                 } else {
                     format!("./{}.js", module_name)
                 };
-                
+
                 export_declarations.push(format!("export * from '{}';", import_path));
             }
         }
