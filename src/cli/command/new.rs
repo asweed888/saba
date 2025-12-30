@@ -20,7 +20,7 @@ pub fn spec() -> Command {
             • Auto-generates sequential project names (app_1, app_2, etc.)\n\
             • Smart multi-project handling (removes root: true from existing projects)\n\
             • Language-specific directory structures (Rust uses src/, others use root-level)\n\
-            • Supports: rust, go, python, typescript, javascript, markdown"
+            • Supports: rust, go, python, typescript, javascript, any"
         )
         .arg(
             Arg::new("lang")
@@ -29,7 +29,7 @@ pub fn spec() -> Command {
                 .help("Programming language for direct specification (AI mode)")
                 .long_help(
                     "Specify the programming language directly without interactive prompts. \
-                    Supported languages: rust, go, python, typescript, javascript, markdown. \
+                    Supported languages: rust, go, python, typescript, javascript, any. \
                     When omitted, enters interactive mode for human users."
                 )
                 .value_name("LANGUAGE")
@@ -40,22 +40,28 @@ pub fn spec() -> Command {
 pub fn action(matches: &ArgMatches) -> Result<()> {
     let language = if let Some(lang) = matches.get_one::<String>("lang") {
         // AI mode - language specified via --lang option
-        let supported_languages = ["rust", "go", "python", "typescript", "javascript", "markdown"];
+        let supported_languages = ["rust", "go", "python", "typescript", "javascript", "any"];
         if !supported_languages.contains(&lang.as_str()) {
             bail!("Unsupported language: {}. Supported languages: {}", lang, supported_languages.join(", "));
         }
         lang.clone()
     } else {
         // Human mode - interactive language selection
-        let languages = vec!["rust", "go", "python", "typescript", "javascript", "markdown"];
+        let languages = vec!["rust", "go", "python", "typescript", "javascript", "any"];
         Select::new("Programming language:", languages)
             .prompt()
             .context("Failed to get programming language")?.
             to_string()
     };
 
-    // Generate sequential project name
-    let project_name = generate_sequential_project_name()?;
+    // Determine project name
+    let project_name = if language == "any" && fs::metadata("saba.yml").is_err() {
+        // New saba.yml with any language: use "docs"
+        "docs".to_string()
+    } else {
+        // All other cases: use sequential naming
+        generate_sequential_project_name()?
+    };
 
     // Check if saba.yml already exists
     if fs::metadata("saba.yml").is_ok() {
@@ -120,8 +126,8 @@ fn generate_new_saba_yml(project_name: &str, language: &str) -> Result<String> {
                 project_name, language, main_file
             ))
         },
-        "markdown" => {
-            // Markdown standard: root-level files
+        "any" => {
+            // Any language: root-level files with specified extensions
             Ok(format!(
                 r#"- name: {}
   root: true
@@ -203,8 +209,8 @@ fn append_to_existing_saba_yml(project_name: &str, language: &str) -> Result<()>
                 project_name, language, main_file
             )
         },
-        "markdown" => {
-            // Markdown standard: root-level files
+        "any" => {
+            // Any language: root-level files with specified extensions
             format!(
                 r#"
 
@@ -267,11 +273,11 @@ fn generate_sequential_project_name() -> Result<String> {
 fn get_main_file_name(language: &str, is_root: bool) -> &str {
     match language {
         "rust" => if is_root { "main" } else { "lib" },
-        "go" => "main", 
+        "go" => "main",
         "python" => "main",
         "typescript" => "index",
         "javascript" => "index",
-        "markdown" => "README",
+        "any" => "README.md",
         _ => "main",
     }
 }
