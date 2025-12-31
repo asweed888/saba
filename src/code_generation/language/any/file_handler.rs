@@ -42,6 +42,13 @@ impl AnyFileHandler {
             Self::generate_module(project_path, module)?;
         }
 
+        // Create empty README.md if it doesn't exist
+        let readme_path = project_path.join("README.md");
+        if !readme_path.exists() {
+            fs::write(&readme_path, "")
+                .with_context(|| format!("Failed to create README.md: {}", readme_path.display()))?;
+        }
+
         Ok(())
     }
 
