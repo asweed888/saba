@@ -185,12 +185,14 @@ impl ContentUpdater {
     }
 
     /// Update workspace Cargo.toml members section while preserving other settings
+    /// If package_info is provided, also adds a [package] section for mixed workspace
     pub fn update_workspace_cargo_toml<P: AsRef<Path>>(
         file_path: P,
         members: &[String],
+        package_info: Option<(String, &crate::project_management::config::models::Project)>,
     ) -> Result<()> {
         let file_path = file_path.as_ref();
-        
+
         // Read existing content if file exists
         let existing_content = if file_path.exists() {
             fs::read_to_string(file_path)
@@ -225,13 +227,47 @@ members = []
         let members_regex = Regex::new(members_pattern)
             .with_context(|| "Failed to create members regex pattern")?;
 
-        let updated_content = if members_regex.is_match(&existing_content) {
+        let mut updated_content = if members_regex.is_match(&existing_content) {
             // Replace existing members section
             members_regex.replace(&existing_content, members_content.as_str()).to_string()
         } else {
             // This shouldn't happen if we initialize with basic structure above
             existing_content
         };
+
+        // If package_info is provided, add or update [package] section
+        if let Some((package_name, _project)) = package_info {
+            let package_section = format!(
+                r#"[package]
+name = "{}"
+version = "0.1.0"
+edition = "2024"
+
+"#,
+                package_name
+            );
+
+            // Check if [package] section already exists and replace/add it
+            if let Some(package_start) = updated_content.find("[package]") {
+                // Find the end of [package] section (next [ or end of file)
+                let search_from = package_start + "[package]".len();
+                let package_end = updated_content[search_from..]
+                    .find("\n[")
+                    .map(|idx| search_from + idx)
+                    .unwrap_or(updated_content.len());
+
+                // Replace existing [package] section
+                updated_content = format!(
+                    "{}{}{}",
+                    &updated_content[..package_start],
+                    package_section.trim_end(),
+                    &updated_content[package_end..]
+                );
+            } else {
+                // Prepend [package] section before [workspace]
+                updated_content = format!("{}{}", package_section, updated_content);
+            }
+        }
 
         // Write updated content
         fs::write(file_path, updated_content)

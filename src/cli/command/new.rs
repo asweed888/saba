@@ -159,10 +159,10 @@ fn append_to_existing_saba_yml(project_name: &str, language: &str) -> Result<()>
     // Read existing saba.yml
     let existing_content = fs::read_to_string("saba.yml")
         .context("Failed to read existing saba.yml")?;
-    
-    // Remove root: true from existing content
-    let updated_content = existing_content.replace("  root: true\n", "");
-    
+
+    // Replace first project's name with "." and remove root: true
+    let updated_content = replace_first_project_name_with_current_dir(&existing_content)?;
+
     // Generate new project YAML
     let main_file = get_main_file_name(language, false); // not root: true
     let new_project_yaml = match language {
@@ -268,6 +268,23 @@ fn generate_sequential_project_name() -> Result<String> {
     }
     
     Ok(format!("app_{}", counter))
+}
+
+fn replace_first_project_name_with_current_dir(content: &str) -> Result<String> {
+    use regex::Regex;
+
+    // Pattern to match: "- name: <project_name>\n  root: true\n"
+    // We need to:
+    // 1. Replace the name with "."
+    // 2. Remove the "root: true" line
+    let pattern = r"(?m)^- name: ([^\n]+)\n  root: true\n";
+    let re = Regex::new(pattern)
+        .context("Failed to create regex for first project detection")?;
+
+    // Replace first occurrence
+    let result = re.replace(content, "- name: .\n");
+
+    Ok(result.to_string())
 }
 
 fn get_main_file_name(language: &str, is_root: bool) -> &str {
