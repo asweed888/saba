@@ -23,15 +23,77 @@ impl WorkspaceHandler {
         }
 
         let cargo_toml_path = workspace_path.as_ref().join("Cargo.toml");
+
+        // Check if the FIRST project (第一階層目) has name: "." and is a Rust project
+        let first_project_is_root = config.projects()
+            .first()
+            .map(|p| p.name() == "." && p.language() == "rust")
+            .unwrap_or(false);
+
+        // Build members list (include all Rust projects, including "." if it exists)
         let members: Vec<String> = rust_projects
             .iter()
             .map(|p| p.name().to_string())
             .collect();
-        
-        ContentUpdater::update_workspace_cargo_toml(&cargo_toml_path, &members)
+
+        // Extract package info if first project is root package
+        let package_info = if first_project_is_root {
+            config.projects()
+                .first()
+                .map(|p| {
+                    (
+                        Self::extract_package_name_from_path(workspace_path.as_ref()),
+                        p
+                    )
+                })
+        } else {
+            None
+        };
+
+        ContentUpdater::update_workspace_cargo_toml(&cargo_toml_path, &members, package_info)
             .with_context(|| format!("Failed to update workspace Cargo.toml: {}", cargo_toml_path.display()))?;
 
         Ok(())
+    }
+
+    /// Extract package name from workspace path (use directory name)
+    /// Sanitizes the name to be a valid Rust crate name
+    fn extract_package_name_from_path(path: &Path) -> String {
+        // Convert to absolute path to get the actual directory name
+        let absolute_path = path.canonicalize()
+            .unwrap_or_else(|_| path.to_path_buf());
+
+        let dir_name = absolute_path.file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or("workspace");
+
+        Self::sanitize_crate_name(dir_name)
+    }
+
+    /// Sanitize name to be a valid Rust crate name
+    /// - Replace hyphens with underscores
+    /// - Convert to lowercase
+    /// - Ensure it doesn't start with a number
+    /// - Remove invalid characters
+    fn sanitize_crate_name(name: &str) -> String {
+        let mut result = name
+            .replace('-', "_")
+            .to_lowercase()
+            .chars()
+            .filter(|c| c.is_alphanumeric() || *c == '_')
+            .collect::<String>();
+
+        // If name starts with a number, prepend underscore
+        if result.chars().next().map(|c| c.is_numeric()).unwrap_or(false) {
+            result = format!("_{}", result);
+        }
+
+        // If result is empty, use default
+        if result.is_empty() {
+            result = "workspace".to_string();
+        }
+
+        result
     }
 
     /// Generate Makefile.toml for cargo-make
