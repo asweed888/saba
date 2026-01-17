@@ -142,9 +142,10 @@ impl CodeGenerator {
 
         if RustModuleGenerator::should_generate_main_rs(project) {
             RustModuleGenerator::generate_main_rs(project_path, &src_modules)?;
-        } else {
+        } else if RustModuleGenerator::should_generate_lib_rs(project) {
             RustModuleGenerator::generate_lib_rs(project_path, &src_modules)?;
         }
+        // If neither main nor lib is specified, don't generate either (e.g., DDD with src/bin/ structure)
 
         Ok(())
     }
