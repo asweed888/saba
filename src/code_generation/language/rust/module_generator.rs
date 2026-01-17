@@ -196,18 +196,30 @@ impl RustModuleGenerator {
         }
     }
 
-    /// Determine if project should have main.rs or lib.rs
+    /// Determine if project should generate main.rs (only if explicitly specified)
     pub fn should_generate_main_rs(project: &Project) -> bool {
-        // Generate main.rs if there's no explicit lib.rs file defined in the project
+        let has_main_in_project = project.files().iter()
+            .any(|f| f.name() == "main" || f.filename_with_extension("rust") == "main.rs");
+
+        let has_main_in_src = project.modules().iter()
+            .filter(|m| m.name() == "src")
+            .flat_map(|m| m.files())
+            .any(|f| f.name() == "main" || f.filename_with_extension("rust") == "main.rs");
+
+        has_main_in_project || has_main_in_src
+    }
+
+    /// Determine if project should generate lib.rs (only if explicitly specified)
+    pub fn should_generate_lib_rs(project: &Project) -> bool {
         let has_lib_in_project = project.files().iter()
             .any(|f| f.name() == "lib" || f.filename_with_extension("rust") == "lib.rs");
-        
+
         let has_lib_in_src = project.modules().iter()
             .filter(|m| m.name() == "src")
             .flat_map(|m| m.files())
             .any(|f| f.name() == "lib" || f.filename_with_extension("rust") == "lib.rs");
-        
-        !has_lib_in_project && !has_lib_in_src
+
+        has_lib_in_project || has_lib_in_src
     }
 }
 

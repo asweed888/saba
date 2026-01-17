@@ -37,13 +37,14 @@ impl FileBuilder {
             Self::build_rust_module_files(&project_path, module, &[])?;
         }
 
-        // Generate main.rs or lib.rs for src modules
+        // Generate main.rs or lib.rs for src modules (only if explicitly specified)
         if let Some(src_module) = project.modules().iter().find(|m| m.name() == "src") {
             if RustModuleGenerator::should_generate_main_rs(project) {
                 RustModuleGenerator::generate_main_rs(&project_path, &[src_module.clone()])?;
-            } else {
+            } else if RustModuleGenerator::should_generate_lib_rs(project) {
                 RustModuleGenerator::generate_lib_rs(&project_path, &[src_module.clone()])?;
             }
+            // If neither main nor lib is specified, don't generate either (e.g., DDD with src/bin/ structure)
         }
 
         Ok(())
